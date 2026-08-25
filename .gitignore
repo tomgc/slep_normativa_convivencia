@@ -1,0 +1,70 @@
+# =============================================================================
+# .gitignore - slep_normativa_convivencia
+# -----------------------------------------------------------------------------
+# Proyecto 100% PUBLICO (Rama A, POLITICA_PROYECTO.md 8.2): raiz unificada.
+# NO lleva el bloque de blindaje de datos de POLITICA 6.3: 20_insumos/normativa/
+# son leyes, decretos, circulares y dictamenes publicados en el Diario Oficial y
+# en los sitios de MINEDUC y la Superintendencia de Educacion. No hay datos
+# personales que blindar. El resto del .gitignore canonico se conserva integro.
+# =============================================================================
+
+# ===== Credenciales =====
+.env
+.Renviron
+*credentials*
+*secret*
+*token*
+*password*
+
+# ===== Sistema R =====
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# ===== Sistema operativo =====
+.DS_Store
+Thumbs.db
+
+# ===== Snapshots y backups locales =====
+_archivo/
+*.bak
+
+# ===== Outputs temporales =====
+*_freeze/
+.quarto/
+/.quarto/
+*.log
+
+# ===== Outputs accidentales en raiz y scripts de diagnostico =====
+# Anclados en la raiz: no afectan a 20_insumos/normativa/*.pdf, que SI se
+# versiona (es el corpus, la fuente legal de verdad del proyecto).
+/*.docx
+/*.pdf
+/*.html
+/diagnostico_*.md
+/verificar_*.R
+/listar_*.R
+
+# ===== Sitio: artefactos de render, no fuente =====
+# 40_salidas/datos/ SI se versiona (JSON estructurado, el entregable canonico
+# del pipeline). Estos dos no: sitio_src/ son .qmd GENERADOS por
+# 30_procesamiento/33_generar_paginas.R desde ese mismo JSON, y sitio/ es el
+# HTML renderizado mas el indice de Pagefind, que GitHub Actions reconstruye en
+# cada push. Versionarlos duplicaria el corpus y produciria diffs de miles de
+# lineas por cada cambio de plantilla.
+40_salidas/sitio_src/
+40_salidas/sitio/
+
+# ===== Pagefind (dependencia npm local) =====
+node_modules/
+package-lock.json
+
+# ===== Normativos del kit: copia local, no versionada =====
+# Decision de gobernanza del 2026-08-24 (herramientas_dev/gobernanza/
+# encargo_normativos_fuera_del_versionado_v1.md, opcion C): los dos documentos
+# maestros viven en disco en cada repo, alimentados por copia desde
+# herramientas_dev/gobernanza/, y dejan de versionarse. Asi se acaba la
+# repropagacion por commit que bloqueaba 25 copias de la cartera.
+50_documentacion/activa/POLITICA_PROYECTO.md
+50_documentacion/activa/SETTINGS_Y_PROMPTS_OPERACIONALES.md
