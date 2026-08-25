@@ -299,7 +299,7 @@
       "numero": "181",
       "titulo": "RESOLUCIÓN N° 181 EXENTA, DE FECHA 26.02.2026 QUE “APRUEBA CIRCULAR QUE IMPARTE INSTRUCCIONES SOBRE EL USO DE DISPOSITIVOS MÓVILES ELECTRÓNICOS DE COMUNICACIÓN PERSONAL EN LOS ESTABLECIMIENTOS EDUCACIONALES”",
       "anio": 2026,
-      "tema": "uso de dispositivos móviles",
+      "tema": ["uso de dispositivos móviles"],
       "paginas": 1,
       "pdf": "rex_181_celulares.pdf",
       "sin_capa_texto": false,
@@ -351,7 +351,7 @@
       "paginas": 8,
       "pdf": "dictamen_52_77_expulsion.pdf",
       "sin_capa_texto": false,
-      "marca_revisar": "anio",
+      "marca_revisar": ["anio"],
       "n_articulos": 0,
       "n_segmentos": 4
     },
@@ -367,7 +367,7 @@
       "paginas": 6,
       "pdf": "dictamen_065_revision_mochilas.pdf",
       "sin_capa_texto": false,
-      "marca_revisar": "anio",
+      "marca_revisar": ["anio"],
       "n_articulos": 0,
       "n_segmentos": 4
     },
@@ -383,7 +383,7 @@
       "paginas": 8,
       "pdf": "dictamen_71_expulsion_cancelacion_matricula.pdf",
       "sin_capa_texto": false,
-      "marca_revisar": "anio",
+      "marca_revisar": ["anio"],
       "n_articulos": 0,
       "n_segmentos": 4
     }

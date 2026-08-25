@@ -249,11 +249,16 @@ construir_norma <- function(meta) {
     numero = d$numero,
     titulo = titulo,
     anio = anio,
-    tema = temas,
+    # I() marca estos dos como arreglos JSON pase lo que pase. Sin el,
+    # auto_unbox = TRUE convierte un vector de largo 1 en un escalar, de modo que
+    # `tema` era una lista en unas normas y un string suelto en otras, y cualquier
+    # consumidor que iterara sobre el campo fallaba justo en las normas de un solo
+    # tema. Lo detecto el recuento con jq del cierre.
+    tema = I(temas),
     paginas = meta$paginas,
     pdf = paste0(slug, ".pdf"),
     sin_capa_texto = isTRUE(meta$sin_capa_texto),
-    marca_revisar = revisar,
+    marca_revisar = I(revisar),
     n_articulos = sum(vapply(arts, function(a) isTRUE(a$es_articulo), logical(1))),
     n_segmentos = length(arts),
     articulos = arts
