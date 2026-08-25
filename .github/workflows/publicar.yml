@@ -1,0 +1,123 @@
+# =============================================================================
+# publicar.yml - reconstruye el sitio y lo publica en GitHub Pages
+# -----------------------------------------------------------------------------
+# El sitio NO se sube desde la maquina de nadie: en cada push a main este
+# workflow corre el pipeline completo (00_run_all.R) en un runner limpio y
+# publica lo que sale. Asi lo que se ve en linea siempre proviene de una corrida
+# reproducible a partir de los PDF versionados.
+# =============================================================================
+
+name: Publicar sitio
+
+on:
+  push:
+    branches: [main]
+  # Permite relanzar la publicacion a mano desde la pestana Actions sin tener que
+  # inventar un commit vacio (util cuando falla por una causa externa).
+  workflow_dispatch:
+
+# Permisos minimos para el despliegue oficial de Pages: leer el repositorio,
+# escribir en Pages y firmar el despliegue con OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un despliegue a la vez. cancel-in-progress en false: si entran dos push
+# seguidos, el segundo espera en vez de abortar una publicacion a medias.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # POLITICA_PROYECTO.md 5.2bis: los runners de CI arrancan en locale POSIX y
+  # ahi R escribe TODO el texto acentuado como <c3><a1> sin emitir un solo error.
+  # En un corpus de normativa chilena eso corrompe practicamente cada articulo.
+  # La locale se declara aqui, en el entorno del job, para que la hereden tambien
+  # los procesos hijos (Quarto levanta su propio R).
+  LANG: es_ES.UTF-8
+  LC_CTYPE: es_ES.UTF-8
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Generar la locale es_ES.UTF-8
+        # ubuntu-latest trae C.UTF-8 pero no es_ES.UTF-8. Se genera explicitamente
+        # y no se deja caer a C.UTF-8 porque el orden alfabetico depende de ella:
+        # en C.UTF-8 la enie ordena despues de la Z y los indices del sitio
+        # saldrian en un orden distinto al de la maquina del equipo.
+        run: |
+          sudo locale-gen es_ES.UTF-8
+          sudo update-locale LANG=es_ES.UTF-8
+
+      - name: Instalar dependencias de sistema
+        # libpoppler-cpp-dev es la biblioteca que pdftools enlaza para leer PDF;
+        # sin ella el paquete no carga y el pipeline se cae en el paso 31.
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libpoppler-cpp-dev
+
+      - name: Instalar R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          # Paquetes binarios precompilados para Ubuntu: sin esto, compilar
+          # stringi y pdftools desde fuente agrega varios minutos a cada corrida.
+          use-public-rspm: true
+
+      - name: Instalar paquetes de R
+        run: |
+          install.packages(c("pdftools", "jsonlite", "stringi", "fs", "here",
+                             "rprojroot", "quarto"))
+        shell: Rscript {0}
+
+      - name: Instalar Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Instalar Pagefind
+        # npm ci instala exactamente lo que fija package-lock.json, de modo que el
+        # indice de CI lo construye la misma version de Pagefind que se probo en
+        # local. npm install podria resolver una version distinta.
+        run: npm ci
+
+      - name: Correr el pipeline completo
+        # Regenera todo 40_salidas/ desde 20_insumos/: extrae, segmenta, genera
+        # las paginas, renderiza e indexa. Un fallo en cualquier paso detiene el
+        # workflow (00_run_all.R hace stop(), no continua).
+        run: Rscript -e 'source("00_run_all.R"); run_all()'
+
+      - name: Verificar que el sitio se construyo
+        # Compuerta antes de publicar: si el render o el indice fallaron en
+        # silencio, es preferible fallar aqui que publicar un sitio roto.
+        run: |
+          test -f 40_salidas/sitio/index.html
+          test -f 40_salidas/sitio/pagefind/pagefind-entry.json
+          echo "páginas HTML: $(ls -1 40_salidas/sitio/*.html | wc -l)"
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaquetar el sitio
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 40_salidas/sitio
+
+  desplegar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: despliegue
+        uses: actions/deploy-pages@v4
