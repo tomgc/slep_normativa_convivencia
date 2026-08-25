@@ -1,0 +1,17 @@
+{
+  "slug": "circular_812_identidad_genero",
+  "tipo": "circular",
+  "tipo_etiqueta": "Circular",
+  "tipo_fuente": "normativa",
+  "numero": "812",
+  "titulo": null,
+  "anio": null,
+  "tema": [],
+  "paginas": 10,
+  "pdf": "circular_812_identidad_genero.pdf",
+  "sin_capa_texto": true,
+  "marca_revisar": ["titulo", "anio", "texto"],
+  "n_articulos": 0,
+  "n_segmentos": 0,
+  "articulos": []
+}

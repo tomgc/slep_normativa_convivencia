@@ -73,27 +73,63 @@ ORDINALES_ARTICULO <- c(
   "decimonoveno" = 19L, "vigesimo" = 20L
 )
 
-# Encabezado de articulo. Ancla en inicio de linea (perl, multiline) para no
+# Los ordinales se escriben sin tilde en la tabla de arriba, pero el corpus los
+# trae CON tilde ("Articulo unico" es en realidad "Art\u00edculo \u00fanico"). En vez de
+# duplicar cada entrada a mano, cada vocal se convierte en una clase que acepta
+# las dos formas: es una sola linea y no se puede olvidar una variante.
+.tolerar_tildes <- function(x) {
+  x <- gsub("a", "[a\u00e1]", x, fixed = TRUE)
+  x <- gsub("e", "[e\u00e9]", x, fixed = TRUE)
+  x <- gsub("i", "[i\u00ed]", x, fixed = TRUE)
+  x <- gsub("o", "[o\u00f3]", x, fixed = TRUE)
+  gsub("u", "[u\u00fa]", x, fixed = TRUE)
+}
+.alternativa_ordinales <- paste(
+  .tolerar_tildes(c(names(ORDINALES_ARTICULO), "transitorio", "final")),
+  collapse = "|"
+)
+
+# Encabezado de articulo. Se ancla en inicio de bloque (perl, multiline) para no
 # capturar las CITAS a articulos de otras normas que abundan en dictamenes y
 # circulares ("...conforme al articulo 6 letra d) de la ley 20.529..."), que van
-# siempre en medio de una frase. Sin este anclaje, un dictamen de 6 paginas
+# siempre en medio de una frase. Sin ese anclaje, un dictamen de 6 paginas
 # producia 6 "articulos" que no son suyos.
+#
+# La parte numerica admite un digito O una palabra de la lista CERRADA de
+# ordinales de arriba (mas "transitorio" y "final"). Cerrada a proposito: con un
+# comodin \w+ el patron capturaria "Articulo anterior" o "Articulo siguiente",
+# que son referencias internas, no encabezados.
+#
+# El sufijo cubre las tres formas reales del corpus: "bis"/"ter" (ley 21430),
+# la letra suelta ("Articulo 16 A" de la ley 20536, que es como el legislador
+# intercala articulos nuevos sin renumerar la ley entera) y "transitorio".
+# La comilla inicial opcional NO es cosmetica: en las leyes modificatorias el
+# articulado va entre comillas porque es texto que se inserta en otra norma
+# ("Articulo unico.- Introducense las siguientes modificaciones..."). Sin ella,
+# el patron se saltaba justo el articulo propio de la ley 20536 y de la 20911 y
+# publicaba las dos con su articulado incompleto.
 REGEX_ENCABEZADO_ARTICULO <- paste0(
-  "^[ \\t]*",
-  "(?:ART[IÍ]CULO|Art[ií]culo|ARTICULO|Art\\.)",
+  "^[ \\t]*[\"\u201c\u00ab(]?[ \\t]*",
+  "(?:ART[I\u00cd]CULO|Art[i\u00ed]culo|ARTICULO|Art\\.)",
   "[ \\t]+",
-  "(\\d+|[A-Za-zÁÉÍÓÚáéíóú]+)",
-  "[ \\t]*(?:°|º)?",
-  "[ \\t]*(bis|ter|quater|quinquies)?",
+  "(\\d+|", .alternativa_ordinales, ")",
+  "[ \\t]*(?:\u00b0|\u00ba)?",
+  "[ \\t]*(bis|ter|quater|quinquies|[A-Z])?",
   "[ \\t]*(transitorio)?",
-  "[ \\t]*(?=[.:\\-])"
+  "[ \\t]*(?=[.:\\-\u2013\u2014])"
 )
 
 # Marca de inicio de las disposiciones transitorias. Se detecta aparte del
 # encabezado porque en muchas normas la palabra "transitorio" no viaja en cada
-# articulo, sino una sola vez en el titulo de la seccion, y desde ahi TODO lo
-# que sigue es transitorio.
-REGEX_SECCION_TRANSITORIA <- "^[ \\t]*(DISPOSICIONES\\s+TRANSITORIAS|ART[IÍ]CULOS?\\s+TRANSITORIOS?)"
+# articulo, sino una sola vez en el titulo de la seccion, y desde ahi TODO lo que
+# sigue es transitorio.
+REGEX_SECCION_TRANSITORIA <- "^[ \\t]*(DISPOSICIONES\\s+TRANSITORIAS|ART[I\u00cd]CULOS?\\s+TRANSITORIOS?)"
+
+# Encabezado de seccion para documentos SIN articulado (dictamenes, circulares,
+# resoluciones). Etiqueta en versalitas terminada en dos puntos: "MATERIA:",
+# "ANTECEDENTES:", "FUENTES:", "CONCORDANCIAS:", "CONCLUSIONES:". Es la
+# estructura que la Superintendencia de Educacion usa en todos sus dictamenes.
+REGEX_ENCABEZADO_SECCION <- "^[ \\t]*([A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1][A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1 ]{3,40}):"
 
 # ---- Diccionario tematico ---------------------------------------------------
 # DECISION METODOLOGICA DECLARADA, no inferencia del asistente.

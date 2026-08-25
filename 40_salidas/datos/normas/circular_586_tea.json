@@ -1,0 +1,17 @@
+{
+  "slug": "circular_586_tea",
+  "tipo": "circular",
+  "tipo_etiqueta": "Circular",
+  "tipo_fuente": "normativa",
+  "numero": "586",
+  "titulo": null,
+  "anio": null,
+  "tema": [],
+  "paginas": 1,
+  "pdf": "circular_586_tea.pdf",
+  "sin_capa_texto": true,
+  "marca_revisar": ["titulo", "anio", "texto"],
+  "n_articulos": 0,
+  "n_segmentos": 0,
+  "articulos": []
+}

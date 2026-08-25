@@ -56,6 +56,10 @@ _archivo/
 40_salidas/sitio_src/
 40_salidas/sitio/
 
+# Intermedios regenerables: el texto plano que 31 deja para que 32 lo lea. No es
+# entregable ni fuente, y duplicaria el corpus entero en el repositorio.
+40_salidas/intermedios/
+
 # ===== Pagefind (dependencia npm local) =====
 node_modules/
 package-lock.json

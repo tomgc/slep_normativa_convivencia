@@ -27,10 +27,12 @@ source(file.path(ROOT, "10_utils", "10_configuracion.R"))
 
 # ---- Definicion de pasos ----------------------------------------------------
 # El id refleja el numero de sub-etapa en 30_procesamiento/ (POLITICA 1.2).
-# T1 deja la lista VACIA a proposito: el orquestador ya corre, valida y reporta,
-# y cada tarea posterior del encargo agrega su paso aqui. Un stub que no corre no
-# es un stub funcional.
-PASOS <- list()
+PASOS <- list(
+  list(id = 31L, etiqueta = "Extraer texto de los PDF",
+       ruta = "30_procesamiento/31_extraer_texto.R"),
+  list(id = 32L, etiqueta = "Segmentar por artículo y escribir JSON",
+       ruta = "30_procesamiento/32_segmentar_articulos.R")
+)
 
 # ---- Funcion principal ------------------------------------------------------
 run_all <- function(from = NULL, to = NULL, only = NULL, skip = NULL) {

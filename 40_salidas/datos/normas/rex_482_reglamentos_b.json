@@ -1,0 +1,17 @@
+{
+  "slug": "rex_482_reglamentos_b",
+  "tipo": "rex",
+  "tipo_etiqueta": "Resolucion exenta",
+  "tipo_fuente": "normativa",
+  "numero": "482",
+  "titulo": null,
+  "anio": null,
+  "tema": [],
+  "paginas": 48,
+  "pdf": "rex_482_reglamentos_b.pdf",
+  "sin_capa_texto": true,
+  "marca_revisar": ["titulo", "anio", "texto"],
+  "n_articulos": 0,
+  "n_segmentos": 0,
+  "articulos": []
+}
