@@ -56,15 +56,30 @@ pagina_norma <- function(n) {
   corto <- nombre_corto(n)
   titulo_mostrado <- if (is.null(n$titulo)) corto else paste0(corto, ": ", n$titulo)
 
-  # Filtros de Pagefind. Se declaran en el contenedor del cuerpo indexado para
-  # que las facetas del buscador (tipo, tema, anio) salgan del mismo dato que
-  # alimenta los indices navegables y no de una lista paralela.
+  # Filtros de Pagefind. Salen del mismo dato que alimenta los indices
+  # navegables, no de una lista paralela.
+  #
+  # UN ELEMENTO POR FILTRO, y no todos en un atributo separados por coma: medido
+  # el 2026-08-25, Pagefind lee el atributo entero como el VALOR del primer
+  # nombre de filtro, asi que la faceta "tipo" acababa teniendo veinte valores
+  # del tipo "Ley, anio:2011, fuente:normativa, tema:..." y las facetas anio,
+  # fuente y tema no existian.
+  #
+  # Los span van vacios a proposito: el valor viaja en el atributo, de modo que
+  # el nombre de la faceta no entra al corpus de busqueda. Con texto visible,
+  # buscar "normativa" devolveria las 24 normas.
   filtros <- c(
     paste0("tipo:", n$tipo_etiqueta),
     paste0("anio:", if (is.null(n$anio)) "sin año determinado" else as.character(n$anio)),
     paste0("fuente:", n$tipo_fuente)
   )
   if (length(n$tema) > 0L) filtros <- c(filtros, paste0("tema:", n$tema))
+  spans_filtro <- c(
+    "```{=html}",
+    sprintf('<span data-pagefind-filter="%s"></span>', escapar_html(filtros)),
+    "```",
+    ""
+  )
 
   cab <- c(
     "---",
@@ -118,15 +133,22 @@ pagina_norma <- function(n) {
       "```",
       ""
     )
-    return(paste(c(cab, ficha, cuerpo), collapse = "\n"))
+    # Los documentos escaneados TAMBIEN entran al indice, con su ficha como
+    # cuerpo. No tienen articulado que indexar, pero dejarlos fuera del buscador
+    # los volveria invisibles: alguien que busque "circular 812" tiene que
+    # encontrarla y llegar al PDF, aunque el sitio no pueda transcribirla.
+    abre_sin <- sprintf('::: {data-pagefind-body="true" data-pagefind-meta="norma:%s"}',
+                        gsub('"', "", corto))
+    return(paste(c(cab, ficha, abre_sin, "", spans_filtro, cuerpo, ":::", ""),
+                 collapse = "\n"))
   }
 
   # Contenedor indexable. Pagefind toma como registro el contenido marcado con
   # data-pagefind-body y genera un sub-resultado por cada encabezado con id que
   # encuentre dentro: por eso cada articulo lleva su "## etiqueta {#id}" y por eso
   # el ancla del HTML es exactamente el id que escribio el segmentador.
-  abre <- sprintf('::: {data-pagefind-body="true" data-pagefind-filter="%s" data-pagefind-meta="norma:%s"}',
-                  paste(filtros, collapse = ", "), gsub('"', "", corto))
+  abre <- sprintf('::: {data-pagefind-body="true" data-pagefind-meta="norma:%s"}',
+                  gsub('"', "", corto))
 
   secciones <- unlist(lapply(n$articulos, function(a) {
     c(sprintf("## %s {#%s}", a$etiqueta, a$id),
@@ -139,7 +161,7 @@ pagina_norma <- function(n) {
       "")
   }))
 
-  paste(c(cab, ficha, abre, "", secciones, ":::", ""), collapse = "\n")
+  paste(c(cab, ficha, abre, "", spans_filtro, secciones, ":::", ""), collapse = "\n")
 }
 
 # ---- Home -------------------------------------------------------------------

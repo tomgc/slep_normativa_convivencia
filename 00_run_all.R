@@ -35,7 +35,9 @@ PASOS <- list(
   list(id = 33L, etiqueta = "Generar las páginas .qmd del sitio",
        ruta = "30_procesamiento/33_generar_paginas.R"),
   list(id = 34L, etiqueta = "Renderizar el sitio con Quarto",
-       ruta = "30_procesamiento/34_renderizar_sitio.R")
+       ruta = "30_procesamiento/34_renderizar_sitio.R"),
+  list(id = 35L, etiqueta = "Construir el índice de búsqueda (Pagefind)",
+       ruta = "30_procesamiento/35_indexar_pagefind.R")
 )
 
 # ---- Funcion principal ------------------------------------------------------

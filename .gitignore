@@ -61,8 +61,11 @@ _archivo/
 40_salidas/intermedios/
 
 # ===== Pagefind (dependencia npm local) =====
+# node_modules/ no se versiona; package.json y package-lock.json SI. El lock es
+# lo que hace que la version de Pagefind que indexa en la maquina del equipo y la
+# que indexa en GitHub Actions sean la misma: sin el, un indice reconstruido en
+# CI puede salir de un binario distinto del que se probo aqui.
 node_modules/
-package-lock.json
 
 # ===== Normativos del kit: copia local, no versionada =====
 # Decision de gobernanza del 2026-08-24 (herramientas_dev/gobernanza/
