@@ -38,7 +38,8 @@ HTTP 200 verificado.
 | 6 | `4c235c0` | feat | busqueda pagefind | `35_indexar_pagefind.R`, `package.json`, `package-lock.json` |
 | 7 | `c576fcb` | ci | despliegue a github pages | `.github/workflows/publicar.yml` |
 | 8 | `ec5f33d` | fix | tema y marca_revisar siempre como arreglo en el JSON | Corrección del esquema detectada en el recuento de cierre (§5, bug 3) |
-| 9 | — | docs | log de bootstrap | Este archivo + snapshots del escáner |
+| 9 | `b6f8b53` | docs | log de bootstrap | Este archivo + snapshots del escáner |
+| 10 | `1060f3c` | chore | retirar `.gitkeep` de `30_procesamiento` | Marcador huérfano que dejaron los propios cambios de la sesión |
 
 Todos los push verificados por re-derivación: `git ls-remote origin main`
 comparado contra `git rev-parse HEAD`, no por el mensaje de `git push`.
