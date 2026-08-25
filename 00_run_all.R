@@ -31,7 +31,11 @@ PASOS <- list(
   list(id = 31L, etiqueta = "Extraer texto de los PDF",
        ruta = "30_procesamiento/31_extraer_texto.R"),
   list(id = 32L, etiqueta = "Segmentar por artículo y escribir JSON",
-       ruta = "30_procesamiento/32_segmentar_articulos.R")
+       ruta = "30_procesamiento/32_segmentar_articulos.R"),
+  list(id = 33L, etiqueta = "Generar las páginas .qmd del sitio",
+       ruta = "30_procesamiento/33_generar_paginas.R"),
+  list(id = 34L, etiqueta = "Renderizar el sitio con Quarto",
+       ruta = "30_procesamiento/34_renderizar_sitio.R")
 )
 
 # ---- Funcion principal ------------------------------------------------------

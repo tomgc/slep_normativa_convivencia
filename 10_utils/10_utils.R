@@ -72,13 +72,15 @@ slugificar <- function(x) {
 # crudos, no como Markdown. Motivo: en Markdown un "*" de nota al pie, un "_" o
 # un "#" del original se interpretan como marcado y el renderizador los come, de
 # modo que el articulo publicado dejaria de ser identico al del PDF. Escapar las
-# tres entidades que HTML exige (&, <, >) es lo minimo que preserva el texto
+# tres entidades que HTML exige (&, <, >) es lo minimo que preserva el texto.
+# La comilla doble NO se escapa: solo hace falta dentro del valor de un atributo,
+# y este texto va como contenido de un elemento. Escaparla llenaba de &quot; unos
+# archivos que alguien va a abrir para comprobar que la cita legal es fiel.
 # literal; no es "corregir" el original (eso esta prohibido por el invariante de
 # fidelidad), es impedir que el renderizador lo altere.
 escapar_html <- function(x) {
   x |>
     gsub(pattern = "&", replacement = "&amp;",  fixed = TRUE) |>
     gsub(pattern = "<", replacement = "&lt;",   fixed = TRUE) |>
-    gsub(pattern = ">", replacement = "&gt;",   fixed = TRUE) |>
-    gsub(pattern = '"', replacement = "&quot;", fixed = TRUE)
+    gsub(pattern = ">", replacement = "&gt;",   fixed = TRUE)
 }

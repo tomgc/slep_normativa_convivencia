@@ -1,0 +1,67 @@
+# =============================================================================
+# _quarto.yml - configuracion del sitio
+# -----------------------------------------------------------------------------
+# Este archivo es la FUENTE. 33_generar_paginas.R lo copia sin modificar a
+# 40_salidas/sitio_src/ junto con los .qmd que genera, y el render se dispara
+# sobre esa carpeta. El rodeo tiene una razon concreta: Quarto calcula la ruta de
+# cada salida relativa al directorio del proyecto, asi que con el _quarto.yml en
+# la raiz el sitio quedaria en 40_salidas/sitio/40_salidas/sitio_src/index.html.
+# Manteniendo la fuente aqui, el archivo se versiona y se edita en un solo lugar.
+#
+# El sitio es PLANO a proposito: todas las paginas cuelgan de la raiz, sin
+# subcarpetas. Asi la ruta relativa "pagefind/" resuelve igual desde cualquier
+# pagina, en GitHub Pages (que sirve bajo /slep_normativa_convivencia/) y abriendo
+# el HTML local. Una jerarquia de carpetas obligaria a fijar una URL base, que es
+# justo lo que rompe la vista previa local.
+# =============================================================================
+
+project:
+  type: website
+  output-dir: ../sitio
+
+lang: es
+
+website:
+  title: "Normativa de convivencia educativa"
+  description: "Biblioteca buscable de la normativa chilena de convivencia escolar, artículo por artículo."
+  site-url: "https://tomgc.github.io/slep_normativa_convivencia/"
+  navbar:
+    background: primary
+    search: false
+    left:
+      - href: index.qmd
+        text: Inicio
+      - href: indice-tipo.qmd
+        text: Por tipo de norma
+      - href: indice-tema.qmd
+        text: Por tema
+      - href: indice-anio.qmd
+        text: Por año
+      - href: acerca.qmd
+        text: Acerca de
+  page-footer:
+    center: |
+      Textos normativos reproducidos literalmente desde fuentes oficiales.
+      Este sitio no es asesoría jurídica ni fuente oficial.
+
+format:
+  html:
+    theme: cosmo
+    css: estilo.css
+    toc: true
+    toc-title: "En esta página"
+    toc-depth: 2
+    anchor-sections: true
+    # section-divs: false es lo que hace que la busqueda por articulo funcione.
+    # Por defecto Quarto envuelve cada encabezado en <section id="art-5"> y deja
+    # el <h2> sin id propio. Pagefind construye sus sub-resultados a partir de
+    # ENCABEZADOS que tengan id: con el envoltorio por medio, el buscador
+    # encontraria la norma pero no el articulo, que es justamente la unidad de
+    # recuperacion que este sitio existe para dar.
+    section-divs: false
+    include-before-body: busqueda.html
+    link-external-newwindow: true
+
+execute:
+  freeze: false
+  echo: false

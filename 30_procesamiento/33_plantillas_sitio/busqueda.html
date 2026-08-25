@@ -1,0 +1,49 @@
+<!-- ==========================================================================
+     busqueda.html - interfaz de Pagefind, incluida al inicio del body de TODAS
+     las paginas (include-before-body de _quarto.yml).
+     ---------------------------------------------------------------------------
+     Las rutas son RELATIVAS ("pagefind/...") y no absolutas: GitHub Pages sirve
+     este sitio bajo /slep_normativa_convivencia/, asi que "/pagefind/..." daria
+     404 en produccion y funcionaria solo en local. Como el sitio es plano, la
+     ruta relativa resuelve igual desde cualquier pagina.
+
+     baseUrl se calcula en tiempo de ejecucion desde location.pathname por la
+     misma razon: Pagefind guarda las rutas relativas a la raiz del sitio
+     indexado y la UI las resuelve contra baseUrl, cuyo valor por defecto ("/")
+     apunta fuera del proyecto en GitHub Pages.
+
+     showSubResults es lo que hace que el resultado apunte al ARTICULO y no solo
+     a la norma: Pagefind genera un sub-resultado por cada encabezado con id
+     dentro del cuerpo indexado, y el generador de paginas emite un encabezado
+     con id por articulo.
+     ========================================================================== -->
+<link href="pagefind/pagefind-ui.css" rel="stylesheet">
+<script src="pagefind/pagefind-ui.js"></script>
+<div id="buscador"></div>
+<script>
+  window.addEventListener("DOMContentLoaded", function () {
+    if (typeof PagefindUI === "undefined") return;   // aun no se ha indexado
+    var base = window.location.pathname.replace(/[^/]*$/, "");
+    new PagefindUI({
+      element: "#buscador",
+      bundlePath: base + "pagefind/",
+      baseUrl: base,
+      showSubResults: true,
+      showImages: false,
+      pageSize: 8,
+      translations: {
+        placeholder: "Buscar en la normativa (por ejemplo: revisión de mochilas)",
+        clear_search: "Limpiar",
+        load_more: "Ver más resultados",
+        search_label: "Buscar en este sitio",
+        filters_label: "Filtros",
+        zero_results: "Sin resultados para [SEARCH_TERM]",
+        many_results: "[COUNT] resultados para [SEARCH_TERM]",
+        one_result: "1 resultado para [SEARCH_TERM]",
+        alt_search: "Sin resultados para [SEARCH_TERM]. Se muestran resultados para [DIFFERENT_TERM]",
+        search_suggestion: "Sin resultados para [SEARCH_TERM]. Pruebe con alguna de estas búsquedas:",
+        searching: "Buscando [SEARCH_TERM]..."
+      }
+    });
+  });
+</script>

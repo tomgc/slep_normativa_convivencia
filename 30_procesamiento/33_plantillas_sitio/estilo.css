@@ -1,0 +1,81 @@
+/* ===========================================================================
+   estilo.css - hoja minima del sitio
+   ---------------------------------------------------------------------------
+   Alcance deliberadamente acotado: legibilidad del texto legal y distincion
+   visual de la capa de fuente. El diseno visual del sitio es una tarea aparte
+   (llega desde Claude Design) y esta declarado FUERA del encargo de bootstrap.
+   Lo que hay aqui es lo que un texto normativo necesita para poder leerse, no
+   una identidad grafica.
+   =========================================================================== */
+
+/* --- Lectura larga de texto legal ---------------------------------------- */
+/* Ancho de columna acotado a ~70 caracteres: por encima de eso el ojo pierde
+   el inicio de la linea siguiente, y estos documentos se leen en parrafos de
+   varias lineas sin subtitulos que den descanso. */
+.texto-legal {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.02rem;
+  line-height: 1.75;
+  max-width: 70ch;
+  text-align: left;
+}
+.texto-legal p { margin-bottom: 1.1em; }
+
+/* --- Bloque de articulo --------------------------------------------------- */
+.articulo {
+  border-left: 3px solid #dee2e6;
+  padding-left: 1.1rem;
+  margin-bottom: 2.4rem;
+}
+.articulo:target { border-left-color: #0d6efd; background: #f8f9ff; }
+
+/* --- Insignias de fuente -------------------------------------------------- */
+/* Invariante 1 de la decision de funcionalidad del 2026-08-25: toda pieza
+   declara visiblemente de que clase de fuente proviene. La insignia es la
+   materializacion visual de ese campo. */
+.badge-fuente {
+  display: inline-block;
+  padding: 0.18em 0.6em;
+  border-radius: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-right: 0.4rem;
+}
+.badge-normativa    { background: #0d3b66; color: #fff; }
+.badge-orientacion  { background: #7a5195; color: #fff; }
+.badge-evidencia    { background: #2f6b4f; color: #fff; }
+.badge-tipo         { background: #e9ecef; color: #212529; }
+.badge-tema         { background: #f1f3f5; color: #495057; font-weight: 500; text-transform: none; }
+
+/* --- Ficha de metadatos de la norma --------------------------------------- */
+.ficha-norma {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1rem 1.2rem;
+  margin-bottom: 2rem;
+}
+.ficha-norma dl { margin-bottom: 0; }
+.ficha-norma dt { font-size: 0.82rem; text-transform: uppercase; color: #6c757d; letter-spacing: 0.03em; }
+.ficha-norma dd { margin-bottom: 0.7rem; }
+
+/* --- Avisos --------------------------------------------------------------- */
+.aviso {
+  border-left: 4px solid #f0ad4e;
+  background: #fff9ec;
+  padding: 0.8rem 1rem;
+  border-radius: 0.3rem;
+  margin: 1.2rem 0;
+}
+.aviso-fuerte { border-left-color: #d9534f; background: #fdf2f2; }
+
+/* --- Buscador ------------------------------------------------------------- */
+#buscador { max-width: 46rem; margin: 1.2rem auto 2rem auto; }
+.pagefind-ui__search-input { font-size: 1.05rem; }
+
+/* --- Listados de indice --------------------------------------------------- */
+.lista-normas { list-style: none; padding-left: 0; }
+.lista-normas li { padding: 0.55rem 0; border-bottom: 1px solid #f1f3f5; }
+.lista-normas .titulo-norma { color: #495057; }

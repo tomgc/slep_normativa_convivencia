@@ -42,7 +42,7 @@ TIPOS_NORMA <- c(
   dfl      = "Decreto con fuerza de ley",
   dto      = "Decreto supremo",
   circular = "Circular",
-  rex      = "Resolucion exenta",
+  rex      = "Resolución exenta",
   dictamen = "Dictamen"
 )
 ORDEN_TIPOS <- names(TIPOS_NORMA)
@@ -139,19 +139,22 @@ REGEX_ENCABEZADO_SECCION <- "^[ \\t]*([A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1][
 # clasificacion por modelo porque el resultado tiene que ser identico en cada
 # corrida y revisable linea por linea por el equipo de convivencia.
 # Una norma puede quedar en varios temas o en ninguno (tema = lista vacia).
+# Las CLAVES llevan tilde porque son la etiqueta que el sitio imprime; los
+# VALORES van sin tilde porque se comparan contra el texto plegado a ASCII, que
+# es lo que hace que "discriminacion" encuentre "discriminación".
 TEMAS_PALABRAS_CLAVE <- list(
   "convivencia escolar"        = c("convivencia escolar", "buena convivencia", "encargado de convivencia"),
   "violencia y acoso escolar"  = c("violencia escolar", "acoso escolar", "maltrato", "bullying", "agresion"),
   "medidas disciplinarias"     = c("expulsion", "cancelacion de matricula", "medida disciplinaria", "reglamento interno", "sancion"),
-  "inclusion y no discriminacion" = c("inclusion", "discriminacion arbitraria", "necesidades educativas especiales", "integracion"),
-  "derechos de la ninez"       = c("interes superior del nino", "garantias de la ninez", "derechos del nino", "ninos, ninas y adolescentes"),
-  "participacion de la comunidad" = c("consejo escolar", "centro de padres", "centro de alumnos", "participacion"),
-  "identidad de genero"        = c("identidad de genero", "nombre social", "trans"),
+  "inclusión y no discriminación" = c("inclusion", "discriminacion arbitraria", "necesidades educativas especiales", "integracion"),
+  "derechos de la niñez"       = c("interes superior del nino", "garantias de la ninez", "derechos del nino", "ninos, ninas y adolescentes"),
+  "participación de la comunidad" = c("consejo escolar", "centro de padres", "centro de alumnos", "participacion"),
+  "identidad de género"        = c("identidad de genero", "nombre social", "trans"),
   "embarazo y maternidad"      = c("embarazada", "embarazo", "maternidad", "paternidad", "lactancia"),
   "trastorno del espectro autista" = c("espectro autista", "autismo", "neurodivergen"),
-  "uso de dispositivos moviles" = c("dispositivos moviles", "telefono movil", "celular"),
-  "uniforme y presentacion personal" = c("uniforme escolar", "presentacion personal"),
-  "formacion ciudadana"        = c("formacion ciudadana", "educacion civica"),
+  "uso de dispositivos móviles" = c("dispositivos moviles", "telefono movil", "celular"),
+  "uniforme y presentación personal" = c("uniforme escolar", "presentacion personal"),
+  "formación ciudadana"        = c("formacion ciudadana", "educacion civica"),
   "jornada escolar"            = c("jornada escolar completa", "jornada escolar"),
   "estatuto del personal"      = c("estatuto docente", "asistentes de la educacion", "profesionales de la educacion"),
   "reconocimiento oficial"     = c("reconocimiento oficial", "perdida del reconocimiento")
