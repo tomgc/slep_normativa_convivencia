@@ -123,3 +123,14 @@ run_all <- function(from = NULL, to = NULL, only = NULL, skip = NULL) {
 # run_all()                    # pipeline completo
 # run_all(from = 32)           # desde la segmentacion
 # run_all(only = c(31, 32))    # solo extraccion y segmentacion
+
+# ---- Ejecucion directa ------------------------------------------------------
+# `Rscript 00_run_all.R` definia run_all() y terminaba ahi: exit 0, cero lineas
+# de log y cero cambios en el arbol, que es exactamente la forma que tiene un
+# paso de pipeline de parecer ejecutado sin haberlo estado (encargo v4, T2).
+#
+# La guardia es `sys.nframe() == 0L` y NO `!interactive()` a secas: bajo
+# `source()` el marco de llamada es > 0 (medido: 4), asi que el uso documentado
+# arriba y el del workflow de CI —ambos `source("00_run_all.R"); run_all()`—
+# siguen corriendo el pipeline UNA sola vez y no dos.
+if (sys.nframe() == 0L && !interactive()) run_all()
