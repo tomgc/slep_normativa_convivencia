@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clonar el repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Generar la locale es_ES.UTF-8
         # ubuntu-latest trae C.UTF-8 pero no es_ES.UTF-8. Se genera explicitamente
@@ -79,7 +79,7 @@ jobs:
         uses: quarto-dev/quarto-actions/setup@v2
 
       - name: Instalar Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -104,10 +104,10 @@ jobs:
           echo "páginas HTML: $(ls -1 40_salidas/sitio/*.html | wc -l)"
 
       - name: Configurar Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Empaquetar el sitio
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 40_salidas/sitio
 
@@ -120,4 +120,4 @@ jobs:
     steps:
       - name: Publicar en GitHub Pages
         id: despliegue
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
