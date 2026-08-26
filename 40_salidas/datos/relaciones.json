@@ -1,13 +1,14 @@
 {
   "generado_por": "30_procesamiento/33_relaciones.R",
   "min_temas_compartidos": 2,
-  "remisiones_descartadas_por_anio": 46,
+  "remisiones_descartadas_por_anio": 88,
   "descartadas": [
     {
       "desde": "ley_20370_general_educacion",
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-70"
     },
@@ -16,6 +17,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-71"
     },
@@ -24,6 +26,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-7-5"
     },
@@ -32,6 +35,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-1"
     },
@@ -40,6 +44,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-20-transitorio"
     },
@@ -48,6 +53,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2006,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-65"
     },
@@ -56,6 +62,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2006,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-84"
     },
@@ -64,6 +71,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2006,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-17"
     },
@@ -72,6 +80,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-18"
     },
@@ -80,6 +89,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-unico"
     },
@@ -88,6 +98,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-1"
     },
@@ -96,6 +107,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-16-e"
     },
@@ -104,6 +116,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-2"
     },
@@ -112,6 +125,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-11-bis"
     },
@@ -120,6 +134,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-5"
     },
@@ -128,6 +143,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2006,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-9"
     },
@@ -136,6 +152,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-12"
     },
@@ -144,6 +161,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-9-2"
     },
@@ -152,6 +170,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-12-2"
     },
@@ -160,6 +179,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "preambulo"
     },
@@ -168,6 +188,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-1"
     },
@@ -176,6 +197,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-11"
     },
@@ -184,6 +206,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-24-ter"
     },
@@ -192,6 +215,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "preambulo"
     },
@@ -200,6 +224,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-18-bis"
     },
@@ -208,6 +233,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "DFL Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-42"
     },
@@ -216,6 +242,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-42-a"
     },
@@ -224,6 +251,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-65"
     },
@@ -232,6 +260,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-80"
     },
@@ -240,6 +269,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2000,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-80-bis"
     },
@@ -248,6 +278,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-81-bis"
     },
@@ -256,6 +287,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-86"
     },
@@ -264,6 +296,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-89"
     },
@@ -272,6 +305,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-91"
     },
@@ -280,6 +314,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "DFL Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-91-ter"
     },
@@ -288,6 +323,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "DFL Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-120"
     },
@@ -296,6 +332,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "DFL Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-121"
     },
@@ -304,6 +341,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "Decreto con Fuerza de Ley N° 1",
       "anio_cita": 1980,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-124"
     },
@@ -312,6 +350,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-129"
     },
@@ -320,6 +359,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-144"
     },
@@ -328,6 +368,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "art-147"
     },
@@ -336,7 +377,386 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 1996,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
+      "articulo": "art-147-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "preambulo"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-18-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-42-a"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-65"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-66"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-67"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-68"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-71"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-72"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-73"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-76"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-77"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-80"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-80-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-81"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-81-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-82"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-83"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-84"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-85"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-86"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-86-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-87"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-87-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-88"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-88-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-89"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-89-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-90"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-90-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-91"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-91-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-91-ter"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-120"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-121"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-122"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-124"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-129"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-144"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-145"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
+      "articulo": "art-147"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dto_215_uniforme_escolar",
+      "cita": "Decreto 215",
+      "anio_cita": 2012,
+      "forma_anio": "d_o",
+      "anios_norma": [2009],
       "articulo": "art-147-bis"
     },
     {
@@ -344,6 +764,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "Decreto con Fuerza de Ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "ocr-pagina-004"
     },
@@ -352,6 +773,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "Decreto con Fuerza de Ley N°1",
       "anio_cita": 2000,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "ocr-pagina-001"
     },
@@ -360,6 +782,7 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "Decreto con Fuerza de Ley N° 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "ocr-pagina-006"
     },
@@ -368,14 +791,15 @@
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "cita": "decreto con fuerza de ley Nº 1",
       "anio_cita": 2005,
+      "forma_anio": "de_aaaa",
       "anios_norma": [1997],
       "articulo": "num-1"
     }
   ],
-  "n_relaciones": 553,
+  "n_relaciones": 552,
   "por_tipo": {
     "sustitucion": 2,
-    "remision": 47,
+    "remision": 46,
     "tema": 504
   },
   "relaciones": [
@@ -602,16 +1026,6 @@
       "cita_literal": "decreto con fuerza de ley Nº 1",
       "n_citas": 1,
       "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Artículo 88º."
-    },
-    {
-      "desde": "dto_453_estatuto_docente",
-      "hacia": "dto_215_uniforme_escolar",
-      "tipo": "remision",
-      "articulo": "preambulo",
-      "etiqueta_articulo": "Encabezado y promulgación",
-      "cita_literal": "Decreto 215",
-      "n_citas": 42,
-      "explicacion": "Cita «Decreto 215» en Encabezado y promulgación y en otros 41 fragmentos."
     },
     {
       "desde": "circular_193_estudiantes_embarazadas",

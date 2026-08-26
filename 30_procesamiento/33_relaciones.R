@@ -102,10 +102,69 @@ patrones <- Filter(Negate(is.null), setNames(
   lapply(normas, function(n) patron_cita(n$tipo, n$numero)),
   names(normas)))
 
-# Ventana en la que se busca el anio que acompana a la cita. 60 caracteres cubren
-# la formula habitual (", de 2009, del Ministerio de Educacion") sin llegar a la
-# frase siguiente, donde un anio ya no pertenece a la cita.
+# ---- Anio que acompana a una cita -------------------------------------------
+# El numero chileno NO identifica una norma por si solo (hay un "DFL N° 1" por
+# ministerio y por anio), asi que cuando la cita trae anio y NO coincide con el
+# de la norma de destino, la cita es de OTRA norma homonima y la relacion se
+# descarta. Las citas sin anio se conservan: no hay evidencia de que apunten a
+# otra cosa, y la cita literal queda a la vista para que el lector juzgue.
+#
+# El anio viene en DOS formas y hay que leer las dos:
+#
+#   de_aaaa  Prosa: "..., de 2005, del Ministerio de Educacion".
+#   d_o      Nota marginal de modificacion de la BCN, en los textos refundidos:
+#            "Decreto 215, EDUCACION Art. UNICO N° 1 D.O. 05.01.2012". No es
+#            prosa: es el aparato de modificaciones del documento, y la fecha
+#            del Diario Oficial es la de la norma nombrada al inicio de la nota.
+#
+# Las dos formas necesitan ventana y corte DISTINTOS, y por eso no se unifican:
+#
+# (a) Ventana. Al aplanar las dos columnas del PDF, la nota marginal se
+#     INTERCALA linea a linea con el cuerpo, de modo que su fecha queda lejos de
+#     su cabecera. Medido el 2026-08-26 sobre los 42 candidatos de dto_453:
+#     distancia mediana 132 caracteres, maxima 230. Con la ventana de prosa (60)
+#     solo 15 de los 42 traian fecha; con 300 la traen los 42, y subir a 360 no
+#     agrega ninguno.
+# (b) Corte. El corte de prosa se detiene en CUALQUIER palabra de tipo, porque
+#     en "Ley N° 21.430; D.F.L. N° 2, de 2009" el "de 2009" es del segundo. Ese
+#     corte es inservible a 300 caracteres: el cuerpo intercalado nombra leyes y
+#     decretos todo el tiempo y cortaria mucho antes de la fecha. Para la forma
+#     D.O. se corta en la CABEZA DE OTRA NOTA (palabra de tipo + numero + coma
+#     inmediata), que es lo unico que puede reclamar esa fecha para si.
+#     Control medido sobre el corpus completo: con este corte, la unica remision
+#     que cambia de veredicto es dto_453 -> dto_215. SIN el, se descartaba
+#     ademas dictamen_71 -> ley_20370, cuya cola dice "...del decreto con fuerza
+#     de ley Nº 1, de 2005. D.O. 02.07.2010" y esa fecha es del DFL, no de la ley.
 VENTANA_ANIO_CITA <- 60L
+VENTANA_ANIO_DO   <- 300L
+
+REGEX_CORTE_PROSA <- paste0(";|(?i)\\b(?:", paste(PALABRAS_TIPO, collapse = "|"), ")\\b")
+REGEX_CABEZA_NOTA <- paste0("(?i)\\b(?:", paste(PALABRAS_TIPO, collapse = "|"),
+                            ")\\s*(?:n\\s*[°ºo]?\\s*|n[°º]\\s*|num\\.?\\s*)?",
+                            "[0-9][0-9.\\-]*\\s*,")
+REGEX_ANIO_PROSA  <- "\\bde\\s+((?:19|20)[0-9]{2})\\b"
+REGEX_ANIO_DO     <- "(?i)D\\.?\\s?O\\.?\\s*[0-9]{1,2}[.\\-/][0-9]{1,2}[.\\-/]((?:19|20)[0-9]{2})"
+
+# Se extrae el anio del texto que caso, NO la primera corrida de digitos: en
+# "D.O. 05.01.2012" la primera corrida es el dia.
+.anio_de <- function(m) if (length(m) == 0L) NA_integer_ else
+  as.integer(regmatches(m[1], regexpr("(?:19|20)[0-9]{2}", m[1])))
+
+# Devuelve el anio Y la forma en que se leyo. La forma viaja al registro de
+# descartadas: un filtro que no dice por que vio un anio no se puede auditar.
+anio_de_la_cita <- function(texto, desde) {
+  cortar <- function(x, re) {
+    p <- regexpr(re, x, perl = TRUE)
+    if (p > 0L) substr(x, 1, p - 1L) else x
+  }
+  prosa <- cortar(substr(texto, desde, desde + VENTANA_ANIO_CITA), REGEX_CORTE_PROSA)
+  a <- .anio_de(regmatches(prosa, regexpr(REGEX_ANIO_PROSA, prosa, perl = TRUE)))
+  if (!is.na(a)) return(list(anio = a, forma = "de_aaaa"))
+  nota <- cortar(substr(texto, desde, desde + VENTANA_ANIO_DO), REGEX_CABEZA_NOTA)
+  a <- .anio_de(regmatches(nota, regexpr(REGEX_ANIO_DO, nota, perl = TRUE)))
+  if (!is.na(a)) return(list(anio = a, forma = "d_o"))
+  list(anio = NA_integer_, forma = NA_character_)
+}
 
 rel_remision <- list()
 descartadas <- list()
@@ -120,25 +179,10 @@ for (a in normas) {
       pos <- regexpr(patrones[[slug_b]], seg$texto, perl = TRUE)
       if (pos == -1L) next
       cita <- trimws(regmatches(seg$texto, pos)[[1]])
-      # Anio de la cita: se busca en la cola inmediata al numero ("..., de 2005,
-      # del Ministerio de Educacion"). El numero chileno NO identifica una norma
-      # por si solo -hay un "DFL N° 1" por ministerio y por anio-, asi que cuando
-      # la cita trae anio y no coincide con el de la norma de destino, la cita es
-      # de OTRA norma homonima y la relacion se descarta.
-      # Las citas SIN anio se conservan: no hay evidencia de que apunten a otra
-      # cosa, y la cita literal queda a la vista para que el lector juzgue.
-      cola <- substr(seg$texto, pos + attr(pos, "match.length"),
-                     pos + attr(pos, "match.length") + VENTANA_ANIO_CITA)
-      # La ventana se corta donde empieza OTRA cita. En una enumeracion como
-      # "Ley N° 21.430; D.F.L. N° 2, de 2009" el "de 2009" pertenece al segundo
-      # elemento, y sin este corte se le atribuia al primero: el filtro descartaba
-      # la remision a la ley 21.430 por un anio que no era suyo.
-      corte <- regexpr(paste0(";|(?i)\\b(?:", paste(PALABRAS_TIPO, collapse = "|"), ")\\b"),
-                       cola, perl = TRUE)
-      if (corte > 0L) cola <- substr(cola, 1, corte - 1L)
-      m_anio <- regmatches(cola, regexpr("\\bde\\s+((?:19|20)[0-9]{2})\\b", cola, perl = TRUE))
-      anio_cita <- if (length(m_anio) == 0L) NA_integer_ else
-        as.integer(sub("\\D+", "", m_anio[1]))
+      # Anio de la cita. La regla, sus dos formas y la medicion que fija cada
+      # ventana viven en anio_de_la_cita(); aqui solo se aplica su veredicto.
+      lectura <- anio_de_la_cita(seg$texto, pos + attr(pos, "match.length"))
+      anio_cita <- lectura$anio
       # Anios validos de la norma de destino: el suyo mas los que declare la
       # curaduria. Un texto refundido tiene mas de una fecha legitima: el
       # dictamen 52/77 refunde uno de 2020 y otro de 2025, y una cita al "Dictamen
@@ -151,7 +195,8 @@ for (a in normas) {
           !(anio_cita %in% unlist(anios_destino))) {
         descartadas[[length(descartadas) + 1L]] <- list(
           desde = a$slug, hacia = slug_b, cita = cita,
-          anio_cita = anio_cita, anios_norma = I(unlist(anios_destino)),
+          anio_cita = anio_cita, forma_anio = lectura$forma,
+          anios_norma = I(unlist(anios_destino)),
           articulo = seg$id)
         next
       }
@@ -213,11 +258,14 @@ if (length(huerfanas) > 0L) {
 }
 
 if (length(descartadas) > 0L) {
-  log_msg(sprintf("Remisiones descartadas por anio discordante: %d.", length(descartadas)),
+  por_forma <- table(vapply(descartadas, function(d) d$forma_anio, character(1)))
+  log_msg(sprintf("Remisiones descartadas por anio discordante: %d (%s).",
+                  length(descartadas),
+                  paste(names(por_forma), por_forma, sep = "=", collapse = ", ")),
           nivel = "WARN", origen = ORIGEN)
   for (d in descartadas) {
-    log_msg(sprintf("  %s -> %s: cita «%s» con año %d; la norma del corpus es de %s.",
-                    d$desde, d$hacia, d$cita, d$anio_cita,
+    log_msg(sprintf("  %s -> %s: cita «%s» con año %d leído como %s; la norma del corpus es de %s.",
+                    d$desde, d$hacia, d$cita, d$anio_cita, d$forma_anio,
                     paste(d$anios_norma, collapse = "/")),
             origen = ORIGEN)
   }
