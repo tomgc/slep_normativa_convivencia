@@ -72,10 +72,18 @@ manifiesto_previo <- if (fs::file_exists(RUTA_MANIFIESTO)) {
   jsonlite::fromJSON(RUTA_MANIFIESTO, simplifyDataFrame = FALSE)
 } else list(documentos = list())
 
+# Lecturas del manifiesto SIEMPRE con [[ ]], por consistencia con 30-33 y no porque
+# aqui haya un defecto vivo. La precision importa: R hace coincidencia parcial con $
+# solo cuando es UNIVOCA, y `paginas` tiene DOS hermanas (`paginas_pdf` y
+# `paginas_vacias`), asi que `$paginas` sobre un objeto sin `paginas` devuelve NULL,
+# no la hermana. O3 de la auditoria contra producto senalaba ese par como riesgo y se
+# pasaba: medido en el arnes de T3 (encargo v4). El que si mordería es un par con una
+# sola hermana —`hashes_paginas` frente a un hipotetico `hashes_paginas_previas`—, y
+# ese es el que el acceso exacto cierra de antemano.
 hashes_registrados <- function(slug) {
-  d <- Filter(function(x) identical(x$slug, slug), manifiesto_previo$documentos)
-  if (length(d) == 0L || is.null(d[[1]]$hashes_paginas)) return(NULL)
-  unlist(d[[1]]$hashes_paginas)
+  d <- Filter(function(x) identical(x[["slug"]], slug), manifiesto_previo[["documentos"]])
+  if (length(d) == 0L || is.null(d[[1]][["hashes_paginas"]])) return(NULL)
+  unlist(d[[1]][["hashes_paginas"]])
 }
 
 # Lectura de la curaduria SIEMPRE con [[ ]], nunca con $: R hace coincidencia
@@ -331,11 +339,11 @@ escribir_atomico(
 # Compuerta de salida: cada documento reconocido tiene que tener tantas paginas
 # de texto como paginas el PDF. Una transcripcion a la que le falta una pagina se
 # ve igual de completa que una entera.
-incompletos <- Filter(function(d) d$paginas != d$paginas_pdf, documentos)
+incompletos <- Filter(function(d) d[["paginas"]] != d[["paginas_pdf"]], documentos)
 if (length(incompletos) > 0L) {
   stop("Reconocimiento incompleto en: ",
        paste(vapply(incompletos, function(d)
-         sprintf("%s (%d de %d páginas)", d$slug, d$paginas, d$paginas_pdf),
+         sprintf("%s (%d de %d páginas)", d[["slug"]], d[["paginas"]], d[["paginas_pdf"]]),
          character(1)), collapse = ", "))
 }
 
