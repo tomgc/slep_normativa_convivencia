@@ -40,7 +40,11 @@
       "fuente_anio": "texto del propio documento, sección ANTECEDENTES: es un texto refundido y se adopta el año del dictamen más reciente de los dos para el índice por año",
       "notas_ficha": [
         "Texto refundido de dos dictámenes: Dictamen N° 52, de 17 de febrero de 2020, y Dictamen N° 77, de 19 de diciembre de 2025, ambos de la Superintendencia de Educación. El índice por año lo ubica en 2025, el más reciente de los dos."
-      ]
+      ],
+      "anios_alternativos": [
+        2020
+      ],
+      "fuente_anios_alternativos": "texto refundido: el documento refunde el Dictamen N° 52, de 17 de febrero de 2020, y el N° 77, de 19 de diciembre de 2025, ambos citados en su propia sección ANTECEDENTES. El catálogo lo ubica en 2025; una cita a «Dictamen N° 52, de 2020» apunta a este documento."
     },
     "ley_20536_violencia_escolar": {
       "notas_ficha": [
@@ -48,6 +52,8 @@
       ]
     },
     "dictamen_078_detectores_revision_mochilas": {
+      "origen_texto": "ocr_pendiente_revision",
+      "fuente_origen_texto": "la capa de texto del PDF la produjo un reconocedor en el origen y arrastra sus errores (\"á Ley\" por \"la Ley\", \"artículos incendiados\" por \"incendiarios\", \"Resolución Exenta Ir 413\" por \"N° 413\"). Decisión del equipo, 2026-08-25: no se publica como cita textual hasta revisión humana.",
       "anio": 2026,
       "fuente_anio": "verificación web del asistente, 2026-08-25 (Boletín Jurídico OLR); el PDF no trae fecha estructural legible: su carátula dice \"SANTIAGO, A 1 JUN MI\", con la fecha ilegible en la capa de texto.",
       "notas_ficha": [

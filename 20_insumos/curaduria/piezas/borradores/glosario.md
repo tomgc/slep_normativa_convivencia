@@ -293,15 +293,29 @@ Definiciones legales detectadas en el corpus: **39**.
 
 ## Pendientes de fuente
 
-Términos que el equipo usa a diario y que **el corpus no define**. No se
-definen aquí de memoria: hacerlo pondría una definición sin respaldo normativo
-en un sitio institucional. Cada uno necesita que se identifique la norma que lo
-define y se incorpore al corpus, o que se declare explícitamente que es un uso
-del equipo y no una definición legal.
+Términos que el equipo usa a diario y que **el corpus no define** con la fórmula
+que el detector busca ("se entenderá por X"). No se definen aquí de memoria:
+hacerlo pondría una definición sin respaldo normativo en un sitio institucional.
 
-- cancelación de matrícula
-- medida formativa
-- debido proceso escolar
-- protocolo de actuación
-- dupla psicosocial
+**Decisión del equipo, 2026-08-25:** quedan como pendientes de fuente en este
+borrador. La sospecha razonable es que **la circular 482 define varios de ellos**
+—es la que imparte instrucciones sobre reglamentos internos y es donde el
+procedimiento disciplinario está desarrollado—, pero su transcripción está en
+`ocr_pendiente_revision` y no se puede citar como fuente hasta que alguien la
+revise. Al validar esa transcripción conviene volver aquí.
+
+| Término | Dónde buscar primero |
+|---|---|
+| cancelación de matrícula | circular 482 (OCR pendiente); dictamen 71; dictamen 52/77 |
+| medida formativa | circular 482 (OCR pendiente) |
+| debido proceso escolar | circular 482 (OCR pendiente); dictamen 52/77 |
+| protocolo de actuación | circular 482 (OCR pendiente) |
+| dupla psicosocial | ninguna del corpus; probablemente no tiene definición normativa y hay que declararlo como uso del equipo |
+
+Nota sobre el detector: la circular 482 **sí** contiene la fórmula
+("se entiende por discriminación arbitraria", "Se entenderá por procedimiento
+justo y racional", "se entenderá por viaje de estudio"), y esas tres entradas ya
+aparecen arriba marcadas como transcripción OCR en revisión. Que no aparezcan los
+cinco términos de esta tabla significa que la circular no los introduce con esa
+fórmula, no que no los regule.
 

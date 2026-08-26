@@ -8,6 +8,7 @@
   "anio": null,
   "tema": ["inclusión y no discriminación", "trastorno del espectro autista", "reconocimiento oficial"],
   "fuente_anio": null,
+  "anios_alternativos": [],
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

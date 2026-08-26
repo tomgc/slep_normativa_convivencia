@@ -8,6 +8,7 @@
   "anio": 1990,
   "tema": ["medidas disciplinarias", "participación de la comunidad"],
   "fuente_anio": null,
+  "anios_alternativos": [],
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

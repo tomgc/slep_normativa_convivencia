@@ -8,6 +8,7 @@
   "anio": null,
   "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "uniforme y presentación personal", "reconocimiento oficial"],
   "fuente_anio": null,
+  "anios_alternativos": [],
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

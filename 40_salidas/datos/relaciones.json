@@ -1,10 +1,381 @@
 {
   "generado_por": "30_procesamiento/33_relaciones.R",
   "min_temas_compartidos": 2,
-  "n_relaciones": 563,
+  "remisiones_descartadas_por_anio": 46,
+  "descartadas": [
+    {
+      "desde": "ley_20370_general_educacion",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-70"
+    },
+    {
+      "desde": "ley_20370_general_educacion",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-71"
+    },
+    {
+      "desde": "ley_20370_general_educacion",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-7-5"
+    },
+    {
+      "desde": "ley_20845_inclusion_escolar",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-1"
+    },
+    {
+      "desde": "ley_20845_inclusion_escolar",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-20-transitorio"
+    },
+    {
+      "desde": "ley_21430_garantias_ninez",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2006,
+      "anios_norma": [1997],
+      "articulo": "art-65"
+    },
+    {
+      "desde": "ley_21430_garantias_ninez",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2006,
+      "anios_norma": [1997],
+      "articulo": "art-84"
+    },
+    {
+      "desde": "ley_21545_tea",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2006,
+      "anios_norma": [1997],
+      "articulo": "art-17"
+    },
+    {
+      "desde": "ley_21545_tea",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-18"
+    },
+    {
+      "desde": "ley_21801_celulares",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-unico"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-1"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-16-e"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-2"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-11-bis"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-5"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2006,
+      "anios_norma": [1997],
+      "articulo": "art-9"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-12"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-9-2"
+    },
+    {
+      "desde": "ley_21809_convivencia_educativa",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-12-2"
+    },
+    {
+      "desde": "dfl_315_perdida_reconocimiento_oficial",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "preambulo"
+    },
+    {
+      "desde": "dfl_315_perdida_reconocimiento_oficial",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "art-1"
+    },
+    {
+      "desde": "dfl_315_perdida_reconocimiento_oficial",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-11"
+    },
+    {
+      "desde": "dfl_315_perdida_reconocimiento_oficial",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-24-ter"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "preambulo"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-18-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "DFL Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-42"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-42-a"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-65"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-80"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2000,
+      "anios_norma": [1997],
+      "articulo": "art-80-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-81-bis"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-86"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-89"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-91"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "DFL Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-91-ter"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "DFL Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-120"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "DFL Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-121"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "Decreto con Fuerza de Ley N° 1",
+      "anio_cita": 1980,
+      "anios_norma": [1997],
+      "articulo": "art-124"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-129"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-144"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-147"
+    },
+    {
+      "desde": "dto_453_estatuto_docente",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 1996,
+      "anios_norma": [1997],
+      "articulo": "art-147-bis"
+    },
+    {
+      "desde": "circular_193_estudiantes_embarazadas",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "Decreto con Fuerza de Ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "ocr-pagina-004"
+    },
+    {
+      "desde": "circular_812_identidad_genero",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "Decreto con Fuerza de Ley N°1",
+      "anio_cita": 2000,
+      "anios_norma": [1997],
+      "articulo": "ocr-pagina-001"
+    },
+    {
+      "desde": "rex_482_reglamentos_b",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "Decreto con Fuerza de Ley N° 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "ocr-pagina-006"
+    },
+    {
+      "desde": "dictamen_71_expulsion_cancelacion_matricula",
+      "hacia": "dfl_1_estatuto_asistentes_educacion",
+      "cita": "decreto con fuerza de ley Nº 1",
+      "anio_cita": 2005,
+      "anios_norma": [1997],
+      "articulo": "num-1"
+    }
+  ],
+  "n_relaciones": 553,
   "por_tipo": {
     "sustitucion": 2,
-    "remision": 57,
+    "remision": 47,
     "tema": 504
   },
   "relaciones": [
@@ -53,16 +424,6 @@
       "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Artículo 5º."
     },
     {
-      "desde": "ley_20370_general_educacion",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "art-70",
-      "etiqueta_articulo": "Artículo 70",
-      "cita_literal": "decreto con fuerza de ley Nº 1",
-      "n_citas": 3,
-      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Artículo 70 y en otros 2 fragmentos."
-    },
-    {
       "desde": "ley_20536_violencia_escolar",
       "hacia": "ley_20370_general_educacion",
       "tipo": "remision",
@@ -93,26 +454,6 @@
       "explicacion": "Cita «ley Nº20.370» en Artículo 1º y en otros 1 fragmentos."
     },
     {
-      "desde": "ley_20845_inclusion_escolar",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "art-1",
-      "etiqueta_articulo": "Artículo 1º",
-      "cita_literal": "decreto con fuerza de ley Nº1",
-      "n_citas": 2,
-      "explicacion": "Cita «decreto con fuerza de ley Nº1» en Artículo 1º y en otros 1 fragmentos."
-    },
-    {
-      "desde": "ley_21430_garantias_ninez",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "art-65",
-      "etiqueta_articulo": "Artículo 65",
-      "cita_literal": "decreto con fuerza de ley N° 1",
-      "n_citas": 2,
-      "explicacion": "Cita «decreto con fuerza de ley N° 1» en Artículo 65 y en otros 1 fragmentos."
-    },
-    {
       "desde": "ley_21545_tea",
       "hacia": "ley_20370_general_educacion",
       "tipo": "remision",
@@ -136,11 +477,11 @@
       "desde": "ley_21545_tea",
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "tipo": "remision",
-      "articulo": "art-17",
-      "etiqueta_articulo": "Artículo 17",
+      "articulo": "art-19",
+      "etiqueta_articulo": "Artículo 19",
       "cita_literal": "decreto con fuerza de ley N° 1",
-      "n_citas": 3,
-      "explicacion": "Cita «decreto con fuerza de ley N° 1» en Artículo 17 y en otros 2 fragmentos."
+      "n_citas": 1,
+      "explicacion": "Cita «decreto con fuerza de ley N° 1» en Artículo 19."
     },
     {
       "desde": "ley_21801_celulares",
@@ -161,16 +502,6 @@
       "cita_literal": "ley N° 21.430",
       "n_citas": 1,
       "explicacion": "Cita «ley N° 21.430» en Artículo 10 quater."
-    },
-    {
-      "desde": "ley_21801_celulares",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "art-unico",
-      "etiqueta_articulo": "Artículo único",
-      "cita_literal": "decreto con fuerza de ley Nº 1",
-      "n_citas": 1,
-      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Artículo único."
     },
     {
       "desde": "ley_21809_convivencia_educativa",
@@ -213,16 +544,6 @@
       "explicacion": "Cita «ley N° 21.545» en Artículo 16 A y en otros 1 fragmentos."
     },
     {
-      "desde": "ley_21809_convivencia_educativa",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "art-1",
-      "etiqueta_articulo": "Artículo 1",
-      "cita_literal": "decreto con fuerza de ley Nº 1",
-      "n_citas": 9,
-      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Artículo 1 y en otros 8 fragmentos."
-    },
-    {
       "desde": "dfl_1_estatuto_asistentes_educacion",
       "hacia": "ley_19979_jornada_escolar_completa",
       "tipo": "remision",
@@ -263,16 +584,6 @@
       "explicacion": "Cita «ley Nº 20.845» en Artículo 14."
     },
     {
-      "desde": "dfl_315_perdida_reconocimiento_oficial",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "preambulo",
-      "etiqueta_articulo": "Encabezado y promulgación",
-      "cita_literal": "decreto con fuerza de ley Nº 1",
-      "n_citas": 4,
-      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Encabezado y promulgación y en otros 3 fragmentos."
-    },
-    {
       "desde": "dto_24_consejos_escolares",
       "hacia": "ley_19979_jornada_escolar_completa",
       "tipo": "remision",
@@ -286,11 +597,11 @@
       "desde": "dto_453_estatuto_docente",
       "hacia": "dfl_1_estatuto_asistentes_educacion",
       "tipo": "remision",
-      "articulo": "preambulo",
-      "etiqueta_articulo": "Encabezado y promulgación",
+      "articulo": "art-88",
+      "etiqueta_articulo": "Artículo 88º",
       "cita_literal": "decreto con fuerza de ley Nº 1",
-      "n_citas": 20,
-      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Encabezado y promulgación y en otros 19 fragmentos."
+      "n_citas": 1,
+      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en Artículo 88º."
     },
     {
       "desde": "dto_453_estatuto_docente",
@@ -323,16 +634,6 @@
       "explicacion": "Cita «Ley N° 20.845» en Página 4."
     },
     {
-      "desde": "circular_193_estudiantes_embarazadas",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "ocr-pagina-004",
-      "etiqueta_articulo": "Página 4",
-      "cita_literal": "Decreto con Fuerza de Ley N° 1",
-      "n_citas": 1,
-      "explicacion": "Cita «Decreto con Fuerza de Ley N° 1» en Página 4."
-    },
-    {
       "desde": "circular_586_tea",
       "hacia": "ley_21545_tea",
       "tipo": "remision",
@@ -361,16 +662,6 @@
       "cita_literal": "Ley N° 20.845",
       "n_citas": 1,
       "explicacion": "Cita «Ley N° 20.845» en Página 1."
-    },
-    {
-      "desde": "circular_812_identidad_genero",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "ocr-pagina-001",
-      "etiqueta_articulo": "Página 1",
-      "cita_literal": "Decreto con Fuerza de Ley N°1",
-      "n_citas": 1,
-      "explicacion": "Cita «Decreto con Fuerza de Ley N°1» en Página 1."
     },
     {
       "desde": "rex_181_celulares",
@@ -424,16 +715,6 @@
     },
     {
       "desde": "rex_482_reglamentos_b",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "ocr-pagina-006",
-      "etiqueta_articulo": "Página 6",
-      "cita_literal": "Decreto con Fuerza de Ley N° 1",
-      "n_citas": 1,
-      "explicacion": "Cita «Decreto con Fuerza de Ley N° 1» en Página 6."
-    },
-    {
-      "desde": "rex_482_reglamentos_b",
       "hacia": "dto_24_consejos_escolares",
       "tipo": "remision",
       "articulo": "ocr-pagina-006",
@@ -476,21 +757,21 @@
       "desde": "dictamen_52_77_expulsion",
       "hacia": "rex_482_instrucciones_reglamentos_internos",
       "tipo": "remision",
-      "articulo": "concordancias",
-      "etiqueta_articulo": "CONCORDANCIAS",
+      "articulo": "num-1",
+      "etiqueta_articulo": "1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA",
       "cita_literal": "REX N° 482",
       "n_citas": 1,
-      "explicacion": "Cita «REX N° 482» en CONCORDANCIAS."
+      "explicacion": "Cita «REX N° 482» en 1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA."
     },
     {
       "desde": "dictamen_52_77_expulsion",
       "hacia": "rex_482_reglamentos_b",
       "tipo": "remision",
-      "articulo": "concordancias",
-      "etiqueta_articulo": "CONCORDANCIAS",
+      "articulo": "num-1",
+      "etiqueta_articulo": "1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA",
       "cita_literal": "REX N° 482",
       "n_citas": 1,
-      "explicacion": "Cita «REX N° 482» en CONCORDANCIAS."
+      "explicacion": "Cita «REX N° 482» en 1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA."
     },
     {
       "desde": "dictamen_065_revision_mochilas",
@@ -516,11 +797,11 @@
       "desde": "dictamen_71_expulsion_cancelacion_matricula",
       "hacia": "ley_20370_general_educacion",
       "tipo": "remision",
-      "articulo": "concordancias",
-      "etiqueta_articulo": "CONCORDANCIAS",
+      "articulo": "num-1",
+      "etiqueta_articulo": "1. MARCO GENERAL. PROTECCIÓN DE LAS TRAYECTORIAS EDUCATIVAS",
       "cita_literal": "ley Nº20.370",
       "n_citas": 1,
-      "explicacion": "Cita «ley Nº20.370» en CONCORDANCIAS."
+      "explicacion": "Cita «ley Nº20.370» en 1. MARCO GENERAL. PROTECCIÓN DE LAS TRAYECTORIAS EDUCATIVAS."
     },
     {
       "desde": "dictamen_71_expulsion_cancelacion_matricula",
@@ -531,16 +812,6 @@
       "cita_literal": "Ley N° 21.430",
       "n_citas": 2,
       "explicacion": "Cita «Ley N° 21.430» en FUENTES y en otros 1 fragmentos."
-    },
-    {
-      "desde": "dictamen_71_expulsion_cancelacion_matricula",
-      "hacia": "dfl_1_estatuto_asistentes_educacion",
-      "tipo": "remision",
-      "articulo": "concordancias",
-      "etiqueta_articulo": "CONCORDANCIAS",
-      "cita_literal": "decreto con fuerza de ley Nº 1",
-      "n_citas": 1,
-      "explicacion": "Cita «decreto con fuerza de ley Nº 1» en CONCORDANCIAS."
     },
     {
       "desde": "dictamen_71_expulsion_cancelacion_matricula",
@@ -549,48 +820,48 @@
       "articulo": "concordancias",
       "etiqueta_articulo": "CONCORDANCIAS",
       "cita_literal": "Dictamen N° 52",
-      "n_citas": 1,
-      "explicacion": "Cita «Dictamen N° 52» en CONCORDANCIAS."
+      "n_citas": 2,
+      "explicacion": "Cita «Dictamen N° 52» en CONCORDANCIAS y en otros 1 fragmentos."
     },
     {
       "desde": "dictamen_078_detectores_revision_mochilas",
       "hacia": "ley_20845_inclusion_escolar",
       "tipo": "remision",
-      "articulo": "fuentes",
-      "etiqueta_articulo": "FUENTES",
+      "articulo": "ocr-pagina-001",
+      "etiqueta_articulo": "Página 1",
       "cita_literal": "Ley N° 20.845",
       "n_citas": 1,
-      "explicacion": "Cita «Ley N° 20.845» en FUENTES."
+      "explicacion": "Cita «Ley N° 20.845» en Página 1."
     },
     {
       "desde": "dictamen_078_detectores_revision_mochilas",
       "hacia": "ley_21430_garantias_ninez",
       "tipo": "remision",
-      "articulo": "fuentes",
-      "etiqueta_articulo": "FUENTES",
+      "articulo": "ocr-pagina-001",
+      "etiqueta_articulo": "Página 1",
       "cita_literal": "Ley N° 21.430",
       "n_citas": 2,
-      "explicacion": "Cita «Ley N° 21.430» en FUENTES y en otros 1 fragmentos."
+      "explicacion": "Cita «Ley N° 21.430» en Página 1 y en otros 1 fragmentos."
     },
     {
       "desde": "dictamen_078_detectores_revision_mochilas",
       "hacia": "ley_21809_convivencia_educativa",
       "tipo": "remision",
-      "articulo": "materia",
-      "etiqueta_articulo": "MATERIA",
+      "articulo": "ocr-pagina-001",
+      "etiqueta_articulo": "Página 1",
       "cita_literal": "Ley N° 21.809",
-      "n_citas": 2,
-      "explicacion": "Cita «Ley N° 21.809» en MATERIA y en otros 1 fragmentos."
+      "n_citas": 3,
+      "explicacion": "Cita «Ley N° 21.809» en Página 1 y en otros 2 fragmentos."
     },
     {
       "desde": "dictamen_078_detectores_revision_mochilas",
       "hacia": "dictamen_065_revision_mochilas",
       "tipo": "remision",
-      "articulo": "materia",
-      "etiqueta_articulo": "MATERIA",
+      "articulo": "ocr-pagina-001",
+      "etiqueta_articulo": "Página 1",
       "cita_literal": "Dictamen N° 65",
-      "n_citas": 2,
-      "explicacion": "Cita «Dictamen N° 65» en MATERIA y en otros 1 fragmentos."
+      "n_citas": 1,
+      "explicacion": "Cita «Dictamen N° 65» en Página 1."
     },
     {
       "desde": "ley_19979_jornada_escolar_completa",
