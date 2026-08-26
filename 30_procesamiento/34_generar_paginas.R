@@ -376,36 +376,36 @@ cargar_piezas <- function() {
 
   piezas <- lapply(archivos, leer_pieza)
 
-  firmada <- function(p) !is.null(p$validado_por) && nzchar(trimws(as.character(p$validado_por)))
-  incoherentes <- Filter(function(p) identical(p$estado, "validada") && !firmada(p), piezas)
+  firmada <- function(p) !is.null(p[["validado_por"]]) && nzchar(trimws(as.character(p[["validado_por"]])))
+  incoherentes <- Filter(function(p) identical(p[["estado"]], "validada") && !firmada(p), piezas)
   if (length(incoherentes) > 0L) {
     stop("Piezas con `estado: validada` y sin `validado_por`:\n  ",
          paste(vapply(incoherentes, function(p)
-           fs::path_rel(p$archivo, here::here()), character(1)), collapse = "\n  "),
+           fs::path_rel(p[["archivo"]], here::here()), character(1)), collapse = "\n  "),
          "\n  Una pieza interpretativa sin firma no se publica. Completar ",
          "`validado_por` y `fecha_validacion`, o devolver `estado: borrador`.")
   }
-  desconocidas <- Filter(function(p) !p$tipo %in% names(TIPOS_PIEZA), piezas)
+  desconocidas <- Filter(function(p) !p[["tipo"]] %in% names(TIPOS_PIEZA), piezas)
   if (length(desconocidas) > 0L) {
     stop("Piezas con `tipo` fuera de {", paste(names(TIPOS_PIEZA), collapse = ", "), "}: ",
-         paste(vapply(desconocidas, function(p) basename(p$archivo), character(1)), collapse = ", "))
+         paste(vapply(desconocidas, function(p) basename(p[["archivo"]]), character(1)), collapse = ", "))
   }
 
-  publicables <- Filter(function(p) identical(p$estado, "validada") && firmada(p), piezas)
+  publicables <- Filter(function(p) identical(p[["estado"]], "validada") && firmada(p), piezas)
   log_msg(sprintf("Piezas interpretativas: %d en total, %d validadas y publicables.",
                   length(piezas), length(publicables)), origen = ORIGEN)
   publicables
 }
 
-slug_pieza <- function(p) paste0("pieza-", slugificar(tools::file_path_sans_ext(basename(p$archivo))))
+slug_pieza <- function(p) paste0("pieza-", slugificar(tools::file_path_sans_ext(basename(p[["archivo"]]))))
 
 pagina_pieza <- function(p) {
-  fuentes <- if (is.null(p$fuentes) || length(p$fuentes) == 0L) character(0) else
-    vapply(p$fuentes, function(f)
-      sprintf("- [%s, %s](%s)", f$norma, f$articulo, f$ancla), character(1))
+  fuentes <- if (is.null(p[["fuentes"]]) || length(p[["fuentes"]]) == 0L) character(0) else
+    vapply(p[["fuentes"]], function(f)
+      sprintf("- [%s, %s](%s)", f[["norma"]], f[["articulo"]], f[["ancla"]]), character(1))
   c("---",
-    paste("title:", escalar_yaml(p$titulo)),
-    paste("subtitle:", escalar_yaml(unname(TIPOS_PIEZA[[p$tipo]]))),
+    paste("title:", escalar_yaml(p[["titulo"]])),
+    paste("subtitle:", escalar_yaml(unname(TIPOS_PIEZA[[p[["tipo"]]]]))),
     "toc: true",
     "---",
     "",
@@ -413,12 +413,12 @@ pagina_pieza <- function(p) {
     '<div class="ficha-norma">',
     sprintf('<p><span class="badge-fuente badge-interpretacion">interpretación institucional</span></p>'),
     sprintf("<p>Pieza <strong>validada por %s</strong>%s. No es texto normativo: es una lectura del equipo de convivencia, y cada afirmación enlaza al artículo que la respalda.</p>",
-            escapar_html(as.character(p$validado_por)),
-            if (!is.null(p$fecha_validacion)) paste0(" el ", escapar_html(as.character(p$fecha_validacion))) else ""),
+            escapar_html(as.character(p[["validado_por"]])),
+            if (!is.null(p[["fecha_validacion"]])) paste0(" el ", escapar_html(as.character(p[["fecha_validacion"]]))) else ""),
     "</div>",
     "```",
     "",
-    p$cuerpo,
+    p[["cuerpo"]],
     "",
     if (length(fuentes) > 0L) c("## Fuentes", "", fuentes, "") else NULL) |>
     paste(collapse = "\n")
@@ -822,7 +822,7 @@ for (p in piezas) {
 
 n_piezas <- length(piezas)
 if (n_piezas > 0L) {
-  por_tipo_pieza <- split(piezas, vapply(piezas, function(p) p$tipo, character(1)))
+  por_tipo_pieza <- split(piezas, vapply(piezas, function(p) p[["tipo"]], character(1)))
   por_tipo_pieza <- por_tipo_pieza[intersect(names(TIPOS_PIEZA), names(por_tipo_pieza))]
   writeLines(
     c("---",
@@ -843,8 +843,8 @@ if (n_piezas > 0L) {
         paste("##", TIPOS_PIEZA[[t]]),
         "",
         vapply(por_tipo_pieza[[t]], function(p)
-          sprintf("- [%s](%s.qmd) — validada por %s", p$titulo, slug_pieza(p),
-                  as.character(p$validado_por)), character(1)),
+          sprintf("- [%s](%s.qmd) — validada por %s", p[["titulo"]], slug_pieza(p),
+                  as.character(p[["validado_por"]])), character(1)),
         ""))),
       ""),
     file.path(destino, "piezas.qmd"))
