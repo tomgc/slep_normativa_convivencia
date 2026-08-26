@@ -25,7 +25,11 @@
     "dictamen_065_revision_mochilas": {
       "anio": 2022,
       "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
-      "aviso_vigencia": "Este dictamen fue sustituido por el Dictamen N°78/2026 de la Superintendencia de Educación (Ley 21.809); se mantiene publicado como referencia histórica."
+      "vigencia": {
+        "estado": "sustituido",
+        "sustituido_por": "dictamen_078_detectores_revision_mochilas",
+        "fuente": "texto del propio documento: la línea MATERIA declara \"Sustituye Dictamen N° 65, de la Superintendencia de Educación\", y el cuerpo cita \"el Dictamen N 65, del año 2022\". Corroborado por el equipo con verificación web, 2026-08-25 (Boletín Jurídico OLR)."
+      }
     },
     "dictamen_71_expulsion_cancelacion_matricula": {
       "anio": 2024,
@@ -41,6 +45,14 @@
     "ley_20536_violencia_escolar": {
       "notas_ficha": [
         "Artículos 16 A a 16 E: incorporados a la Ley General de Educación (DFL 2/2009) por esta ley."
+      ]
+    },
+    "dictamen_078_detectores_revision_mochilas": {
+      "anio": 2026,
+      "fuente_anio": "verificación web del asistente, 2026-08-25 (Boletín Jurídico OLR); el PDF no trae fecha estructural legible: su carátula dice \"SANTIAGO, A 1 JUN MI\", con la fecha ilegible en la capa de texto.",
+      "notas_ficha": [
+        "Sustituye al Dictamen N° 65, de 2022, de la Superintendencia de Educación. La sustitución la declara el propio documento en su línea MATERIA.",
+        "La capa de texto de este PDF fue producida por reconocimiento óptico en el origen y contiene errores de lectura (por ejemplo \"á Ley\" por \"la Ley\" y \"artículos incendiados\" por \"incendiarios\"). El texto se reproduce tal como viene en el documento oficial, sin corregir."
       ]
     }
   }
