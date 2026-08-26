@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": ["dictamen_065_revision_mochilas"]
   },
+  "grupo_acto": null,
   "paginas": 9,
   "pdf": "dictamen_078_detectores_revision_mochilas.pdf",
   "sin_capa_texto": false,

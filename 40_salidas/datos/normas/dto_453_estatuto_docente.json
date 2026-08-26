@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 56,
   "pdf": "dto_453_estatuto_docente.pdf",
   "sin_capa_texto": false,

@@ -31,9 +31,16 @@ cargar_curaduria <- function() {
             nivel = "WARN", origen = ORIGEN)
     return(list())
   }
-  jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$normas
+  jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)
 }
-CURADURIA <- cargar_curaduria()
+.CUR <- cargar_curaduria()
+CURADURIA <- if (is.null(.CUR$normas)) list() else .CUR$normas
+
+# Grupos de acto administrativo. Un grupo declara que dos o mas archivos del
+# corpus son el MISMO acto y se declara UNA SOLA VEZ, no una vez por miembro,
+# por el mismo motivo que la sustitucion: dos mitades editables por separado
+# pueden afirmar cosas incompatibles y el sitio no tendria como saber cual vale.
+CURADURIA_GRUPOS <- if (is.null(.CUR$grupos_acto)) list() else .CUR$grupos_acto
 
 # ---- Derivacion desde el nombre canonico ------------------------------------
 # El nombre es <tipo>_<numero>_<materia>.pdf y T2 lo fijo con verificacion de
@@ -300,6 +307,66 @@ vigencia_de <- function(slug, curado) {
   v
 }
 
+# ---- Grupo de acto administrativo -------------------------------------------
+# Dos archivos del corpus pueden ser el MISMO acto: la Resolucion Exenta 482 de
+# 2018 es un PDF de una pagina que aprueba una circular, y esa circular es otro
+# PDF de 48 paginas escaneadas. Sin declararlo, el derivador de relaciones los
+# trata como dos normas distintas con el mismo numero: emite una remision de la
+# resolucion a su propia circular (el control desde == hacia no la ve, porque los
+# slugs difieren) y duplica toda cita de terceros al acto.
+#
+# El grupo se declara una sola vez en curaduria; el ROL de cada miembro se
+# DERIVA de que slug este nombrado como `resolucion`, no se declara aparte. Un
+# rol declarado dos veces es un rol que puede contradecirse.
+validar_grupos_acto <- function(grupos, slugs) {
+  for (id in names(grupos)) {
+    g <- grupos[[id]]
+    miembros <- unlist(g$miembros)
+    if (length(miembros) < 2L) {
+      stop(sprintf("Grupo de acto '%s': %d miembro(s). Un grupo de uno no declara nada.",
+                   id, length(miembros)))
+    }
+    fuera <- setdiff(miembros, slugs)
+    if (length(fuera) > 0L) {
+      stop(sprintf("Grupo de acto '%s': miembros fuera del corpus: %s.",
+                   id, paste(fuera, collapse = ", ")))
+    }
+    if (is.null(g$resolucion) || !(g$resolucion %in% miembros)) {
+      stop(sprintf("Grupo de acto '%s': `resolucion` ('%s') no esta entre sus miembros. Es el slug al que apunta el sitio cuando un tercero cita el acto: sin el, el enlace queda indefinido.",
+                   id, if (is.null(g$resolucion)) "NULL" else g$resolucion))
+    }
+    if (is.null(g$fuente) || !nzchar(g$fuente)) {
+      stop(sprintf("Grupo de acto '%s': sin `fuente`. La procedencia es obligatoria.", id))
+    }
+    if (is.null(g$nota_colapso) || !nzchar(g$nota_colapso)) {
+      stop(sprintf("Grupo de acto '%s': sin `nota_colapso`. Un enlace colapsado que no dice que incluye se lee como si apuntara solo a la resolucion.", id))
+    }
+  }
+  # Un slug en dos grupos deja indefinido a donde apunta una cita al acto.
+  todos <- unlist(lapply(grupos, function(g) unlist(g$miembros)))
+  dup <- unique(todos[duplicated(todos)])
+  if (length(dup) > 0L) {
+    stop("Slug declarado en mas de un grupo de acto: ", paste(dup, collapse = ", "))
+  }
+  invisible(TRUE)
+}
+
+grupo_acto_de <- function(slug) {
+  for (id in names(CURADURIA_GRUPOS)) {
+    g <- CURADURIA_GRUPOS[[id]]
+    miembros <- unlist(g$miembros)
+    if (!slug %in% miembros) next
+    return(list(
+      id = id,
+      rol = if (identical(slug, g$resolucion)) "resolucion" else "cuerpo",
+      resolucion = g$resolucion,
+      otros_miembros = I(setdiff(miembros, slug)),
+      nota_colapso = g$nota_colapso,
+      fuente = g$fuente))
+  }
+  NULL
+}
+
 # Deriva el vinculo inverso y valida que la norma sustituta exista en el corpus.
 # Sin esta comprobacion, un slug mal escrito produce una banda que enlaza a una
 # pagina inexistente, y el error no aparece hasta que alguien hace clic.
@@ -399,6 +466,10 @@ construir_norma <- function(meta) {
     # divergir: si cada norma declarara su mitad, bastaria con que alguien
     # editara una para que el sitio afirmara dos cosas incompatibles.
     vigencia = vigencia_de(slug, curado),
+    # Grupo de acto administrativo: declara que este archivo y otro son el MISMO
+    # acto. Lo consume 33_relaciones.R para no emitir vinculos dentro del grupo
+    # y para dirigir a la resolucion toda cita de terceros al acto.
+    grupo_acto = grupo_acto_de(slug),
     paginas = meta$paginas,
     pdf = paste0(slug, ".pdf"),
     sin_capa_texto = isTRUE(meta$sin_capa_texto),
@@ -418,6 +489,8 @@ construir_norma <- function(meta) {
 # ---- Corrida ----------------------------------------------------------------
 manifiesto <- jsonlite::fromJSON(ruta_salidas("intermedios", "extraccion.json"),
                                  simplifyDataFrame = FALSE)
+validar_grupos_acto(CURADURIA_GRUPOS,
+                    vapply(manifiesto, function(m) m$slug, character(1)))
 log_msg(sprintf("Segmentando %d documentos.", length(manifiesto)), origen = ORIGEN)
 
 fs::dir_create(ruta_normas())

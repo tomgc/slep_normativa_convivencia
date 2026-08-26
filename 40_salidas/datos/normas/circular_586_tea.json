@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 1,
   "pdf": "circular_586_tea.pdf",
   "sin_capa_texto": true,

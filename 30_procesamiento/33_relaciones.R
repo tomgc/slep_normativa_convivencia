@@ -94,12 +94,61 @@ rel_sustituye <- unlist(lapply(normas, function(n) {
          fuente = normas[[s]]$vigencia$fuente))
 }), recursive = FALSE)
 
+# ---- (2bis) Mismo acto administrativo ---------------------------------------
+# La curaduria puede declarar que dos archivos del corpus son el MISMO acto: la
+# Resolucion Exenta 482 de 2018 es un PDF de una pagina que aprueba una circular,
+# y esa circular es otro PDF de 48 paginas escaneadas. Sin la declaracion, este
+# derivador los trataba como dos normas con el mismo numero y hacia dos cosas
+# falsas: emitia una remision de la resolucion a su propio cuerpo (el control
+# `desde == hacia` no la ve, porque los slugs difieren) y duplicaba toda cita de
+# terceros al acto, una vez por archivo.
+GRUPO_DE <- vapply(normas, function(n)
+  if (is.null(n$grupo_acto)) NA_character_ else n$grupo_acto$id, character(1))
+RESOLUCION_DE <- vapply(normas, function(n)
+  if (is.null(n$grupo_acto)) NA_character_ else n$grupo_acto$resolucion, character(1))
+NOTA_GRUPO <- vapply(normas, function(n)
+  if (is.null(n$grupo_acto)) NA_character_ else n$grupo_acto$nota_colapso, character(1))
+
+# Compuerta: la resolucion de cada grupo tiene que estar en el corpus. Si no,
+# el enlace colapsado apuntaria a una pagina que no existe.
+sin_resolucion <- setdiff(unique(RESOLUCION_DE[!is.na(RESOLUCION_DE)]), names(normas))
+if (length(sin_resolucion) > 0L) {
+  stop("Grupo(s) de acto cuya `resolucion` no esta en el corpus: ",
+       paste(sin_resolucion, collapse = ", "))
+}
+
+mismo_grupo <- function(x, y) !is.na(GRUPO_DE[[x]]) && identical(GRUPO_DE[[x]], GRUPO_DE[[y]])
+
+# Las fichas de los miembros se enlazan entre si declarando la relacion, con la
+# explicacion compuesta por plantilla desde el ROL del destino y la procedencia
+# del grupo a la vista. Sin este vinculo, colapsar las remisiones dejaria al
+# cuerpo escaneado sin ninguna via de llegada desde el resto del sitio.
+rel_grupo <- unlist(lapply(normas, function(n) {
+  if (is.null(n$grupo_acto)) return(NULL)
+  lapply(unlist(n$grupo_acto$otros_miembros), function(otro) {
+    list(desde = n$slug, hacia = otro, tipo = "grupo_acto",
+         explicacion = switch(normas[[otro]]$grupo_acto$rol,
+           resolucion = "Es la resolución del mismo acto administrativo.",
+           cuerpo     = "Es el cuerpo del mismo acto administrativo."),
+         fuente = n$grupo_acto$fuente)
+  })
+}), recursive = FALSE)
+
 # ---- (2) Remision textual ----------------------------------------------------
 # Se recorre articulo por articulo para poder decir EN CUAL se cita, que es la
 # mitad util de la explicacion: "remite en su articulo 5" lleva a alguna parte,
 # "remite" no.
+# Un grupo de acto se sondea UNA sola vez, por su resolucion. Sondear cada
+# miembro por separado no solo duplicaria el resultado: el filtro de anio veria
+# anios distintos para el MISMO acto (la resolucion 482 es de 2018 y su cuerpo
+# escaneado no tiene anio derivable), de modo que el veredicto sobre una misma
+# cita dependeria de a cual de los dos archivos se la comparara.
+es_sondeable <- function(slug)
+  is.na(GRUPO_DE[[slug]]) || identical(slug, RESOLUCION_DE[[slug]])
+
 patrones <- Filter(Negate(is.null), setNames(
-  lapply(normas, function(n) patron_cita(n$tipo, n$numero)),
+  lapply(normas, function(n)
+    if (es_sondeable(n$slug)) patron_cita(n$tipo, n$numero) else NULL),
   names(normas)))
 
 # ---- Anio que acompana a una cita -------------------------------------------
@@ -172,6 +221,9 @@ for (a in normas) {
   for (slug_b in names(patrones)) {
     # Control negativo estructural: una norma nunca se relaciona consigo misma.
     if (identical(slug_b, a$slug)) next
+    # Ni con otro archivo del mismo acto: la resolucion no CITA a su cuerpo, lo
+    # aprueba. El control de arriba no lo ve porque los dos slugs difieren.
+    if (mismo_grupo(a$slug, slug_b)) next
     encontrado <- NULL
     literal <- NA_character_
     n_citas <- 0L
@@ -210,7 +262,11 @@ for (a in normas) {
     # (hay un "DFL N° 1" por cada ministerio y por cada anio), asi que mostrar el
     # texto exacto es lo que permite a quien lee descartar de un vistazo una
     # coincidencia que apunta a otra norma homonima.
-    rel_remision[[length(rel_remision) + 1L]] <- list(
+    # Cuando el destino es la resolucion de un grupo, el enlace representa al
+    # acto COMPLETO y tiene que decirlo: sin la nota se lee como si apuntara solo
+    # al PDF de una pagina, y el cuerpo de 48 quedaria invisible para quien busca
+    # lo que el tercero esta citando.
+    rel <- list(
       desde = a$slug, hacia = slug_b, tipo = "remision",
       articulo = encontrado$id, etiqueta_articulo = encontrado$etiqueta,
       cita_literal = literal, n_citas = n_citas,
@@ -218,6 +274,11 @@ for (a in normas) {
                             literal, encontrado$etiqueta,
                             if (n_citas > 1L) sprintf(" y en otros %d fragmentos", n_citas - 1L) else "")
     )
+    # El campo se AGREGA, no se asigna NULL: asignarlo lo escribe como {} en
+    # todas las demas remisiones, y un objeto vacio en los datos es una promesa
+    # de campo que ningun consumidor puede distinguir de un campo perdido.
+    if (!is.na(NOTA_GRUPO[[slug_b]])) rel$nota <- NOTA_GRUPO[[slug_b]]
+    rel_remision[[length(rel_remision) + 1L]] <- rel
   }
 }
 
@@ -242,7 +303,7 @@ for (a in normas) {
   }
 }
 
-todas <- c(rel_sustitucion, rel_sustituye, rel_remision, rel_tema)
+todas <- c(rel_sustitucion, rel_sustituye, rel_grupo, rel_remision, rel_tema)
 
 # ---- Compuertas --------------------------------------------------------------
 auto <- Filter(function(r) identical(r$desde, r$hacia), todas)
@@ -272,10 +333,10 @@ if (length(descartadas) > 0L) {
 }
 
 por_tipo <- table(factor(vapply(todas, function(r) r$tipo, character(1)),
-                         levels = c("sustitucion", "remision", "tema")))
-log_msg(sprintf("Relaciones: %d en total — %d sustitucion, %d remision, %d tema.",
-                length(todas), por_tipo[["sustitucion"]], por_tipo[["remision"]],
-                por_tipo[["tema"]]),
+                         levels = c("sustitucion", "grupo_acto", "remision", "tema")))
+log_msg(sprintf("Relaciones: %d en total — %d sustitucion, %d mismo acto, %d remision, %d tema.",
+                length(todas), por_tipo[["sustitucion"]], por_tipo[["grupo_acto"]],
+                por_tipo[["remision"]], por_tipo[["tema"]]),
         origen = ORIGEN)
 
 escribir_atomico(

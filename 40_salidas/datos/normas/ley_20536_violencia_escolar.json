@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 3,
   "pdf": "ley_20536_violencia_escolar.pdf",
   "sin_capa_texto": false,

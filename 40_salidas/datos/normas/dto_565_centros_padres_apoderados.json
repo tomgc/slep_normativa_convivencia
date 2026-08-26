@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 7,
   "pdf": "dto_565_centros_padres_apoderados.pdf",
   "sin_capa_texto": false,

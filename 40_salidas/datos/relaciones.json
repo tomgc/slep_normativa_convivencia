@@ -799,7 +799,8 @@
   "n_relaciones": 552,
   "por_tipo": {
     "sustitucion": 2,
-    "remision": 46,
+    "grupo_acto": 2,
+    "remision": 44,
     "tema": 504
   },
   "relaciones": [
@@ -816,6 +817,20 @@
       "tipo": "sustitucion",
       "explicacion": "Es la norma sustituida por esta; se mantiene como referencia histórica.",
       "fuente": "texto del propio documento: la línea MATERIA declara \"Sustituye Dictamen N° 65, de la Superintendencia de Educación\", y el cuerpo cita \"el Dictamen N 65, del año 2022\". Corroborado por el equipo con verificación web, 2026-08-25 (Boletín Jurídico OLR)."
+    },
+    {
+      "desde": "rex_482_instrucciones_reglamentos_internos",
+      "hacia": "rex_482_reglamentos_b",
+      "tipo": "grupo_acto",
+      "explicacion": "Es el cuerpo del mismo acto administrativo.",
+      "fuente": "indagación del 2026-08-25 (50_documentacion/andamios/20260825_indagacion_pre_cierre.md, §1.3): los dos PDF son el mismo acto administrativo, la Resolución Exenta N° 482, de 22 de junio de 2018, de la Superintendencia de Educación. rex_482_instrucciones_reglamentos_internos es la resolución propiamente tal (1 página, con capa de texto) y rex_482_reglamentos_b es el cuerpo de la circular que ella aprueba (48 páginas, escaneadas). Declarado por el equipo el 2026-08-26."
+    },
+    {
+      "desde": "rex_482_reglamentos_b",
+      "hacia": "rex_482_instrucciones_reglamentos_internos",
+      "tipo": "grupo_acto",
+      "explicacion": "Es la resolución del mismo acto administrativo.",
+      "fuente": "indagación del 2026-08-25 (50_documentacion/andamios/20260825_indagacion_pre_cierre.md, §1.3): los dos PDF son el mismo acto administrativo, la Resolución Exenta N° 482, de 22 de junio de 2018, de la Superintendencia de Educación. rex_482_instrucciones_reglamentos_internos es la resolución propiamente tal (1 página, con capa de texto) y rex_482_reglamentos_b es el cuerpo de la circular que ella aprueba (48 páginas, escaneadas). Declarado por el equipo el 2026-08-26."
     },
     {
       "desde": "ley_19979_jornada_escolar_completa",
@@ -1088,16 +1103,6 @@
       "explicacion": "Cita «ley N° 21.801» en Documento completo."
     },
     {
-      "desde": "rex_482_instrucciones_reglamentos_internos",
-      "hacia": "rex_482_reglamentos_b",
-      "tipo": "remision",
-      "articulo": "documento",
-      "etiqueta_articulo": "Documento completo",
-      "cita_literal": "Resolución 482",
-      "n_citas": 1,
-      "explicacion": "Cita «Resolución 482» en Documento completo."
-    },
-    {
       "desde": "rex_482_reglamentos_b",
       "hacia": "ley_19979_jornada_escolar_completa",
       "tipo": "remision",
@@ -1175,17 +1180,8 @@
       "etiqueta_articulo": "1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA",
       "cita_literal": "REX N° 482",
       "n_citas": 1,
-      "explicacion": "Cita «REX N° 482» en 1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA."
-    },
-    {
-      "desde": "dictamen_52_77_expulsion",
-      "hacia": "rex_482_reglamentos_b",
-      "tipo": "remision",
-      "articulo": "num-1",
-      "etiqueta_articulo": "1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA",
-      "cita_literal": "REX N° 482",
-      "n_citas": 1,
-      "explicacion": "Cita «REX N° 482» en 1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA."
+      "explicacion": "Cita «REX N° 482» en 1. SOBRE LAS CAUSALES EN QUE SE FUNDA EL PROCEDIMIENTO DE EXPULSIÓN O CANCELACIÓN DE MATRÍCULA.",
+      "nota": "incluye el cuerpo del reglamento"
     },
     {
       "desde": "dictamen_065_revision_mochilas",

@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 96,
   "pdf": "dfl_1_estatuto_asistentes_educacion.pdf",
   "sin_capa_texto": false,

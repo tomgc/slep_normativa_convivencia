@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 8,
   "pdf": "dictamen_52_77_expulsion.pdf",
   "sin_capa_texto": false,

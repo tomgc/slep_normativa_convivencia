@@ -3,7 +3,8 @@
   "contrato": [
     "Este archivo lo edita una persona. NINGUN script lo escribe: si el pipeline lo regenerara, borraria la validacion del equipo en cada corrida.",
     "Todo valor lleva 'fuente': de donde salio el dato. Un metadato curado sin procedencia es indistinguible de uno inventado, que es lo que este proyecto no admite.",
-    "origen_texto solo acepta los valores de ORIGENES_TEXTO en 10_utils/10_configuracion.R. Mover un documento de 'ocr_pendiente_revision' a 'ocr_revisado' es el acto por el que el equipo se hace responsable de esa transcripcion: hacerlo sin haberla leido pagina por pagina contra el PDF vacia la garantia que el estado declara."
+    "origen_texto solo acepta los valores de ORIGENES_TEXTO en 10_utils/10_configuracion.R. Mover un documento de 'ocr_pendiente_revision' a 'ocr_revisado' es el acto por el que el equipo se hace responsable de esa transcripcion: hacerlo sin haberla leido pagina por pagina contra el PDF vacia la garantia que el estado declara.",
+    "grupos_acto declara que dos o mas archivos del corpus son el MISMO acto administrativo. Se declara UNA SOLA VEZ por grupo, no una vez por miembro: si cada slug declarara su mitad, bastaria con editar uno para que el sitio afirmara dos cosas incompatibles, que es el mismo motivo por el que la sustitucion se declara una sola vez. El derivador no emite vinculos de remision dentro de un grupo y dirige al slug 'resolucion' toda remision de terceros hacia cualquier miembro."
   ],
   "normas": {
     "circular_193_estudiantes_embarazadas": {
@@ -60,6 +61,17 @@
         "Sustituye al Dictamen N° 65, de 2022, de la Superintendencia de Educación. La sustitución la declara el propio documento en su línea MATERIA.",
         "La capa de texto de este PDF fue producida por reconocimiento óptico en el origen y contiene errores de lectura (por ejemplo \"á Ley\" por \"la Ley\" y \"artículos incendiados\" por \"incendiarios\"). El texto se reproduce tal como viene en el documento oficial, sin corregir."
       ]
+    }
+  },
+  "grupos_acto": {
+    "rex_482_2018": {
+      "resolucion": "rex_482_instrucciones_reglamentos_internos",
+      "miembros": [
+        "rex_482_instrucciones_reglamentos_internos",
+        "rex_482_reglamentos_b"
+      ],
+      "nota_colapso": "incluye el cuerpo del reglamento",
+      "fuente": "indagación del 2026-08-25 (50_documentacion/andamios/20260825_indagacion_pre_cierre.md, §1.3): los dos PDF son el mismo acto administrativo, la Resolución Exenta N° 482, de 22 de junio de 2018, de la Superintendencia de Educación. rex_482_instrucciones_reglamentos_internos es la resolución propiamente tal (1 página, con capa de texto) y rex_482_reglamentos_b es el cuerpo de la circular que ella aprueba (48 páginas, escaneadas). Declarado por el equipo el 2026-08-26."
     }
   }
 }

@@ -68,9 +68,10 @@ parrafos_html <- function(texto) {
 # temas: medidas disciplinarias", y el buscador dejaria de responder sobre texto
 # legal para responder sobre sus propios metadatos.
 #
-# Orden: sustitucion > remision > tema. Es orden de fuerza juridica, no de
-# similitud: que una norma haya sido sustituida cambia cual hay que aplicar; que
-# comparta temas solo sugiere donde seguir leyendo.
+# Orden: sustitucion > mismo acto > remision > tema. Es orden de fuerza juridica,
+# no de similitud: que una norma haya sido sustituida cambia cual hay que
+# aplicar; que otro archivo sea el mismo acto cambia que hay que leer para tener
+# el acto completo; que comparta temas solo sugiere donde seguir leyendo.
 TOPE_RELACIONES_TEMA <- 5L
 
 RELACIONES <- NULL
@@ -81,6 +82,7 @@ bloque_relacionados <- function(n) {
 
   por <- function(t) Filter(function(r) identical(r$tipo, t), propias)
   sus <- por("sustitucion")
+  gru <- por("grupo_acto")
   rem <- por("remision")
   tem <- por("tema")
   tem <- tem[order(-vapply(tem, function(r) r$n_temas, integer(1)),
@@ -88,11 +90,17 @@ bloque_relacionados <- function(n) {
   omitidas <- max(0L, length(tem) - TOPE_RELACIONES_TEMA)
   tem <- utils::head(tem, TOPE_RELACIONES_TEMA)
 
+  # La nota solo la traen las remisiones colapsadas hacia un grupo de acto: el
+  # enlace apunta a la resolucion pero representa al acto entero, y sin decirlo
+  # se lee como si el cuerpo aprobado no estuviera incluido.
   item <- function(r, clase) sprintf(
     '<li class="rel rel-%s"><span class="badge-fuente badge-rel-%s">%s</span> %s <span class="rel-por">%s</span></li>',
     clase, clase,
-    switch(clase, sustitucion = "vigencia", remision = "remisión", tema = "tema"),
-    enlace_norma(r$hacia), escapar_html(r$explicacion))
+    switch(clase, sustitucion = "vigencia", grupo_acto = "mismo acto",
+           remision = "remisión", tema = "tema"),
+    enlace_norma(r$hacia),
+    escapar_html(paste0(r$explicacion,
+                        if (!is.null(r$nota)) paste0(" El enlace ", r$nota, ".") else "")))
 
   c("",
     "## Normas relacionadas {#relacionadas}",
@@ -100,6 +108,7 @@ bloque_relacionados <- function(n) {
     "```{=html}",
     '<ul class="lista-relaciones">',
     vapply(sus, item, character(1), clase = "sustitucion"),
+    vapply(gru, item, character(1), clase = "grupo_acto"),
     vapply(rem, item, character(1), clase = "remision"),
     vapply(tem, item, character(1), clase = "tema"),
     "</ul>",
@@ -108,7 +117,7 @@ bloque_relacionados <- function(n) {
     if (omitidas > 0L)
       sprintf('<p class="procedencia">Se muestran los %d vínculos temáticos más fuertes; hay %d más con menos temas en común.</p>',
               TOPE_RELACIONES_TEMA, omitidas) else NULL,
-    '<p class="procedencia">Los vínculos se derivan de datos del pipeline (campo de vigencia, cita del número de la norma en el texto, temas compartidos), no de una lectura interpretativa.</p>',
+    '<p class="procedencia">Los vínculos se derivan de datos del pipeline (campo de vigencia, declaración de acto administrativo común, cita del número de la norma en el texto, temas compartidos), no de una lectura interpretativa.</p>',
     "```",
     "")
 }

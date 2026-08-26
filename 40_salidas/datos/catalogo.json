@@ -18,6 +18,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 22,
       "pdf": "ley_19979_jornada_escolar_completa.pdf",
       "sin_capa_texto": false,
@@ -44,6 +45,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 32,
       "pdf": "ley_20370_general_educacion.pdf",
       "sin_capa_texto": false,
@@ -70,6 +72,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 3,
       "pdf": "ley_20536_violencia_escolar.pdf",
       "sin_capa_texto": false,
@@ -96,6 +99,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 56,
       "pdf": "ley_20845_inclusion_escolar.pdf",
       "sin_capa_texto": false,
@@ -122,6 +126,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 3,
       "pdf": "ley_20911_formacion_ciudadana.pdf",
       "sin_capa_texto": false,
@@ -148,6 +153,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 41,
       "pdf": "ley_21430_garantias_ninez.pdf",
       "sin_capa_texto": false,
@@ -174,6 +180,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 9,
       "pdf": "ley_21545_tea.pdf",
       "sin_capa_texto": false,
@@ -200,6 +207,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 4,
       "pdf": "ley_21801_celulares.pdf",
       "sin_capa_texto": false,
@@ -226,6 +234,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 30,
       "pdf": "ley_21809_convivencia_educativa.pdf",
       "sin_capa_texto": false,
@@ -252,6 +261,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 96,
       "pdf": "dfl_1_estatuto_asistentes_educacion.pdf",
       "sin_capa_texto": false,
@@ -278,6 +288,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 28,
       "pdf": "dfl_315_perdida_reconocimiento_oficial.pdf",
       "sin_capa_texto": false,
@@ -304,6 +315,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 6,
       "pdf": "dto_24_consejos_escolares.pdf",
       "sin_capa_texto": false,
@@ -330,6 +342,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 4,
       "pdf": "dto_215_uniforme_escolar.pdf",
       "sin_capa_texto": false,
@@ -356,6 +369,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 56,
       "pdf": "dto_453_estatuto_docente.pdf",
       "sin_capa_texto": false,
@@ -382,6 +396,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 7,
       "pdf": "dto_565_centros_padres_apoderados.pdf",
       "sin_capa_texto": false,
@@ -408,6 +423,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 16,
       "pdf": "circular_193_estudiantes_embarazadas.pdf",
       "sin_capa_texto": true,
@@ -434,6 +450,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 1,
       "pdf": "circular_586_tea.pdf",
       "sin_capa_texto": true,
@@ -460,6 +477,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 10,
       "pdf": "circular_812_identidad_genero.pdf",
       "sin_capa_texto": true,
@@ -486,6 +504,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 1,
       "pdf": "rex_181_celulares.pdf",
       "sin_capa_texto": false,
@@ -511,6 +530,14 @@
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
+      },
+      "grupo_acto": {
+        "id": "rex_482_2018",
+        "rol": "resolucion",
+        "resolucion": "rex_482_instrucciones_reglamentos_internos",
+        "otros_miembros": ["rex_482_reglamentos_b"],
+        "nota_colapso": "incluye el cuerpo del reglamento",
+        "fuente": "indagación del 2026-08-25 (50_documentacion/andamios/20260825_indagacion_pre_cierre.md, §1.3): los dos PDF son el mismo acto administrativo, la Resolución Exenta N° 482, de 22 de junio de 2018, de la Superintendencia de Educación. rex_482_instrucciones_reglamentos_internos es la resolución propiamente tal (1 página, con capa de texto) y rex_482_reglamentos_b es el cuerpo de la circular que ella aprueba (48 páginas, escaneadas). Declarado por el equipo el 2026-08-26."
       },
       "paginas": 1,
       "pdf": "rex_482_instrucciones_reglamentos_internos.pdf",
@@ -538,6 +565,14 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": {
+        "id": "rex_482_2018",
+        "rol": "cuerpo",
+        "resolucion": "rex_482_instrucciones_reglamentos_internos",
+        "otros_miembros": ["rex_482_instrucciones_reglamentos_internos"],
+        "nota_colapso": "incluye el cuerpo del reglamento",
+        "fuente": "indagación del 2026-08-25 (50_documentacion/andamios/20260825_indagacion_pre_cierre.md, §1.3): los dos PDF son el mismo acto administrativo, la Resolución Exenta N° 482, de 22 de junio de 2018, de la Superintendencia de Educación. rex_482_instrucciones_reglamentos_internos es la resolución propiamente tal (1 página, con capa de texto) y rex_482_reglamentos_b es el cuerpo de la circular que ella aprueba (48 páginas, escaneadas). Declarado por el equipo el 2026-08-26."
+      },
       "paginas": 48,
       "pdf": "rex_482_reglamentos_b.pdf",
       "sin_capa_texto": true,
@@ -564,6 +599,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 8,
       "pdf": "dictamen_52_77_expulsion.pdf",
       "sin_capa_texto": false,
@@ -592,6 +628,7 @@
         "fuente": "texto del propio documento: la línea MATERIA declara \"Sustituye Dictamen N° 65, de la Superintendencia de Educación\", y el cuerpo cita \"el Dictamen N 65, del año 2022\". Corroborado por el equipo con verificación web, 2026-08-25 (Boletín Jurídico OLR).",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 6,
       "pdf": "dictamen_065_revision_mochilas.pdf",
       "sin_capa_texto": false,
@@ -618,6 +655,7 @@
         "estado": "vigente",
         "sustituye_a": []
       },
+      "grupo_acto": null,
       "paginas": 8,
       "pdf": "dictamen_71_expulsion_cancelacion_matricula.pdf",
       "sin_capa_texto": false,
@@ -644,6 +682,7 @@
         "estado": "vigente",
         "sustituye_a": ["dictamen_065_revision_mochilas"]
       },
+      "grupo_acto": null,
       "paginas": 9,
       "pdf": "dictamen_078_detectores_revision_mochilas.pdf",
       "sin_capa_texto": false,

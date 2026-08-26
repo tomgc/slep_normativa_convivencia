@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 28,
   "pdf": "dfl_315_perdida_reconocimiento_oficial.pdf",
   "sin_capa_texto": false,

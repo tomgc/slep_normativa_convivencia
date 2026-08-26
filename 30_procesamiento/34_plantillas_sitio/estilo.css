@@ -137,6 +137,10 @@
 .lista-relaciones .rel { padding: 0.5rem 0; border-bottom: 1px solid #f1f3f5; }
 .lista-relaciones .rel-por { color: #6c757d; font-size: 0.88rem; }
 .badge-rel-sustitucion { background: #a4243b; color: #fff; }
+/* Mismo acto administrativo: dos archivos que son un solo acto. Verde oscuro,
+   distinto del rojo de sustitucion (no cambia que norma aplica) y del azul de
+   remision (no es una cita, es identidad). */
+.badge-rel-grupo_acto  { background: #2d6a4f; color: #fff; }
 .badge-rel-remision    { background: #0d3b66; color: #fff; }
 .badge-rel-tema        { background: #e9ecef; color: #212529; }
 

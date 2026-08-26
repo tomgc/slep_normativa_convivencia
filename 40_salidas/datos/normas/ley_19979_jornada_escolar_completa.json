@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 22,
   "pdf": "ley_19979_jornada_escolar_completa.pdf",
   "sin_capa_texto": false,

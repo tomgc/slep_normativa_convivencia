@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 32,
   "pdf": "ley_20370_general_educacion.pdf",
   "sin_capa_texto": false,

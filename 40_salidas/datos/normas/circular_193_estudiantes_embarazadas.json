@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 16,
   "pdf": "circular_193_estudiantes_embarazadas.pdf",
   "sin_capa_texto": true,

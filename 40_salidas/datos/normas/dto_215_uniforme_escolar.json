@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 4,
   "pdf": "dto_215_uniforme_escolar.pdf",
   "sin_capa_texto": false,

@@ -13,6 +13,7 @@
     "estado": "vigente",
     "sustituye_a": []
   },
+  "grupo_acto": null,
   "paginas": 4,
   "pdf": "ley_21801_celulares.pdf",
   "sin_capa_texto": false,
