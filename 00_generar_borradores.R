@@ -36,12 +36,7 @@ normas <- lapply(cat_json$normas, function(x)
 names(normas) <- vapply(normas, function(n) n$slug, character(1))
 
 ORDEN_CAPA <- c(ley = 1L, dfl = 2L, dto = 2L, circular = 3L, rex = 3L, dictamen = 4L)
-nombre_corto <- function(n) {
-  num <- suppressWarnings(as.integer(n$numero))
-  etiqueta <- if (!is.na(num) && num >= 1000L)
-    formatC(num, big.mark = ".", decimal.mark = ",", format = "d") else n$numero
-  paste(n$tipo_etiqueta, etiqueta)
-}
+# nombre_corto() viene de 10_utils/10_utils.R, compartida con 34_generar_paginas.R.
 
 escribir_pieza <- function(nombre, front, cuerpo) {
   ruta <- fs::path(DIR_BORRADORES, paste0(nombre, ".md"))

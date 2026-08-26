@@ -25,30 +25,8 @@ source(here::here("10_utils", "10_configuracion.R"))
 ORIGEN <- "34_generar_paginas"
 
 # ---- Utilidades de presentacion ---------------------------------------------
-# Los numeros de ley chilenos se citan con separador de miles ("ley 20.536") y
-# los de decreto no ("decreto 24"). El umbral de 1000 reproduce esa convencion
-# sin una tabla de excepciones.
-formatear_numero <- function(numero) {
-  n <- suppressWarnings(as.integer(numero))
-  if (is.na(n) || n < 1000L) return(numero)
-  # decimal.mark explicito: sin el, formatC avisa en cada llamada de que el
-  # separador de miles y el de decimales coinciden. La coma ademas es el separador
-  # decimal correcto en espanol.
-  formatC(n, big.mark = ".", decimal.mark = ",", format = "d")
-}
-
-# Dos archivos del MISMO acto administrativo comparten tipo y numero, asi que el
-# nombre corto los rotula igual y el sitio termina ofreciendo dos enlaces
-# indistinguibles. El sufijo sale del ROL que 32_segmentar_articulos.R ya deriva
-# de la declaracion de curaduria (que slug esta nombrado como `resolucion`),
-# nunca del basename del archivo: la identidad viene de la fuente. Una norma sin
-# grupo no cambia de rotulo.
-ROL_GRUPO <- c(resolucion = "resolución", cuerpo = "cuerpo")
-nombre_corto <- function(n) {
-  base <- paste(n$tipo_etiqueta, formatear_numero(n$numero))
-  if (is.null(n$grupo_acto)) return(base)
-  sprintf("%s (%s)", base, ROL_GRUPO[[n$grupo_acto$rol]])
-}
+# nombre_corto(), formatear_numero() y ROL_GRUPO viven en 10_utils/10_utils.R:
+# los comparte con 00_generar_borradores.R, que rotula las mismas normas.
 
 # Diccionario slug -> nombre corto, para poder rotular un enlace a otra norma sin
 # tener que cargar su JSON entero cada vez. Se rellena en la corrida.

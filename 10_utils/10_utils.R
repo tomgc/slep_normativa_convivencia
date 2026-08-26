@@ -84,3 +84,35 @@ escapar_html <- function(x) {
     gsub(pattern = "<", replacement = "&lt;",   fixed = TRUE) |>
     gsub(pattern = ">", replacement = "&gt;",   fixed = TRUE)
 }
+
+# ---- Rotulo corto de una norma ----------------------------------------------
+# "Ley 20.536", "Decreto 24". Los numeros de ley chilenos se citan con separador
+# de miles y los de decreto no; el umbral de 1000 reproduce esa convencion sin una
+# tabla de excepciones.
+#
+# Vive aqui, y no en cada script, por el mismo motivo que slugificar(): lo usan el
+# generador de paginas (34) y el de borradores interpretativos
+# (00_generar_borradores.R). Dos copias que se rotulan distinto son dos nombres
+# para la misma norma en el mismo sitio, y la copia que nadie recuerda alinear es
+# siempre la que se queda atras.
+formatear_numero <- function(numero) {
+  n <- suppressWarnings(as.integer(numero))
+  if (is.na(n) || n < 1000L) return(numero)
+  # decimal.mark explicito: sin el, formatC avisa en cada llamada de que el
+  # separador de miles y el de decimales coinciden. La coma ademas es el separador
+  # decimal correcto en espanol.
+  formatC(n, big.mark = ".", decimal.mark = ",", format = "d")
+}
+
+# Dos archivos del MISMO acto administrativo comparten tipo y numero, asi que el
+# nombre corto los rotula igual y el sitio termina ofreciendo dos enlaces
+# indistinguibles. El sufijo sale del ROL que 32_segmentar_articulos.R ya deriva de
+# la declaracion de curaduria (que slug esta nombrado como `resolucion`), nunca del
+# basename del archivo: la identidad viene de la fuente. Una norma sin grupo no
+# cambia de rotulo.
+ROL_GRUPO <- c(resolucion = "resolución", cuerpo = "cuerpo")
+nombre_corto <- function(n) {
+  base <- paste(n$tipo_etiqueta, formatear_numero(n$numero))
+  if (is.null(n$grupo_acto)) return(base)
+  sprintf("%s (%s)", base, ROL_GRUPO[[n$grupo_acto$rol]])
+}
