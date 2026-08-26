@@ -274,3 +274,57 @@ Todas recontadas programáticamente en el turno de cierre.
 - **Copias temporales.** Los arneses y casos plantados de TD y TB vivieron bajo
   `/tmp/slep_v2_scratch`, fuera del repositorio, y se borran al cerrar. Ningún archivo del
   repositorio se modificó desde ellos.
+
+---
+
+## Adenda — segundo intento de TC, 2026-08-26
+
+TC se volvió a invocar sola, con el mismo contrato del encargo v2. **Sigue congelada por
+la condición 5: la línea de curaduría no está.** No se tocó nada.
+
+### Qué se midió, y con qué
+
+| Comprobación | Comando | Resultado |
+|---|---|---|
+| Árbol y sincronía | `git status --porcelain`; `HEAD` vs `origin/main` | limpio; `e8529e9` en ambos |
+| Candado (condición 2) | `grep` sobre `50_documentacion/activa/ESTADO.md` | `sesion_abierta: true`, `commit_cierre: 358e150` |
+| Conteos base (condición 3) | `jq '.relaciones\|length'`, `jq '.descartadas\|length'` | 550 y 88, sin cambio |
+| `N96` (condición 4) | `jq '[.descartadas[]\|select(.hacia=="dfl_1_estatuto_asistentes_educacion" and .anio_cita==1996)]\|length'` | **21**, sin cambio |
+| **Condición 5** | `jq -c '.normas.dfl_1_estatuto_asistentes_educacion'` | **`null`** |
+
+Antes de declarar la ausencia se hizo un barrido que no se conformó con leer esa clave,
+porque declarar "no está" sin buscarlo de varias formas es la manera de equivocarse:
+
+- `grep -n '1996' 20_insumos/curaduria/metadatos_curados.json` → **ninguna aparición**, en
+  todo el archivo.
+- `jq -r '.normas | keys[]'` → nueve slugs, y `dfl_1_estatuto_asistentes_educacion` **no
+  es uno de ellos**: no es que la entrada esté incompleta, es que no existe.
+- `jq 'paths(scalars) | select(test("anios_alternativos"))'` sobre todo el árbol → la
+  única sigue siendo la del dictamen 52/77 (`[2020]`).
+- `git diff -- 20_insumos/curaduria/metadatos_curados.json` → vacío; `mtime`
+  2026-08-26 01:29:33 y último commit que lo tocó `8d2e6e6`, de la sesión 1. El archivo no
+  se ha editado desde entonces.
+
+Tercera medición consecutiva con el mismo resultado (FASE 0 del v2, Paso 0 de TC en el v2,
+y esta). Se registra por eso: la fecha cambia, el estado no.
+
+### Qué queda igual y qué no se cerró
+
+- Las 21 remisiones al DFL 1 siguen descartadas; `dfl_315 → dfl_1` y
+  `ley_21809 → dfl_1` siguen sin existir en el sitio publicado.
+- **La Duda 2 de este log NO se cierra.** Iba a cerrarse *como efecto* de la regeneración
+  de TC, y la regeneración no ocurrió: el refactor de `nombre_corto()` (`bd7260c`) sigue
+  verificado por arnés y no de punta a punta por el pipeline. Decirlo importa porque la
+  invocación de TC se hizo contando con que cerraría.
+- El instrumento de calibración sigue listo y sin usar: tras la regeneración, `N96` debe
+  pasar de 21 a 0.
+
+### Lo que no se hizo, por diseño
+
+No se ejecutó `run_all()`, no se convocó el panel adversarial, no se escribió en
+`20_insumos/curaduria/` —editar esa línea está expresamente fuera de las autorizaciones,
+solo commitearla lo está— y no se produjo ningún commit de datos. `git status --porcelain`
+sobre `20_insumos/` y `40_salidas/` quedó vacío.
+
+**La pregunta cerrada de la Duda 1 sigue en pie, sin cambios**: ¿escribes la línea con su
+`fuente_anios_alternativos`, o pasa como pendiente al traspaso v02?
