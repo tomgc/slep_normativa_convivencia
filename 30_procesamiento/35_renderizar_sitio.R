@@ -25,6 +25,14 @@ if (!fs::dir_exists(ruta_sitio_src())) {
   stop("No existe ", ruta_sitio_src(), ". Correr antes el paso 34 (run_all(only = 34)).")
 }
 
+# El directorio de salida se vacia ANTES de renderizar. Quarto no borra lo que
+# dejo de tener fuente: si una pagina desaparece del generador, su HTML se queda
+# publicado indefinidamente. Con las piezas interpretativas eso deja de ser un
+# detalle de higiene y pasa a romper el invariante del proyecto: una ficha que el
+# equipo devuelve a borrador seguiria en linea, firmada, para siempre. Medido el
+# 2026-08-25 con pieza-faq-revision-de-mochilas.html.
+if (fs::dir_exists(ruta_sitio())) fs::dir_delete(ruta_sitio())
+
 n_qmd <- length(fs::dir_ls(ruta_sitio_src(), glob = "*.qmd"))
 log_msg(sprintf("Renderizando %d páginas .qmd con Quarto %s.",
                 n_qmd, as.character(quarto::quarto_version())),

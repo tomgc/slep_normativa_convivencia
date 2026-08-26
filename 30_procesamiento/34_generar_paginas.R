@@ -19,7 +19,7 @@
 # =============================================================================
 
 source(here::here("10_utils", "10_utils.R"))
-instalar_si_falta(c("jsonlite", "fs", "here", "stringi"))
+instalar_si_falta(c("jsonlite", "fs", "here", "stringi", "yaml"))
 source(here::here("10_utils", "10_configuracion.R"))
 
 ORIGEN <- "34_generar_paginas"
@@ -324,6 +324,86 @@ pagina_norma <- function(n) {
   paste(c(cab, banda, ficha, abre, "", spans_filtro, secciones, ":::",
           bloque_relacionados(n), ""),
         collapse = "\n")
+}
+
+# ---- Piezas interpretativas --------------------------------------------------
+# Fichas, preguntas frecuentes y glosario son INTERPRETACION institucional, no
+# cita textual. El invariante del proyecto es que no se publican sin firma: el
+# sitio muestra una pieza solo si declara `estado: validada` Y trae
+# `validado_por` con un nombre. Las dos condiciones, no una.
+#
+# Y la compuerta ABORTA, no filtra en silencio: una pieza marcada como validada
+# sin firma es un error de curaduria que alguien tiene que ver, no un archivo que
+# convenga saltarse calladamente.
+leer_pieza <- function(ruta) {
+  lineas <- readLines(ruta, warn = FALSE)
+  cortes <- which(trimws(lineas) == "---")
+  if (length(cortes) < 2L) {
+    stop(sprintf("Pieza sin front matter delimitado por '---': %s", ruta))
+  }
+  fm <- yaml::yaml.load(paste(lineas[(cortes[1] + 1L):(cortes[2] - 1L)], collapse = "\n"))
+  cuerpo <- if (cortes[2] < length(lineas)) lineas[(cortes[2] + 1L):length(lineas)] else character(0)
+  c(fm, list(archivo = ruta, cuerpo = cuerpo))
+}
+
+TIPOS_PIEZA <- c(ficha = "Fichas por norma", faq = "Preguntas frecuentes",
+                 glosario = "Glosario")
+
+cargar_piezas <- function() {
+  raiz <- ruta_insumos("curaduria", "piezas")
+  if (!fs::dir_exists(raiz)) return(list())
+  archivos <- fs::dir_ls(raiz, glob = "*.md", recurse = TRUE)
+  archivos <- archivos[basename(archivos) != "README.md"]
+  if (length(archivos) == 0L) return(list())
+
+  piezas <- lapply(archivos, leer_pieza)
+
+  firmada <- function(p) !is.null(p$validado_por) && nzchar(trimws(as.character(p$validado_por)))
+  incoherentes <- Filter(function(p) identical(p$estado, "validada") && !firmada(p), piezas)
+  if (length(incoherentes) > 0L) {
+    stop("Piezas con `estado: validada` y sin `validado_por`:\n  ",
+         paste(vapply(incoherentes, function(p)
+           fs::path_rel(p$archivo, here::here()), character(1)), collapse = "\n  "),
+         "\n  Una pieza interpretativa sin firma no se publica. Completar ",
+         "`validado_por` y `fecha_validacion`, o devolver `estado: borrador`.")
+  }
+  desconocidas <- Filter(function(p) !p$tipo %in% names(TIPOS_PIEZA), piezas)
+  if (length(desconocidas) > 0L) {
+    stop("Piezas con `tipo` fuera de {", paste(names(TIPOS_PIEZA), collapse = ", "), "}: ",
+         paste(vapply(desconocidas, function(p) basename(p$archivo), character(1)), collapse = ", "))
+  }
+
+  publicables <- Filter(function(p) identical(p$estado, "validada") && firmada(p), piezas)
+  log_msg(sprintf("Piezas interpretativas: %d en total, %d validadas y publicables.",
+                  length(piezas), length(publicables)), origen = ORIGEN)
+  publicables
+}
+
+slug_pieza <- function(p) paste0("pieza-", slugificar(tools::file_path_sans_ext(basename(p$archivo))))
+
+pagina_pieza <- function(p) {
+  fuentes <- if (is.null(p$fuentes) || length(p$fuentes) == 0L) character(0) else
+    vapply(p$fuentes, function(f)
+      sprintf("- [%s, %s](%s)", f$norma, f$articulo, f$ancla), character(1))
+  c("---",
+    paste("title:", escalar_yaml(p$titulo)),
+    paste("subtitle:", escalar_yaml(unname(TIPOS_PIEZA[[p$tipo]]))),
+    "toc: true",
+    "---",
+    "",
+    "```{=html}",
+    '<div class="ficha-norma">',
+    sprintf('<p><span class="badge-fuente badge-interpretacion">interpretación institucional</span></p>'),
+    sprintf("<p>Pieza <strong>validada por %s</strong>%s. No es texto normativo: es una lectura del equipo de convivencia, y cada afirmación enlaza al artículo que la respalda.</p>",
+            escapar_html(as.character(p$validado_por)),
+            if (!is.null(p$fecha_validacion)) paste0(" el ", escapar_html(as.character(p$fecha_validacion))) else ""),
+    "</div>",
+    "```",
+    "",
+    p$cuerpo,
+    "",
+    if (length(fuentes) > 0L) c("## Fuentes", "", fuentes, "") else NULL) |>
+    paste(collapse = "\n")
 }
 
 # ---- Paginas tematicas -------------------------------------------------------
@@ -716,10 +796,55 @@ writeLines(
   file.path(destino, "indice-tema.qmd")
 )
 
+# ---- Piezas interpretativas: solo las validadas ------------------------------
+piezas <- cargar_piezas()
+for (p in piezas) {
+  writeLines(pagina_pieza(p), file.path(destino, paste0(slug_pieza(p), ".qmd")))
+}
+
+n_piezas <- length(piezas)
+if (n_piezas > 0L) {
+  por_tipo_pieza <- split(piezas, vapply(piezas, function(p) p$tipo, character(1)))
+  por_tipo_pieza <- por_tipo_pieza[intersect(names(TIPOS_PIEZA), names(por_tipo_pieza))]
+  writeLines(
+    c("---",
+      'title: "Fichas, preguntas frecuentes y glosario"',
+      'subtitle: "Piezas interpretativas validadas por el equipo de convivencia."',
+      "toc: true",
+      "---",
+      "",
+      "```{=html}",
+      '<div class="aviso" role="note">',
+      "<p>Lo que sigue <strong>no es texto normativo</strong>. Son lecturas del equipo ",
+      "de convivencia, y cada una está firmada por quien la validó. El texto legal ",
+      "literal está en las páginas de cada norma.</p>",
+      "</div>",
+      "```",
+      "",
+      unlist(lapply(names(por_tipo_pieza), function(t) c(
+        paste("##", TIPOS_PIEZA[[t]]),
+        "",
+        vapply(por_tipo_pieza[[t]], function(p)
+          sprintf("- [%s](%s.qmd) — validada por %s", p$titulo, slug_pieza(p),
+                  as.character(p$validado_por)), character(1)),
+        ""))),
+      ""),
+    file.path(destino, "piezas.qmd"))
+
+  # El navbar gana la entrada SOLO si hay algo que enlazar. Un enlace a una
+  # seccion vacia le dice al usuario que existe contenido que no existe.
+  yml <- readLines(file.path(destino, "_quarto.yml"), warn = FALSE)
+  i <- grep("^      - href: acerca\\.qmd", yml)
+  if (length(i) == 1L) {
+    yml <- append(yml, c("      - href: piezas.qmd", "        text: Fichas y FAQ"), after = i[1] - 1L)
+    writeLines(yml, file.path(destino, "_quarto.yml"))
+  }
+}
+
 n_qmd <- length(fs::dir_ls(destino, glob = "*.qmd"))
-esperadas <- length(normas) + length(temas) + 5L   # normas + temas + home + acerca + 3 indices
-log_msg(sprintf("Generadas %d páginas .qmd (%d normas + %d temas + home + acerca + 3 índices) en %s.",
-                n_qmd, length(normas), length(temas), destino),
+esperadas <- length(normas) + length(temas) + 5L + n_piezas + (n_piezas > 0L)
+log_msg(sprintf("Generadas %d páginas .qmd (%d normas + %d temas + %d piezas + home + acerca + 3 índices) en %s.",
+                n_qmd, length(normas), length(temas), n_piezas, destino),
         origen = ORIGEN)
 if (n_qmd != esperadas) {
   stop(sprintf("Se esperaban %d páginas .qmd y hay %d.", esperadas, n_qmd))

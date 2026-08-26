@@ -151,3 +151,9 @@ blockquote.texto-legal, blockquote.transcripcion-ocr {
 }
 blockquote.transcripcion-ocr { border-left-color: #b58900; background: #fffdf5; }
 .leer-contexto { margin-bottom: 2rem; font-size: 0.9rem; }
+
+/* --- Piezas interpretativas ------------------------------------------------ */
+/* Color distinto del azul de la capa normativa: lo que se lee aquí es una
+   lectura del equipo, no la norma. La distinción es un invariante del proyecto,
+   no una preferencia estética. */
+.badge-interpretacion { background: #7a5195; color: #fff; }
