@@ -34,13 +34,13 @@ cargar_curaduria <- function() {
   jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)
 }
 .CUR <- cargar_curaduria()
-CURADURIA <- if (is.null(.CUR$normas)) list() else .CUR$normas
+CURADURIA <- if (is.null(.CUR[["normas"]])) list() else .CUR[["normas"]]
 
 # Grupos de acto administrativo. Un grupo declara que dos o mas archivos del
 # corpus son el MISMO acto y se declara UNA SOLA VEZ, no una vez por miembro,
 # por el mismo motivo que la sustitucion: dos mitades editables por separado
 # pueden afirmar cosas incompatibles y el sitio no tendria como saber cual vale.
-CURADURIA_GRUPOS <- if (is.null(.CUR$grupos_acto)) list() else .CUR$grupos_acto
+CURADURIA_GRUPOS <- if (is.null(.CUR[["grupos_acto"]])) list() else .CUR[["grupos_acto"]]
 
 # ---- Derivacion desde el nombre canonico ------------------------------------
 # El nombre es <tipo>_<numero>_<materia>.pdf y T2 lo fijo con verificacion de
@@ -290,17 +290,17 @@ segmentar_ocr <- function(texto) {
 ESTADOS_VIGENCIA <- c("vigente", "sustituido")
 
 vigencia_de <- function(slug, curado) {
-  v <- curado$vigencia
+  v <- curado[["vigencia"]]
   if (is.null(v)) return(list(estado = "vigente"))
-  if (!v$estado %in% ESTADOS_VIGENCIA) {
+  if (!v[["estado"]] %in% ESTADOS_VIGENCIA) {
     stop(sprintf("Slug '%s': vigencia.estado '%s' fuera del dominio (%s).",
-                 slug, v$estado, paste(ESTADOS_VIGENCIA, collapse = ", ")))
+                 slug, v[["estado"]], paste(ESTADOS_VIGENCIA, collapse = ", ")))
   }
-  if (identical(v$estado, "sustituido")) {
-    if (is.null(v$sustituido_por) || !nzchar(v$sustituido_por)) {
+  if (identical(v[["estado"]], "sustituido")) {
+    if (is.null(v[["sustituido_por"]]) || !nzchar(v[["sustituido_por"]])) {
       stop(sprintf("Slug '%s': vigencia 'sustituido' sin `sustituido_por`.", slug))
     }
-    if (is.null(v$fuente) || !nzchar(v$fuente)) {
+    if (is.null(v[["fuente"]]) || !nzchar(v[["fuente"]])) {
       stop(sprintf("Slug '%s': vigencia 'sustituido' sin `fuente`. La procedencia es obligatoria.", slug))
     }
   }
@@ -321,7 +321,7 @@ vigencia_de <- function(slug, curado) {
 validar_grupos_acto <- function(grupos, slugs) {
   for (id in names(grupos)) {
     g <- grupos[[id]]
-    miembros <- unlist(g$miembros)
+    miembros <- unlist(g[["miembros"]])
     if (length(miembros) < 2L) {
       stop(sprintf("Grupo de acto '%s': %d miembro(s). Un grupo de uno no declara nada.",
                    id, length(miembros)))
@@ -331,19 +331,19 @@ validar_grupos_acto <- function(grupos, slugs) {
       stop(sprintf("Grupo de acto '%s': miembros fuera del corpus: %s.",
                    id, paste(fuera, collapse = ", ")))
     }
-    if (is.null(g$resolucion) || !(g$resolucion %in% miembros)) {
+    if (is.null(g[["resolucion"]]) || !(g[["resolucion"]] %in% miembros)) {
       stop(sprintf("Grupo de acto '%s': `resolucion` ('%s') no esta entre sus miembros. Es el slug al que apunta el sitio cuando un tercero cita el acto: sin el, el enlace queda indefinido.",
-                   id, if (is.null(g$resolucion)) "NULL" else g$resolucion))
+                   id, if (is.null(g[["resolucion"]])) "NULL" else g[["resolucion"]]))
     }
-    if (is.null(g$fuente) || !nzchar(g$fuente)) {
+    if (is.null(g[["fuente"]]) || !nzchar(g[["fuente"]])) {
       stop(sprintf("Grupo de acto '%s': sin `fuente`. La procedencia es obligatoria.", id))
     }
-    if (is.null(g$nota_colapso) || !nzchar(g$nota_colapso)) {
+    if (is.null(g[["nota_colapso"]]) || !nzchar(g[["nota_colapso"]])) {
       stop(sprintf("Grupo de acto '%s': sin `nota_colapso`. Un enlace colapsado que no dice que incluye se lee como si apuntara solo a la resolucion.", id))
     }
   }
   # Un slug en dos grupos deja indefinido a donde apunta una cita al acto.
-  todos <- unlist(lapply(grupos, function(g) unlist(g$miembros)))
+  todos <- unlist(lapply(grupos, function(g) unlist(g[["miembros"]])))
   dup <- unique(todos[duplicated(todos)])
   if (length(dup) > 0L) {
     stop("Slug declarado en mas de un grupo de acto: ", paste(dup, collapse = ", "))
@@ -354,15 +354,15 @@ validar_grupos_acto <- function(grupos, slugs) {
 grupo_acto_de <- function(slug) {
   for (id in names(CURADURIA_GRUPOS)) {
     g <- CURADURIA_GRUPOS[[id]]
-    miembros <- unlist(g$miembros)
+    miembros <- unlist(g[["miembros"]])
     if (!slug %in% miembros) next
     return(list(
       id = id,
-      rol = if (identical(slug, g$resolucion)) "resolucion" else "cuerpo",
-      resolucion = g$resolucion,
+      rol = if (identical(slug, g[["resolucion"]])) "resolucion" else "cuerpo",
+      resolucion = g[["resolucion"]],
       otros_miembros = I(setdiff(miembros, slug)),
-      nota_colapso = g$nota_colapso,
-      fuente = g$fuente))
+      nota_colapso = g[["nota_colapso"]],
+      fuente = g[["fuente"]]))
   }
   NULL
 }
@@ -413,7 +413,7 @@ construir_norma <- function(meta) {
 
   # El estado del texto lo declara el equipo cuando hay curaduria y el pipeline
   # cuando no. Asi 'ocr_revisado' solo puede llegar de una persona.
-  origen_texto <- if (!is.null(curado$origen_texto)) curado$origen_texto else meta$origen_texto
+  origen_texto <- if (!is.null(curado[["origen_texto"]])) curado[["origen_texto"]] else meta$origen_texto
   if (!origen_texto %in% ORIGENES_TEXTO) {
     stop(sprintf("Slug '%s': origen_texto '%s' fuera del dominio declarado (%s).",
                  slug, origen_texto, paste(ORIGENES_TEXTO, collapse = ", ")))
@@ -425,8 +425,20 @@ construir_norma <- function(meta) {
   # La curaduria se SUPERPONE al dato derivado y, al hacerlo, retira la marca de
   # revision del campo que resuelve. El campo `fuente_*` viaja al JSON: un
   # metadato curado sin procedencia visible es indistinguible de uno inventado.
-  if (!is.null(curado$anio))   anio   <- curado$anio
-  if (!is.null(curado$titulo)) titulo <- curado$titulo
+  #
+  # SIEMPRE con [[ ]], NUNCA con $: R hace coincidencia PARCIAL de nombres con $
+  # sobre listas, y `anio` es prefijo de `anios_alternativos`. Una entrada de
+  # curaduria que declare solo `anios_alternativos` hacia que `curado$anio`
+  # devolviera ese arreglo y sobreescribiera el anio derivado del documento. Paso:
+  # la entrada del DFL 1 puso el anio de la norma en 1996 en vez de 1997 y el
+  # derivador empezo a descartar las citas correctas. Lo mismo con `fuente_anio`,
+  # prefijo de `fuente_anios_alternativos`. Por eso TODA lectura de la curaduria usa
+  # [[ ]] en 30, 31, 32 y 33. Queda una fuera del alcance: `estado_curado()` en
+  # 00_ocr_documentos.R, que es la misma funcion clonada y gobierna la compuerta que
+  # protege el OCR corregido a mano. Hoy no falla (`origen_texto` no es prefijo de nada),
+  # pero es el mismo codigo y conviene alinearlo.
+  if (!is.null(curado[["anio"]]))   anio   <- curado[["anio"]]
+  if (!is.null(curado[["titulo"]])) titulo <- curado[["titulo"]]
 
   revisar <- character(0)
   if (is.null(titulo)) revisar <- c(revisar, "titulo")
@@ -454,12 +466,12 @@ construir_norma <- function(meta) {
     # consumidor que iterara sobre el campo fallaba justo en las normas de un solo
     # tema. Lo detecto el recuento con jq del cierre.
     tema = I(temas),
-    fuente_anio = if (!is.null(curado$fuente_anio)) curado$fuente_anio else NULL,
+    fuente_anio = if (!is.null(curado[["fuente_anio"]])) curado[["fuente_anio"]] else NULL,
     # Anios adicionales legitimos de la norma, para los textos refundidos: el
     # catalogo la ubica en uno solo, pero una cita a cualquiera de ellos apunta a
     # este mismo documento.
-    anios_alternativos = I(if (!is.null(curado$anios_alternativos))
-      unlist(curado$anios_alternativos) else integer(0)),
+    anios_alternativos = I(if (!is.null(curado[["anios_alternativos"]]))
+      unlist(curado[["anios_alternativos"]]) else integer(0)),
     # Vigencia. Por defecto `vigente`; la sustitucion la declara la curaduria en
     # la norma SUSTITUIDA y una sola vez. El vinculo inverso ("sustituye a") lo
     # deriva el pipeline mas abajo, para que las dos direcciones no puedan
@@ -476,9 +488,9 @@ construir_norma <- function(meta) {
     # Estado del texto publicado. Gobierna como lo presenta el sitio: solo
     # capa_texto_pdf y ocr_revisado se muestran como cita textual.
     origen_texto = origen_texto,
-    fuente_origen_texto = if (!is.null(curado$fuente_origen_texto)) curado$fuente_origen_texto else NULL,
-    notas_ficha = I(if (!is.null(curado$notas_ficha)) unlist(curado$notas_ficha) else character(0)),
-    aviso_vigencia = if (!is.null(curado$aviso_vigencia)) curado$aviso_vigencia else NULL,
+    fuente_origen_texto = if (!is.null(curado[["fuente_origen_texto"]])) curado[["fuente_origen_texto"]] else NULL,
+    notas_ficha = I(if (!is.null(curado[["notas_ficha"]])) unlist(curado[["notas_ficha"]]) else character(0)),
+    aviso_vigencia = if (!is.null(curado[["aviso_vigencia"]])) curado[["aviso_vigencia"]] else NULL,
     marca_revisar = I(revisar),
     n_articulos = sum(vapply(arts, function(a) isTRUE(a$es_articulo), logical(1))),
     n_segmentos = length(arts),

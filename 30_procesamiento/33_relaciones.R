@@ -239,7 +239,7 @@ for (a in normas) {
       # dictamen 52/77 refunde uno de 2020 y otro de 2025, y una cita al "Dictamen
       # N° 52, de 2020" apunta a ese mismo documento aunque el catalogo lo ubique
       # en 2025.
-      anios_destino <- c(normas[[slug_b]]$anio, normas[[slug_b]]$anios_alternativos)
+      anios_destino <- c(normas[[slug_b]][["anio"]], normas[[slug_b]][["anios_alternativos"]])
       anios_destino <- anios_destino[!vapply(anios_destino, is.null, logical(1))]
 
       if (!is.na(anio_cita) && length(anios_destino) > 0L &&

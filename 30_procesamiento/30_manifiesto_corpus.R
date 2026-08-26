@@ -65,8 +65,8 @@ huella_documento <- function(slug) {
   # Medido el 2026-08-25 al pasar el dictamen 078 a ocr_pendiente_revision.
   ruta_cur <- ruta_insumos("curaduria", "metadatos_curados.json")
   h_origen <- if (fs::file_exists(ruta_cur)) {
-    cur <- jsonlite::fromJSON(ruta_cur, simplifyDataFrame = FALSE)$normas[[slug]]
-    if (is.null(cur$origen_texto)) "-" else cur$origen_texto
+    cur <- jsonlite::fromJSON(ruta_cur, simplifyDataFrame = FALSE)[["normas"]][[slug]]
+    if (is.null(cur[["origen_texto"]])) "-" else cur[["origen_texto"]]
   } else "-"
 
   list(slug = slug, md5_pdf = h_pdf, md5_ocr = h_ocr, origen_declarado = h_origen,

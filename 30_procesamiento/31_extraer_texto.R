@@ -35,8 +35,8 @@ ORIGEN <- "31_extraer_texto"
 origen_curado <- function(slug) {
   ruta <- ruta_insumos("curaduria", "metadatos_curados.json")
   if (!fs::file_exists(ruta)) return(NA_character_)
-  cur <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$normas[[slug]]
-  if (is.null(cur$origen_texto)) NA_character_ else cur$origen_texto
+  cur <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)[["normas"]][[slug]]
+  if (is.null(cur[["origen_texto"]])) NA_character_ else cur[["origen_texto"]]
 }
 
 # ---- Deteccion de encabezados y pies repetidos ------------------------------
