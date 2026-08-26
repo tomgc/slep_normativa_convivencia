@@ -21,8 +21,18 @@
 # le adivine la estructura de parrafos, y para revisarlo conviene que lo que se
 # lee en el sitio sea exactamente lo que hay en el archivo.
 #
-# Uso: Rscript 00_ocr_documentos.R            (solo los que faltan)
-#      Rscript 00_ocr_documentos.R --rehacer  (rehace todos)
+# COMPUERTA DE PROTECCION (2026-08-25). Antes de regenerar la transcripcion de un
+# documento que ya la tiene, la herramienta se detiene si detecta trabajo humano:
+#   (a) el documento esta declarado `ocr_revisado` en la curaduria, o
+#   (b) alguna pagina difiere del hash que se registro cuando se genero.
+# La unica forma de pasar es nombrar el documento con --forzar, y aun entonces se
+# respalda antes de tocar nada. Sin la compuerta, un `--rehacer` distraido borra
+# semanas de revision sin preguntar y sin dejar rastro.
+#
+# Uso:
+#   Rscript 00_ocr_documentos.R                  solo los que faltan
+#   Rscript 00_ocr_documentos.R --rehacer        rehace todos (sujeto a compuerta)
+#   Rscript 00_ocr_documentos.R --forzar <slug>  rehace ESE, saltando la compuerta
 # =============================================================================
 
 source(here::here("10_utils", "10_utils.R"))
@@ -30,7 +40,16 @@ instalar_si_falta(c("pdftools", "jsonlite", "fs", "here"))
 source(here::here("10_utils", "10_configuracion.R"))
 
 ORIGEN <- "00_ocr_documentos"
-REHACER <- "--rehacer" %in% commandArgs(trailingOnly = TRUE)
+
+# ---- Argumentos --------------------------------------------------------------
+args    <- commandArgs(trailingOnly = TRUE)
+REHACER <- "--rehacer" %in% args
+FORZAR  <- if ("--forzar" %in% args) {
+  # Todo lo que sigue a --forzar y no empieza por "--" es un slug.
+  resto <- args[(which(args == "--forzar")[1] + 1L):length(args)]
+  resto[!startsWith(resto, "--")]
+} else character(0)
+FORZAR <- FORZAR[nzchar(FORZAR)]
 
 if (Sys.info()[["sysname"]] != "Darwin") {
   stop("Esta herramienta usa el framework Vision de macOS y solo corre ahi.\n",
@@ -46,16 +65,30 @@ if (!nzchar(Sys.which("pdftoppm"))) {
        "  segfault 'invalid permissions'. Un proceso externo por pagina no puede.")
 }
 
-# ---- Compilar el auxiliar Swift ---------------------------------------------
-# Se compila a un temporal en cada corrida en vez de versionar un binario: un
-# ejecutable en el repositorio no es codigo fuente y nadie puede revisarlo.
-binario <- file.path(tempdir(), "ocr_vision")
-fuente  <- here::here("00_ocr_vision.swift")
-log_msg("Compilando el auxiliar de reconocimiento.", origen = ORIGEN)
-estado <- system2("swiftc", c("-O", "-o", shQuote(binario), shQuote(fuente)))
-if (estado != 0L || !file.exists(binario)) {
-  stop("No se pudo compilar 00_ocr_vision.swift. ¿Están las Command Line Tools ",
-       "instaladas? (xcode-select --install)")
+# ---- Estado previo: manifiesto y curaduria ----------------------------------
+RUTA_MANIFIESTO <- ruta_insumos("ocr", "manifiesto_ocr.json")
+
+manifiesto_previo <- if (fs::file_exists(RUTA_MANIFIESTO)) {
+  jsonlite::fromJSON(RUTA_MANIFIESTO, simplifyDataFrame = FALSE)
+} else list(documentos = list())
+
+hashes_registrados <- function(slug) {
+  d <- Filter(function(x) identical(x$slug, slug), manifiesto_previo$documentos)
+  if (length(d) == 0L || is.null(d[[1]]$hashes_paginas)) return(NULL)
+  unlist(d[[1]]$hashes_paginas)
+}
+
+estado_curado <- function(slug) {
+  ruta <- ruta_insumos("curaduria", "metadatos_curados.json")
+  if (!fs::file_exists(ruta)) return(NA_character_)
+  cur <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$normas[[slug]]
+  if (is.null(cur$origen_texto)) NA_character_ else cur$origen_texto
+}
+
+hashear_paginas <- function(destino) {
+  paginas <- sort(fs::dir_ls(destino, glob = "*.txt"))
+  if (length(paginas) == 0L) return(setNames(character(0), character(0)))
+  setNames(unname(tools::md5sum(paginas)), basename(paginas))
 }
 
 # ---- Que documentos necesitan reconocimiento --------------------------------
@@ -69,86 +102,177 @@ sin_capa <- unname(pdfs[vapply(pdfs, necesita_ocr, logical(1))])
 log_msg(sprintf("%d de %d documentos sin capa de texto.", length(sin_capa), length(pdfs)),
         origen = ORIGEN)
 
-# ---- Reconocimiento de un documento -----------------------------------------
-ocr_documento <- function(ruta_pdf) {
-  slug <- sub("\\.pdf$", "", basename(ruta_pdf))
-  destino <- ruta_insumos("ocr", slug)
+# ---- Plan: que se hace con cada documento -----------------------------------
+# Se resuelve ANTES de tocar nada, para poder evaluar la compuerta sobre el plan
+# completo y abortar con la lista entera en vez de a medio camino.
+plan <- lapply(sin_capa, function(ruta_pdf) {
+  slug     <- sub("\\.pdf$", "", basename(ruta_pdf))
+  destino  <- ruta_insumos("ocr", slug)
+  existe   <- fs::dir_exists(destino)
+  n_pdf    <- pdftools::pdf_info(ruta_pdf)$pages
+  n_txt    <- if (existe) length(fs::dir_ls(destino, glob = "*.txt")) else 0L
+  forzado  <- slug %in% FORZAR
 
-  info <- pdftools::pdf_info(ruta_pdf)
+  accion <- if (!existe || n_txt == 0L) "generar"
+            else if (n_txt != n_pdf)   "reparar"
+            else if (REHACER || forzado) "rehacer"
+            else "omitir"
 
-  # Se omite solo si el reconocimiento esta COMPLETO. Comparar contra la
-  # existencia de la carpeta no basta: una corrida interrumpida deja una carpeta
-  # con menos paginas que el PDF, y esa transcripcion parcial se ve igual de
-  # completa que una entera. Paso el 2026-08-25 con rex_482_reglamentos_b, que
-  # tumbo a poppler a mitad de camino.
-  if (fs::dir_exists(destino) && !REHACER) {
-    presentes <- length(fs::dir_ls(destino, glob = "*.txt"))
-    if (presentes == info$pages) {
-      log_msg(sprintf("%s: ya tiene reconocimiento completo (%d páginas), se omite.",
-                      slug, presentes),
-              origen = ORIGEN)
-      return(NULL)
-    }
-    log_msg(sprintf("%s: reconocimiento INCOMPLETO (%d de %d páginas). Se rehace.",
-                    slug, presentes, info$pages),
-            nivel = "WARN", origen = ORIGEN)
-    fs::dir_delete(destino)
+  list(ruta_pdf = ruta_pdf, slug = slug, destino = destino,
+       n_pdf = n_pdf, n_txt = n_txt, accion = accion, forzado = forzado)
+})
+
+# ---- Compuerta de proteccion -------------------------------------------------
+# Se aplica a todo lo que vaya a SOBREESCRIBIR paginas existentes ("rehacer" y
+# "reparar"), no solo a --rehacer: reparar una transcripcion incompleta tambien
+# destruye las correcciones de las paginas que si estaban.
+evaluar_compuerta <- function(p) {
+  if (!p$accion %in% c("rehacer", "reparar")) return(NULL)
+  if (p$forzado) return(NULL)
+
+  if (identical(estado_curado(p$slug), "ocr_revisado")) {
+    return(sprintf("%s: declarado `ocr_revisado` en la curaduria.", p$slug))
   }
-  fs::dir_create(destino)
-  tmp <- fs::path(tempdir(), paste0("raster_", slug))
+
+  registrados <- hashes_registrados(p$slug)
+  if (is.null(registrados)) {
+    # Sin hashes de referencia no se puede distinguir una correccion humana de la
+    # salida original. Se elige el lado seguro: bloquear. La corrida normal (sin
+    # --rehacer) los deja registrados, asi que esto se resuelve solo una vez.
+    return(sprintf("%s: el manifiesto no tiene hashes de referencia; corre la herramienta sin --rehacer una vez para registrarlos.", p$slug))
+  }
+
+  actuales <- hashear_paginas(p$destino)
+  comunes  <- intersect(names(registrados), names(actuales))
+  distintas <- comunes[registrados[comunes] != actuales[comunes]]
+  faltantes <- setdiff(names(registrados), names(actuales))
+  nuevas    <- setdiff(names(actuales), names(registrados))
+
+  if (length(distintas) + length(faltantes) + length(nuevas) > 0L) {
+    return(sprintf("%s: %d página(s) difieren del hash de generación (%s%s%s). Parece trabajo humano.",
+                   p$slug, length(distintas) + length(faltantes) + length(nuevas),
+                   paste(utils::head(distintas, 4), collapse = ", "),
+                   if (length(faltantes)) sprintf(" faltan: %s", paste(faltantes, collapse = ", ")) else "",
+                   if (length(nuevas)) sprintf(" sobran: %s", paste(nuevas, collapse = ", ")) else ""))
+  }
+  NULL
+}
+
+bloqueos <- Filter(Negate(is.null), lapply(plan, evaluar_compuerta))
+if (length(bloqueos) > 0L) {
+  stop("\n\n  COMPUERTA DE PROTECCION: no se regenera nada.\n\n",
+       paste0("  - ", unlist(bloqueos), collapse = "\n"),
+       "\n\n  Estas transcripciones contienen, o pueden contener, correccion humana.\n",
+       "  Para regenerar una de todos modos, nombrala explicitamente:\n",
+       "    Rscript 00_ocr_documentos.R --forzar <slug>\n",
+       "  Antes de sobreescribir se respalda en _archivo/AAAAMMDD/ocr_<slug>/.\n",
+       call. = FALSE)
+}
+
+# ---- Reconocimiento de un documento -----------------------------------------
+respaldar <- function(p) {
+  if (!fs::dir_exists(p$destino)) return(invisible(NULL))
+  sello <- format(Sys.Date(), "%Y%m%d")
+  respaldo <- here::here("_archivo", sello, paste0("ocr_", p$slug))
+  fs::dir_create(respaldo, recurse = TRUE)
+  fs::file_copy(fs::dir_ls(p$destino, glob = "*.txt"), respaldo, overwrite = TRUE)
+  log_msg(sprintf("%s: %d páginas respaldadas en %s",
+                  p$slug, length(fs::dir_ls(respaldo, glob = "*.txt")),
+                  fs::path_rel(respaldo, here::here())),
+          nivel = "WARN", origen = ORIGEN)
+}
+
+ocr_documento <- function(p) {
+  if (p$accion == "omitir") {
+    log_msg(sprintf("%s: ya tiene reconocimiento completo (%d páginas), se omite.",
+                    p$slug, p$n_txt),
+            origen = ORIGEN)
+    return(NULL)
+  }
+  if (p$accion == "reparar") {
+    log_msg(sprintf("%s: reconocimiento INCOMPLETO (%d de %d páginas). Se rehace.",
+                    p$slug, p$n_txt, p$n_pdf), nivel = "WARN", origen = ORIGEN)
+  }
+  if (p$forzado) {
+    log_msg(sprintf("%s: --forzar activo, se salta la compuerta.", p$slug),
+            nivel = "WARN", origen = ORIGEN)
+  }
+
+  # Respaldo antes de destruir. Solo si habia algo que perder.
+  if (p$n_txt > 0L) respaldar(p)
+  if (fs::dir_exists(p$destino)) fs::dir_delete(p$destino)
+  fs::dir_create(p$destino)
+
+  tmp <- fs::path(tempdir(), paste0("raster_", p$slug))
   fs::dir_create(tmp)
   on.exit(fs::dir_delete(tmp), add = TRUE)
 
   log_msg(sprintf("%s: rasterizando y reconociendo %d páginas a %d dpi.",
-                  slug, info$pages, OCR_DPI),
-          origen = ORIGEN)
+                  p$slug, p$n_pdf, OCR_DPI), origen = ORIGEN)
 
-  caracteres <- integer(info$pages)
-  for (i in seq_len(info$pages)) {
+  caracteres <- integer(p$n_pdf)
+  for (i in seq_len(p$n_pdf)) {
     # Una pagina por invocacion de pdftoppm, en un PROCESO APARTE. Dentro de un
     # mismo proceso de R, pdftools::pdf_convert() acumula estado de poppler y
-    # termina cayendo con segfault "invalid permissions" en este escaneo de 48
+    # termina cayendo con segfault "invalid permissions" en el escaneo de 48
     # paginas y 14,8 MB (medido el 2026-08-25; las mismas paginas sueltas, en
     # procesos separados, salen bien). Un binario externo no puede tumbar a R, y
     # ademas aisla una pagina defectuosa en vez de perder el documento entero.
-    # Cada imagen se borra en cuanto se reconoce: el escaneo completo a 300 dpi
-    # no cabe comodo en disco temporal.
     prefijo <- fs::path(tmp, sprintf("p_%03d", i))
     imagen  <- paste0(prefijo, ".png")
     estado_raster <- system2("pdftoppm",
       c("-png", "-r", OCR_DPI, "-f", i, "-l", i, "-singlefile",
-        shQuote(ruta_pdf), shQuote(prefijo)))
+        shQuote(p$ruta_pdf), shQuote(prefijo)))
     if (estado_raster != 0L || !file.exists(imagen)) {
-      stop(sprintf("pdftoppm fallo al rasterizar %s pagina %d.", slug, i))
+      stop(sprintf("pdftoppm fallo al rasterizar %s pagina %d.", p$slug, i))
     }
     lineas <- system2(binario, shQuote(imagen), stdout = TRUE, stderr = FALSE)
     fs::file_delete(imagen)
     if (!is.null(attr(lineas, "status")) && attr(lineas, "status") != 0L) {
-      stop(sprintf("El reconocedor fallo en %s pagina %d.", slug, i))
+      stop(sprintf("El reconocedor fallo en %s pagina %d.", p$slug, i))
     }
     texto <- paste(lineas, collapse = "\n")
     caracteres[i] <- nchar(texto)
-    escribir_atomico(texto, fs::path(destino, sprintf("pagina_%03d.txt", i)),
-                     function(o, p) writeLines(o, p, useBytes = FALSE))
+    escribir_atomico(texto, fs::path(p$destino, sprintf("pagina_%03d.txt", i)),
+                     function(o, q) writeLines(o, q, useBytes = FALSE))
   }
 
   log_msg(sprintf("%s: %d páginas reconocidas, %d caracteres, %d páginas vacías.",
-                  slug, info$pages, sum(caracteres), sum(caracteres == 0L)),
+                  p$slug, p$n_pdf, sum(caracteres), sum(caracteres == 0L)),
           origen = ORIGEN)
-
-  list(slug = slug, paginas = info$pages, caracteres = sum(caracteres),
-       paginas_vacias = sum(caracteres == 0L),
-       md5_pdf = unname(tools::md5sum(ruta_pdf)))
+  p$slug
 }
 
-resultados <- Filter(Negate(is.null), lapply(sin_capa, ocr_documento))
+# ---- Compilar el auxiliar Swift ---------------------------------------------
+# Se compila a un temporal en cada corrida en vez de versionar un binario: un
+# ejecutable en el repositorio no es codigo fuente y nadie puede revisarlo.
+# Va DESPUES de la compuerta: si no se va a regenerar nada, compilar es ruido.
+binario <- NULL
+if (any(vapply(plan, function(p) p$accion != "omitir", logical(1)))) {
+  binario <- file.path(tempdir(), "ocr_vision")
+  log_msg("Compilando el auxiliar de reconocimiento.", origen = ORIGEN)
+  estado <- system2("swiftc", c("-O", "-o", shQuote(binario),
+                                shQuote(here::here("00_ocr_vision.swift"))))
+  if (estado != 0L || !file.exists(binario)) {
+    stop("No se pudo compilar 00_ocr_vision.swift. ¿Están las Command Line Tools ",
+         "instaladas? (xcode-select --install)")
+  }
+}
+
+regenerados <- unlist(Filter(Negate(is.null), lapply(plan, ocr_documento)))
 
 # ---- Manifiesto tecnico -----------------------------------------------------
 # Se reconstruye SIEMPRE desde lo que hay en disco, no desde lo que proceso esta
 # corrida. Con la version anterior, la corrida que cayo a mitad de camino dejo
 # tres documentos reconocidos y un manifiesto que solo mencionaba el cuarto: el
-# registro contradecia al disco y no habia forma de notarlo salvo contando a
-# mano. Derivarlo del disco lo vuelve ademas idempotente.
+# registro contradecia al disco y no habia forma de notarlo salvo contando a mano.
+#
+# Los HASHES POR PAGINA son la excepcion deliberada a "reconstruir desde disco":
+# son la huella del momento de GENERACION y no se recalculan sobre paginas que
+# esta corrida no toco. Si se recalcularan, la compuerta jamas detectaria una
+# correccion humana, porque el hash de referencia se habria movido con ella.
+# Solo se calculan (a) para lo que se acaba de generar y (b) la primera vez para
+# un documento que aun no los tiene, que es el punto 3 de esta tarea.
 #
 # Registra procedencia de MAQUINA, no estado de revision. El estado de revision
 # es un dato humano y vive en 20_insumos/curaduria/metadatos_curados.json, que
@@ -160,13 +284,22 @@ documentos <- lapply(sort(fs::dir_ls(ruta_insumos("ocr"), type = "directory")), 
   caracteres <- vapply(paginas, function(f)
     sum(nchar(readLines(f, warn = FALSE))), integer(1))
   pdf <- ruta_normativa(paste0(slug, ".pdf"))
+
+  previos <- hashes_registrados(slug)
+  hashes <- if (slug %in% regenerados || is.null(previos)) {
+    hashear_paginas(d)
+  } else {
+    previos
+  }
+
   list(
     slug = slug,
     paginas = length(paginas),
     paginas_pdf = pdftools::pdf_info(pdf)$pages,
     caracteres = sum(caracteres),
     paginas_vacias = sum(caracteres == 0L),
-    md5_pdf = unname(tools::md5sum(pdf))
+    md5_pdf = unname(tools::md5sum(pdf)),
+    hashes_paginas = as.list(hashes)
   )
 })
 
@@ -178,15 +311,19 @@ escribir_atomico(
     sistema = paste(Sys.info()[["sysname"]], Sys.info()[["release"]]),
     dpi = OCR_DPI,
     fecha = format(Sys.Date()),
+    nota_hashes = paste("hashes_paginas es la huella de la GENERACION, no del",
+                        "estado actual: la compuerta compara contra ella para",
+                        "detectar correccion humana. No se recalcula sobre",
+                        "paginas que la herramienta no regenero."),
     documentos = unname(documentos)
   ),
-  ruta_insumos("ocr", "manifiesto_ocr.json"),
+  RUTA_MANIFIESTO,
   function(o, p) jsonlite::write_json(o, p, auto_unbox = TRUE, pretty = TRUE)
 )
 
-# Compuerta: cada documento reconocido tiene que tener tantas paginas de texto
-# como paginas el PDF. Una transcripcion a la que le falta una pagina se ve igual
-# de completa que una entera.
+# Compuerta de salida: cada documento reconocido tiene que tener tantas paginas
+# de texto como paginas el PDF. Una transcripcion a la que le falta una pagina se
+# ve igual de completa que una entera.
 incompletos <- Filter(function(d) d$paginas != d$paginas_pdf, documentos)
 if (length(incompletos) > 0L) {
   stop("Reconocimiento incompleto en: ",
@@ -195,5 +332,6 @@ if (length(incompletos) > 0L) {
          character(1)), collapse = ", "))
 }
 
-log_msg(sprintf("Reconocimiento terminado: %d documentos procesados.", length(resultados)),
+log_msg(sprintf("Reconocimiento terminado: %d documento(s) regenerado(s).",
+                length(regenerados)),
         origen = ORIGEN)

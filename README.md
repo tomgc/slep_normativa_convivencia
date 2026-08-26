@@ -136,13 +136,35 @@ enlace al PDF y sobre el texto.
 ### Regenerar el OCR (solo macOS)
 
 ```bash
-Rscript 00_ocr_documentos.R              # solo los que faltan
-Rscript 00_ocr_documentos.R --rehacer    # rehace todos, DESCARTA correcciones
+Rscript 00_ocr_documentos.R                  # solo los que faltan
+Rscript 00_ocr_documentos.R --rehacer        # rehace todos (sujeto a compuerta)
+Rscript 00_ocr_documentos.R --forzar <slug>  # rehace ESE, saltando la compuerta
 ```
 
 Requiere `pdftoppm` (`brew install poppler`) y las Command Line Tools de Xcode.
 Nadie más necesita correrlo: la transcripción está versionada y el pipeline la
 lee ya escrita.
+
+**La compuerta protege el trabajo de revisión.** `--rehacer` se detiene, sin
+tocar nada, si detecta que un documento puede llevar corrección humana:
+
+| Condición | Qué la dispara |
+|---|---|
+| Estado revisado | `origen_texto` vale `ocr_revisado` en la curaduría |
+| Página modificada | alguna `pagina_NNN.txt` difiere del hash que registró el manifiesto al generarla |
+
+El aborto nombra el documento y la condición. La única forma de pasar es
+`--forzar <slug>`, y aun así la herramienta **respalda primero** las páginas
+actuales en `_archivo/AAAAMMDD/ocr_<slug>/`. Los hashes de referencia son la
+huella del momento de generación y no se recalculan sobre páginas que la
+herramienta no regeneró: si se recalcularan, la compuerta nunca detectaría nada.
+
+**El reconocedor no es determinista.** Medido el 2026-08-25 sobre el corpus
+completo: rehacer los 4 documentos con la misma entrada devolvió **3 de 75
+páginas distintas**, y en las tres el resultado nuevo era peor ("educacionai"
+por "educacional", "profesor jete" por "profesor jefe"). Consecuencia práctica:
+regenerar no es una operación neutra ni idempotente, y por eso la transcripción
+se versiona como insumo en vez de reconstruirse en cada corrida.
 
 ---
 

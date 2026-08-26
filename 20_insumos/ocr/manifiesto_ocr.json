@@ -5,6 +5,7 @@
   "sistema": "Darwin 25.6.0",
   "dpi": 300,
   "fecha": "2026-08-25",
+  "nota_hashes": "hashes_paginas es la huella de la GENERACION, no del estado actual: la compuerta compara contra ella para detectar correccion humana. No se recalcula sobre paginas que la herramienta no regenero.",
   "documentos": [
     {
       "slug": "circular_193_estudiantes_embarazadas",
@@ -12,7 +13,25 @@
       "paginas_pdf": 16,
       "caracteres": 27683,
       "paginas_vacias": 0,
-      "md5_pdf": "91a0bb6ca82ba46064752c2e9a023ad8"
+      "md5_pdf": "91a0bb6ca82ba46064752c2e9a023ad8",
+      "hashes_paginas": {
+        "pagina_001.txt": "abe5fea9cfcc25c3f7ee534883d6387e",
+        "pagina_002.txt": "317afd69d1ae7bdc7ff89b5cda259497",
+        "pagina_003.txt": "a1f590cfad1c0ebbb547719e8ea2196a",
+        "pagina_004.txt": "6819c8b9b1fe332d85d4d9a9190c7604",
+        "pagina_005.txt": "09d3d7bebdff4194d3c5ba10099ec2dc",
+        "pagina_006.txt": "b1410d73c3a0478823a35b3da264ab07",
+        "pagina_007.txt": "5e78c7b2fb6c453062840fce151d9840",
+        "pagina_008.txt": "22611d252b8868fc2dfe94103642949a",
+        "pagina_009.txt": "dccf301a7f86fae2efde4ae6cc4930c9",
+        "pagina_010.txt": "94416027fdbb6fe20eaf5ee795b1565d",
+        "pagina_011.txt": "7f20d34c76d1f98fb9c0968db2258860",
+        "pagina_012.txt": "15915ade91d9a701c8960cacb6140382",
+        "pagina_013.txt": "68b2d931ff4914eb9f320704371e7222",
+        "pagina_014.txt": "575791e6dec09df6982bd5f0ccdae3b4",
+        "pagina_015.txt": "3b04bcebd5d047fdaba4485f63bee26e",
+        "pagina_016.txt": "116a5b066b141566405a8ea49afcb249"
+      }
     },
     {
       "slug": "circular_586_tea",
@@ -20,7 +39,10 @@
       "paginas_pdf": 1,
       "caracteres": 2649,
       "paginas_vacias": 0,
-      "md5_pdf": "ece5c0fccfb802be65fc10cd49fc4429"
+      "md5_pdf": "ece5c0fccfb802be65fc10cd49fc4429",
+      "hashes_paginas": {
+        "pagina_001.txt": "84026291e77b91e4424f632fc050fbba"
+      }
     },
     {
       "slug": "circular_812_identidad_genero",
@@ -28,7 +50,19 @@
       "paginas_pdf": 10,
       "caracteres": 36367,
       "paginas_vacias": 0,
-      "md5_pdf": "26187828e3bcad20400fa40ee86680b1"
+      "md5_pdf": "26187828e3bcad20400fa40ee86680b1",
+      "hashes_paginas": {
+        "pagina_001.txt": "196190dccb009ad6f1a14d0021e565f2",
+        "pagina_002.txt": "5700e521c35f6bc719189befb7045b00",
+        "pagina_003.txt": "76fc05b43b3d775893f47ec304f2bb42",
+        "pagina_004.txt": "739d74e9522538f282d63ca0c2a75a01",
+        "pagina_005.txt": "84ecbee8af648e2ebd070de0677196f2",
+        "pagina_006.txt": "ffbd5f83958b6ad7ad3ca3ed9ae3eafa",
+        "pagina_007.txt": "3429dc9837df7ae4f33edebbe136013f",
+        "pagina_008.txt": "4c7ae988840101b6982f599bbf95757d",
+        "pagina_009.txt": "609693ec0818d3ea04b71f582e269648",
+        "pagina_010.txt": "65aa551c96798ce3099f8b52ff079b6c"
+      }
     },
     {
       "slug": "rex_482_reglamentos_b",
@@ -36,7 +70,57 @@
       "paginas_pdf": 48,
       "caracteres": 122868,
       "paginas_vacias": 0,
-      "md5_pdf": "fb6d0ed59ea2e9fbe374c06bffa0b381"
+      "md5_pdf": "fb6d0ed59ea2e9fbe374c06bffa0b381",
+      "hashes_paginas": {
+        "pagina_001.txt": "3d9409de7aed331558e15ee3bb7b58d4",
+        "pagina_002.txt": "6ade2532e948c3e430d29cb28a189dde",
+        "pagina_003.txt": "2c32dd9b79e7522c3cc1d9cd5fd1c25d",
+        "pagina_004.txt": "a176d31523c50817d5fac2e0df10da20",
+        "pagina_005.txt": "fcd94efc49a8a78f337411a1cd18e24b",
+        "pagina_006.txt": "2abc138f3d637a0b82fa37637ae7e12a",
+        "pagina_007.txt": "cb7589d8f458f07f091141f9b10ead2b",
+        "pagina_008.txt": "16b2b639f594c42a78f16ef10f70ab32",
+        "pagina_009.txt": "fae4958e1ef6cbd6762c462f061e7828",
+        "pagina_010.txt": "712625c8717387cb00db067d23a8e010",
+        "pagina_011.txt": "924f338c0bcc613f8b46bc1a74c4a83f",
+        "pagina_012.txt": "f8ee775925938ebd81d6b58b4aab801e",
+        "pagina_013.txt": "1470fe6cd3dbe63a0132e85d8f5d1d54",
+        "pagina_014.txt": "e8b1a295bf49b1f95e858536a4f9c43a",
+        "pagina_015.txt": "57f59e444dbdc1828220e0949c2b635d",
+        "pagina_016.txt": "7265737d32f2b2f0c2152b3a34a56395",
+        "pagina_017.txt": "4e624ab46be7caddbfe2a6ab4ed92dee",
+        "pagina_018.txt": "40696cde3abe8440026626f4b05426e4",
+        "pagina_019.txt": "492f6b0b6bf8967f7c54aefd0c1120b3",
+        "pagina_020.txt": "882a91078673611cfff9a155de18e1c1",
+        "pagina_021.txt": "bc885deab235a7229b58b0a9ebf3e7b5",
+        "pagina_022.txt": "0a9247e8a6f41d0588e64547799c4aab",
+        "pagina_023.txt": "0309fef4735f27594316f836d5b4b7d8",
+        "pagina_024.txt": "a37df1d5eebb26d67065a04636c1691b",
+        "pagina_025.txt": "eb030a563347cdcfe018b1c4ba5ac767",
+        "pagina_026.txt": "fe6941600b9c46a8c52efb620b213448",
+        "pagina_027.txt": "eda1e4fe3e45da577c8696fa15dfdfdf",
+        "pagina_028.txt": "45d2b897bbdb4964dad83103a036f25c",
+        "pagina_029.txt": "a3b33b4008e9c1790cd005b1a4cfb7a3",
+        "pagina_030.txt": "73d593bbc2692389a4b638048d4bab52",
+        "pagina_031.txt": "f76857c4d3a0901f9658d858d8b1d769",
+        "pagina_032.txt": "4df9c0188ff0f14d3d61ff6b89fe63da",
+        "pagina_033.txt": "0bc726a290aadc165bff5b67bac9de69",
+        "pagina_034.txt": "61ab071aedc694e1a874ebfca1ef69be",
+        "pagina_035.txt": "5d4da4cc921a249ec670de5d5ec3c48c",
+        "pagina_036.txt": "64d1686ce680882d41fd30cdd32781f5",
+        "pagina_037.txt": "63cf51a2461df9934fc71a9a3a5e4daa",
+        "pagina_038.txt": "a94d94a146d144b4329702544c035c37",
+        "pagina_039.txt": "3ecb43fce5da2f9cae135d58d32d722e",
+        "pagina_040.txt": "124efae44b3f6a3b01a997a21ff760dc",
+        "pagina_041.txt": "4df47fdddc1be17e6264ab3b272452f7",
+        "pagina_042.txt": "aec3d7092ecea0401189ca5bfcc444cc",
+        "pagina_043.txt": "92861824b83804a1df7855e9d47693e4",
+        "pagina_044.txt": "265e2b751bd5a6de42ff8e1c65c34457",
+        "pagina_045.txt": "850fd125b8eb676e2e894e49e0213d83",
+        "pagina_046.txt": "d24fed97f16aa2b83dd89d9f47051694",
+        "pagina_047.txt": "4c87cf300df8466dc438adf994c88945",
+        "pagina_048.txt": "883202960efd63a8047a50625a1fc109"
+      }
     }
   ]
 }
