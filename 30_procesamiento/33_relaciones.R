@@ -220,10 +220,9 @@ descartadas <- list()
 for (a in normas) {
   for (slug_b in names(patrones)) {
     # Control negativo estructural: una norma nunca se relaciona consigo misma.
+    # Lo intra-grupo NO se filtra aqui: se filtra una sola vez sobre el total,
+    # mas abajo, para que la regla no dependa de que cada bucle la repita.
     if (identical(slug_b, a$slug)) next
-    # Ni con otro archivo del mismo acto: la resolucion no CITA a su cuerpo, lo
-    # aprueba. El control de arriba no lo ve porque los dos slugs difieren.
-    if (mismo_grupo(a$slug, slug_b)) next
     encontrado <- NULL
     literal <- NA_character_
     n_citas <- 0L
@@ -305,6 +304,40 @@ for (a in normas) {
 
 todas <- c(rel_sustitucion, rel_sustituye, rel_grupo, rel_remision, rel_tema)
 
+# ---- Supresion intra-grupo ---------------------------------------------------
+# Entre miembros de un mismo acto administrativo el UNICO vinculo legitimo es el
+# tipo `grupo_acto`. Cualquier otro seria la norma relacionandose consigo misma
+# por otra via: la resolucion "citando" su propio cuerpo, o los dos archivos
+# "compartiendo temas" con ellos mismos, que es literalmente lo que decia el
+# sitio ("Comparten 2 temas: medidas disciplinarias, reconocimiento oficial").
+#
+# El filtro se aplica sobre el TOTAL, no dentro de cada derivador, a proposito:
+# asi cubre los tipos que se agreguen despues sin que nadie tenga que acordarse
+# de repetir el control en un bucle nuevo. Es el mismo criterio por el que la
+# compuerta `auto` de aqui abajo mira el total y no cada derivador por separado.
+#
+# Nota: el vinculo intra-grupo se suprime del bloque de relacionados, NO de las
+# paginas tematicas. Esas se arman desde el campo `tema` de cada norma y no desde
+# este archivo, asi que los dos miembros siguen apareciendo cada uno con su
+# extracto: el cuerpo escaneado es donde esta el texto, y esconderlo del tema
+# seria esconder el contenido del acto.
+intra_grupo <- Filter(function(r)
+  !identical(r$tipo, "grupo_acto") && mismo_grupo(r$desde, r$hacia), todas)
+todas <- Filter(function(r)
+  identical(r$tipo, "grupo_acto") || !mismo_grupo(r$desde, r$hacia), todas)
+
+if (length(intra_grupo) > 0L) {
+  por_tipo_intra <- table(vapply(intra_grupo, function(r) r$tipo, character(1)))
+  log_msg(sprintf("Relaciones suprimidas por unir dos archivos del mismo acto: %d (%s).",
+                  length(intra_grupo),
+                  paste(names(por_tipo_intra), por_tipo_intra, sep = "=", collapse = ", ")),
+          origen = ORIGEN)
+  for (r in intra_grupo) {
+    log_msg(sprintf("  %s -> %s [%s]: %s", r$desde, r$hacia, r$tipo, r$explicacion),
+            origen = ORIGEN)
+  }
+}
+
 # ---- Compuertas --------------------------------------------------------------
 auto <- Filter(function(r) identical(r$desde, r$hacia), todas)
 if (length(auto) > 0L) {
@@ -348,6 +381,11 @@ escribir_atomico(
     # no los encontro nunca.
     remisiones_descartadas_por_anio = length(descartadas),
     descartadas = unname(descartadas),
+    # Mismo criterio para lo suprimido por intra-grupo: si el lector no ve que
+    # esos vinculos existian y se quitaron a proposito, no puede distinguir la
+    # supresion de un derivador que nunca los encontro.
+    relaciones_suprimidas_intra_grupo = length(intra_grupo),
+    suprimidas_intra_grupo = unname(intra_grupo),
     n_relaciones = length(todas),
     por_tipo = as.list(setNames(as.integer(por_tipo), names(por_tipo))),
     relaciones = unname(todas)

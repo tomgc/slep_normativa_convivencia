@@ -133,13 +133,53 @@ línea (`"grupo_acto": null`) y los 2 miembros suman su objeto de 8 líneas.
 
 ## Fuera de alcance, declarado
 
-1. **Las relaciones de TEMA no se colapsan.** Los dos miembros del grupo siguen
-   apareciendo por separado en los bloques temáticos y comparten temas *entre sí*
-   («Comparten 2 temas: medidas disciplinarias, reconocimiento oficial»), que es
-   una norma relacionada consigo misma por otra vía. El encargo acotó el colapso
-   a las remisiones; extenderlo al tema es una decisión pendiente.
+1. ~~Las relaciones de TEMA no se colapsan.~~ **Resuelto en el remate**, más
+   abajo: la supresión intra-grupo se generalizó a todos los tipos.
 2. **Los dos enlaces del grupo se rotulan igual.** `nombre_de()` devuelve
    «Resolución exenta 482» para ambos slugs, así que el enlace no distingue cuál
    es cuál; solo la explicación lo hace.
 3. **Las 34 asignaciones de tema frágiles** de la indagación §2 siguen sin
    revisar. Es trabajo del equipo de convivencia, no del pipeline.
+
+---
+
+## Remate — la supresión intra-grupo se generaliza a todos los tipos
+
+**Commit del remate** · `30_procesamiento/33_relaciones.R`, `40_salidas/datos/relaciones.json`
+
+El fix 2 suprimía solo las **remisiones** entre miembros de un grupo, y lo hacía
+dentro del bucle de remisiones. Quedaban las relaciones de **tema**: los dos
+archivos del REX 482 aparecían «compartiendo 2 temas» el uno con el otro, que es
+una norma relacionada consigo misma por otra vía.
+
+La supresión se movió a **un solo punto de control**, sobre el total de
+relaciones y no dentro de cada derivador. No es una preferencia de estilo: un
+control repetido en cada bucle depende de que quien agregue el próximo tipo se
+acuerde de repetirlo, y ese es exactamente el olvido que produjo este remate. El
+único vínculo legítimo entre miembros de un mismo acto es el tipo `grupo_acto`.
+
+Lo suprimido se registra, no se borra en silencio: `relaciones.json` gana
+`relaciones_suprimidas_intra_grupo` y `suprimidas_intra_grupo`, y el log nombra
+cada vínculo retirado.
+
+**Diff re-derivado:**
+
+| | Antes | Después |
+|---|---:|---:|
+| relaciones | 552 | **550** |
+| — sustitución / `grupo_acto` / remisión | 2 / 2 / 44 | 2 / 2 / 44 |
+| — tema | 504 | **502** |
+| descartadas por año | 88 | 88 |
+
+Desaparecen exactamente las 2 relaciones de tema intra-grupo (en ambos sentidos).
+Aparece 0. Ningún otro tipo cambia.
+
+**Control declarado:** los miembros **siguen apareciendo cada uno** en las páginas
+temáticas, porque esas se arman desde el campo `tema` de cada norma y no desde
+`relaciones.json`. Verificado sobre los `.qmd` generados: el cuerpo escaneado
+aparece en 14 páginas de tema y la resolución en 2, que son sus respectivos
+conteos de temas. Esconder el cuerpo del tema sería esconder el contenido del
+acto: es donde está el texto.
+
+En el HTML publicado, el único vínculo entre las dos fichas es «mismo acto», en
+los dos sentidos.

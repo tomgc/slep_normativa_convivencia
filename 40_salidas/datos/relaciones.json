@@ -796,12 +796,31 @@
       "articulo": "num-1"
     }
   ],
-  "n_relaciones": 552,
+  "relaciones_suprimidas_intra_grupo": 2,
+  "suprimidas_intra_grupo": [
+    {
+      "desde": "rex_482_instrucciones_reglamentos_internos",
+      "hacia": "rex_482_reglamentos_b",
+      "tipo": "tema",
+      "temas": ["medidas disciplinarias", "reconocimiento oficial"],
+      "n_temas": 2,
+      "explicacion": "Comparten 2 temas: medidas disciplinarias, reconocimiento oficial."
+    },
+    {
+      "desde": "rex_482_reglamentos_b",
+      "hacia": "rex_482_instrucciones_reglamentos_internos",
+      "tipo": "tema",
+      "temas": ["medidas disciplinarias", "reconocimiento oficial"],
+      "n_temas": 2,
+      "explicacion": "Comparten 2 temas: medidas disciplinarias, reconocimiento oficial."
+    }
+  ],
+  "n_relaciones": 550,
   "por_tipo": {
     "sustitucion": 2,
     "grupo_acto": 2,
     "remision": 44,
-    "tema": 504
+    "tema": 502
   },
   "relaciones": [
     {
@@ -4403,14 +4422,6 @@
     },
     {
       "desde": "rex_482_instrucciones_reglamentos_internos",
-      "hacia": "rex_482_reglamentos_b",
-      "tipo": "tema",
-      "temas": ["medidas disciplinarias", "reconocimiento oficial"],
-      "n_temas": 2,
-      "explicacion": "Comparten 2 temas: medidas disciplinarias, reconocimiento oficial."
-    },
-    {
-      "desde": "rex_482_instrucciones_reglamentos_internos",
       "hacia": "dictamen_52_77_expulsion",
       "tipo": "tema",
       "temas": ["medidas disciplinarias", "reconocimiento oficial"],
@@ -4568,14 +4579,6 @@
       "temas": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "uniforme y presentación personal", "estatuto del personal", "reconocimiento oficial"],
       "n_temas": 11,
       "explicacion": "Comparten 11 temas: convivencia escolar, violencia y acoso escolar, medidas disciplinarias, inclusión y no discriminación, derechos de la niñez, participación de la comunidad, identidad de género, embarazo y maternidad, uniforme y presentación personal, estatuto del personal, reconocimiento oficial."
-    },
-    {
-      "desde": "rex_482_reglamentos_b",
-      "hacia": "rex_482_instrucciones_reglamentos_internos",
-      "tipo": "tema",
-      "temas": ["medidas disciplinarias", "reconocimiento oficial"],
-      "n_temas": 2,
-      "explicacion": "Comparten 2 temas: medidas disciplinarias, reconocimiento oficial."
     },
     {
       "desde": "rex_482_reglamentos_b",
