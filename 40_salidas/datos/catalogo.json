@@ -1,6 +1,6 @@
 {
   "generado_por": "30_procesamiento/32_segmentar_articulos.R",
-  "n_normas": 24,
+  "n_normas": 25,
   "n_articulos": 682,
   "normas": [
     {
@@ -504,6 +504,27 @@
       "notas_ficha": [],
       "aviso_vigencia": null,
       "marca_revisar": [],
+      "n_articulos": 0,
+      "n_segmentos": 4
+    },
+    {
+      "slug": "dictamen_078_detectores_revision_mochilas",
+      "tipo": "dictamen",
+      "tipo_etiqueta": "Dictamen",
+      "tipo_fuente": "normativa",
+      "numero": "078",
+      "titulo": "Sobre el uso de medios tecnológicos para la detección de armas y artículos incendiados a partir de á Ley N° 21.809, Y la potestad de revisar mochilas, bolsos u otros efectos personales al interior de establecimientos educacionales. Sustituye Dictamen N° 65, de la Superintendencia de Educación. ANTECEDENTES:",
+      "anio": null,
+      "tema": ["convivencia escolar", "violencia y acoso escolar", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "estatuto del personal", "reconocimiento oficial"],
+      "fuente_anio": null,
+      "paginas": 9,
+      "pdf": "dictamen_078_detectores_revision_mochilas.pdf",
+      "sin_capa_texto": false,
+      "origen_texto": "capa_texto_pdf",
+      "fuente_origen_texto": null,
+      "notas_ficha": [],
+      "aviso_vigencia": null,
+      "marca_revisar": ["anio"],
       "n_articulos": 0,
       "n_segmentos": 4
     }

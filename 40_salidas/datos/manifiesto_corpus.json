@@ -1,0 +1,181 @@
+{
+  "generado_por": "30_procesamiento/30_manifiesto_corpus.R",
+  "n_documentos": 25,
+  "documentos": [
+    {
+      "slug": "circular_193_estudiantes_embarazadas",
+      "md5_pdf": "91a0bb6ca82ba46064752c2e9a023ad8",
+      "md5_ocr": "d280ae5c669d6d3883a03efa0ea47624",
+      "huella": "91a0bb6ca82ba46064752c2e9a023ad8:d280ae5c669d6d3883a03efa0ea47624",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "circular_586_tea",
+      "md5_pdf": "ece5c0fccfb802be65fc10cd49fc4429",
+      "md5_ocr": "253c781c85b7d4d7f50a3e1bd38eacd6",
+      "huella": "ece5c0fccfb802be65fc10cd49fc4429:253c781c85b7d4d7f50a3e1bd38eacd6",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "circular_812_identidad_genero",
+      "md5_pdf": "26187828e3bcad20400fa40ee86680b1",
+      "md5_ocr": "7e00f57ff9a1015652c5a1740f2f78ab",
+      "huella": "26187828e3bcad20400fa40ee86680b1:7e00f57ff9a1015652c5a1740f2f78ab",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dfl_1_estatuto_asistentes_educacion",
+      "md5_pdf": "ef06d576613e2923cd31d2679bde9e55",
+      "md5_ocr": null,
+      "huella": "ef06d576613e2923cd31d2679bde9e55:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dfl_315_perdida_reconocimiento_oficial",
+      "md5_pdf": "c1e73c44b614fdfde4281d9936011483",
+      "md5_ocr": null,
+      "huella": "c1e73c44b614fdfde4281d9936011483:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dictamen_065_revision_mochilas",
+      "md5_pdf": "637a11c73e0008858aba6b28411a1e9d",
+      "md5_ocr": null,
+      "huella": "637a11c73e0008858aba6b28411a1e9d:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dictamen_078_detectores_revision_mochilas",
+      "md5_pdf": "f00c2080fa73f85243be1896e92c3289",
+      "md5_ocr": null,
+      "huella": "f00c2080fa73f85243be1896e92c3289:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dictamen_52_77_expulsion",
+      "md5_pdf": "69d5c91d949fd664f85e1b78dbf4bf37",
+      "md5_ocr": null,
+      "huella": "69d5c91d949fd664f85e1b78dbf4bf37:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dictamen_71_expulsion_cancelacion_matricula",
+      "md5_pdf": "8cd1aada39ab7bc49c9e21da73335245",
+      "md5_ocr": null,
+      "huella": "8cd1aada39ab7bc49c9e21da73335245:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dto_215_uniforme_escolar",
+      "md5_pdf": "eef9409a2da5bcd0d3c98415509500f1",
+      "md5_ocr": null,
+      "huella": "eef9409a2da5bcd0d3c98415509500f1:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dto_24_consejos_escolares",
+      "md5_pdf": "ab6ae7d78a26b866e1230db5fc5e03b0",
+      "md5_ocr": null,
+      "huella": "ab6ae7d78a26b866e1230db5fc5e03b0:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dto_453_estatuto_docente",
+      "md5_pdf": "8d9ec3e5a6bcd9b52f758c27e4277041",
+      "md5_ocr": null,
+      "huella": "8d9ec3e5a6bcd9b52f758c27e4277041:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "dto_565_centros_padres_apoderados",
+      "md5_pdf": "f45241109e5126acf197fcd8367eec00",
+      "md5_ocr": null,
+      "huella": "f45241109e5126acf197fcd8367eec00:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_19979_jornada_escolar_completa",
+      "md5_pdf": "52b8b63b0d27ddbab493e809ed6b5754",
+      "md5_ocr": null,
+      "huella": "52b8b63b0d27ddbab493e809ed6b5754:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_20370_general_educacion",
+      "md5_pdf": "9cce250b79be4589230494092f3c0824",
+      "md5_ocr": null,
+      "huella": "9cce250b79be4589230494092f3c0824:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_20536_violencia_escolar",
+      "md5_pdf": "8eb272ea6937cb37f8f0ab5c152d97fb",
+      "md5_ocr": null,
+      "huella": "8eb272ea6937cb37f8f0ab5c152d97fb:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_20845_inclusion_escolar",
+      "md5_pdf": "37db6c0f310d02eba3a0c87ca25cd071",
+      "md5_ocr": null,
+      "huella": "37db6c0f310d02eba3a0c87ca25cd071:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_20911_formacion_ciudadana",
+      "md5_pdf": "1bd819073a4ac1622d4d33af5377620c",
+      "md5_ocr": null,
+      "huella": "1bd819073a4ac1622d4d33af5377620c:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_21430_garantias_ninez",
+      "md5_pdf": "3c9b0f591769ada5be42677531e17419",
+      "md5_ocr": null,
+      "huella": "3c9b0f591769ada5be42677531e17419:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_21545_tea",
+      "md5_pdf": "85b75140d4091151236117407ab51955",
+      "md5_ocr": null,
+      "huella": "85b75140d4091151236117407ab51955:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_21801_celulares",
+      "md5_pdf": "d13f800d35a4e30934d4234b5e41b48a",
+      "md5_ocr": null,
+      "huella": "d13f800d35a4e30934d4234b5e41b48a:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "ley_21809_convivencia_educativa",
+      "md5_pdf": "b50d8dfc1b57d4abc640710dab087078",
+      "md5_ocr": null,
+      "huella": "b50d8dfc1b57d4abc640710dab087078:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "rex_181_celulares",
+      "md5_pdf": "a8a536f93e9d1d32730d3b909c57b79b",
+      "md5_ocr": null,
+      "huella": "a8a536f93e9d1d32730d3b909c57b79b:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "rex_482_instrucciones_reglamentos_internos",
+      "md5_pdf": "947a35e02f386692a0d0a41aee06f364",
+      "md5_ocr": null,
+      "huella": "947a35e02f386692a0d0a41aee06f364:-",
+      "estado": "sin_cambio"
+    },
+    {
+      "slug": "rex_482_reglamentos_b",
+      "md5_pdf": "fb6d0ed59ea2e9fbe374c06bffa0b381",
+      "md5_ocr": "26bc45ed7e942a7760813325fde1fb98",
+      "huella": "fb6d0ed59ea2e9fbe374c06bffa0b381:26bc45ed7e942a7760813325fde1fb98",
+      "estado": "sin_cambio"
+    }
+  ]
+}

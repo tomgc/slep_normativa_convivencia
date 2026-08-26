@@ -367,6 +367,43 @@ escribir_atomico(
   function(o, p) jsonlite::write_json(o, p, auto_unbox = TRUE, pretty = TRUE, null = "null")
 )
 
+# ---- Reporte de curacion pendiente -------------------------------------------
+# Solo sobre lo que ENTRO o CAMBIO en esta corrida. Repetir en cada corrida las
+# marcas de los 25 documentos convierte el reporte en ruido que nadie lee; lo que
+# el equipo necesita saber al incorporar una norma es que le falta A ESA.
+estado_corpus <- {
+  ruta <- ruta_datos("manifiesto_corpus.json")
+  if (fs::file_exists(ruta)) {
+    m <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$documentos
+    setNames(vapply(m, function(d) d$estado, character(1)),
+             vapply(m, function(d) d$slug, character(1)))
+  } else character(0)
+}
+entraron <- Filter(function(n)
+  identical(unname(estado_corpus[n$slug]), "nuevo") ||
+  identical(unname(estado_corpus[n$slug]), "modificado"), normas)
+
+if (length(entraron) > 0L) {
+  cat("\n", strrep("-", 76), "\n", sep = "")
+  cat(sprintf("CURACION PENDIENTE — %d documento(s) entraron o cambiaron\n", length(entraron)))
+  cat(strrep("-", 76), "\n", sep = "")
+  for (n in entraron) {
+    pendientes <- character(0)
+    if (length(n$marca_revisar) > 0L) {
+      pendientes <- c(pendientes, sprintf("metadatos: %s", paste(n$marca_revisar, collapse = ", ")))
+    }
+    if (length(n$tema) == 0L) pendientes <- c(pendientes, "tema: sin asignar")
+    if (is.null(n$aviso_vigencia) && identical(n$vigencia$estado, "sustituido"))
+      pendientes <- c(pendientes, "vigencia: sustituido sin aviso")
+    cat(sprintf("  %-46s %s\n", n$slug,
+                if (length(pendientes) == 0L) "sin pendientes"
+                else paste(pendientes, collapse = " | ")))
+  }
+  cat(sprintf("  Se curan en %s\n",
+              fs::path_rel(ruta_insumos("curaduria", "metadatos_curados.json"), here::here())))
+  cat(strrep("-", 76), "\n\n", sep = "")
+}
+
 log_msg(sprintf("Segmentacion terminada: %d normas, %d articulos, %d documentos con marca de revision.",
                 length(normas),
                 sum(vapply(normas, function(n) n$n_articulos, integer(1))),

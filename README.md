@@ -88,6 +88,36 @@ Rscript -e 'source("00_run_all.R"); run_all(from = 33)'   # desde la generación
 
 ---
 
+## Incorporar una norma nueva
+
+1. Dejar el PDF en `20_insumos/normativa/` con nombre canónico
+   `<tipo>_<numero>_<materia>.pdf`, donde `<tipo>` es uno de `ley`, `dfl`,
+   `dto`, `circular`, `rex`, `dictamen`.
+2. Correr el pipeline:
+
+   ```bash
+   Rscript -e 'source("00_run_all.R"); run_all()'
+   ```
+
+3. Leer el bloque **CURACIÓN PENDIENTE** que el pipeline imprime al final: dice
+   qué metadatos no pudo derivar del documento (título, año, tema) para esa norma
+   en concreto.
+4. Curar lo que falte en `20_insumos/curaduria/metadatos_curados.json`, siempre
+   con su campo `fuente_*`.
+5. Volver a correr y commitear.
+
+No hay más pasos manuales. El **paso 30** compara la huella de cada documento
+contra la corrida anterior y clasifica el corpus en *sin cambio / nuevo /
+modificado*; solo lo nuevo y lo modificado se vuelve a extraer.
+
+La huella **no es solo el PDF**: incluye la transcripción OCR cuando existe, de
+modo que corregir una página de OCR también marca el documento como modificado y
+la corrección llega al sitio. Y **la fecha de modificación no cuenta, manda el
+hash**: clonar el repositorio o restaurar un respaldo cambia el mtime de todo sin
+cambiar un byte, y eso no es motivo para reprocesar nada.
+
+---
+
 ## Publicación
 
 Cada push a `main` dispara `.github/workflows/publicar.yml`, que corre el

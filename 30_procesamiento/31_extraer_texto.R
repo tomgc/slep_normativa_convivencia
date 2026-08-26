@@ -205,6 +205,37 @@ fs::dir_create(dir_texto)
 pdfs <- sort(fs::dir_ls(ruta_normativa(), glob = "*.pdf"))
 if (length(pdfs) == 0L) stop("No hay PDF en ", ruta_normativa())
 
+# ---- Reutilizacion de lo que no cambio --------------------------------------
+# El paso 30 clasifico cada documento por huella (PDF + transcripcion OCR). Aqui
+# se reextrae SOLO lo nuevo y lo modificado; del resto se arrastra la entrada del
+# manifiesto anterior tal cual.
+#
+# La reutilizacion exige DOS condiciones, no una: que el paso 30 lo declare sin
+# cambio Y que su texto intermedio siga en disco con su entrada en el manifiesto.
+# Sin la segunda, un borrado parcial de 40_salidas/intermedios/ dejaria documentos
+# marcados como vigentes y sin texto, y el fallo apareceria recien en el paso 32,
+# lejos de su causa.
+RUTA_MANIFIESTO_CORPUS <- ruta_datos("manifiesto_corpus.json")
+estado_corpus <- if (fs::file_exists(RUTA_MANIFIESTO_CORPUS)) {
+  m <- jsonlite::fromJSON(RUTA_MANIFIESTO_CORPUS, simplifyDataFrame = FALSE)$documentos
+  setNames(vapply(m, function(d) d$estado, character(1)),
+           vapply(m, function(d) d$slug, character(1)))
+} else character(0)
+
+RUTA_EXTRACCION <- ruta_salidas("intermedios", "extraccion.json")
+previo <- if (fs::file_exists(RUTA_EXTRACCION)) {
+  m <- jsonlite::fromJSON(RUTA_EXTRACCION, simplifyDataFrame = FALSE)
+  setNames(m, vapply(m, function(d) d$slug, character(1)))
+} else list()
+
+reutilizable <- function(slug) {
+  identical(unname(estado_corpus[slug]), "sin_cambio") &&
+    !is.null(previo[[slug]]) &&
+    fs::file_exists(ruta_salidas("intermedios", "texto", paste0(slug, ".txt")))
+}
+
+n_reutilizados <- 0L
+
 log_msg(sprintf("Extrayendo texto de %d PDF.", length(pdfs)), origen = ORIGEN)
 
 # unname() NO es cosmetico: fs::dir_ls() devuelve un vector CON NOMBRES (la ruta
@@ -213,11 +244,23 @@ log_msg(sprintf("Extrayendo texto de %d PDF.", length(pdfs)), origen = ORIGEN)
 # rutas, de modo que el catalogo publicado en un repositorio publico llevaba
 # incrustada la ruta del filesystem de quien corrio el pipeline, y ademas dejaba
 # de ser un arreglo. Lo detecto el grep de privacidad previo al commit.
-resultados <- unname(lapply(unname(pdfs), extraer_documento))
+resultados <- unname(lapply(unname(pdfs), function(ruta_pdf) {
+  slug <- sub("[.]pdf$", "", basename(ruta_pdf))
+  if (reutilizable(slug)) {
+    n_reutilizados <<- n_reutilizados + 1L
+    return(previo[[slug]])
+  }
+  extraer_documento(ruta_pdf)
+}))
 
+# Solo se reescribe el texto de lo que se extrajo en esta corrida: las entradas
+# reutilizadas no traen el campo `texto` (el manifiesto no lo guarda) y su archivo
+# ya esta en disco intacto.
 for (r in resultados) {
-  escribir_atomico(r$texto, file.path(dir_texto, paste0(r$slug, ".txt")),
-                   function(o, p) writeLines(o, p, useBytes = FALSE))
+  if (!is.null(r$texto)) {
+    escribir_atomico(r$texto, file.path(dir_texto, paste0(r$slug, ".txt")),
+                     function(o, p) writeLines(o, p, useBytes = FALSE))
+  }
 }
 
 manifiesto <- unname(lapply(resultados, function(r) r[setdiff(names(r), "texto")]))
@@ -228,8 +271,9 @@ escribir_atomico(
 )
 
 origenes <- table(vapply(resultados, function(r) r$origen_texto, character(1)))
-log_msg(sprintf("Extraccion terminada: %d documentos (%s).",
+log_msg(sprintf("Extraccion terminada: %d documentos (%s)%s.",
                 length(resultados),
                 paste(sprintf("%s: %d", names(origenes), as.integer(origenes)),
-                      collapse = "; ")),
+                      collapse = "; "),
+                sprintf("; %d reutilizados sin cambio", n_reutilizados)),
         origen = ORIGEN)

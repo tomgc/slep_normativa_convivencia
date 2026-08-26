@@ -28,6 +28,8 @@ source(file.path(ROOT, "10_utils", "10_configuracion.R"))
 # ---- Definicion de pasos ----------------------------------------------------
 # El id refleja el numero de sub-etapa en 30_procesamiento/ (POLITICA 1.2).
 PASOS <- list(
+  list(id = 30L, etiqueta = "Clasificar el corpus por huella (nuevo/modificado)",
+       ruta = "30_procesamiento/30_manifiesto_corpus.R"),
   list(id = 31L, etiqueta = "Extraer texto de los PDF",
        ruta = "30_procesamiento/31_extraer_texto.R"),
   list(id = 32L, etiqueta = "Segmentar por artículo y escribir JSON",
