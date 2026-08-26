@@ -159,6 +159,18 @@ REGEX_SECCION_TRANSITORIA <- "^[ \\t]*(DISPOSICIONES\\s+TRANSITORIAS|ART[I\u00cd
 # estructura que la Superintendencia de Educacion usa en todos sus dictamenes.
 REGEX_ENCABEZADO_SECCION <- "^[ \\t]*([A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1][A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1 ]{3,40}):"
 
+# Encabezado de seccion NUMERADA, en documentos sin articulado. Los dictamenes de
+# la Superintendencia organizan su cuerpo en "1. SOBRE LAS CAUSALES...",
+# "2. SOBRE LA PROCEDENCIA...". Sin este patron, todo el cuerpo caia en el ultimo
+# segmento de versalitas ("CONCORDANCIAS") y un dictamen de 30.000 caracteres
+# tenia un solo ancla.
+#
+# Se exige VERSALITAS despues del numero, y punto (no parentesis), para no
+# confundir un encabezado con las dos cosas que se le parecen y no lo son:
+#   "1) Resolucion Exenta N° 0413..."  -> item de la lista de ANTECEDENTES
+#   "1. Que, cualquier regulacion..."  -> considerando, en minusculas
+REGEX_ENCABEZADO_NUMERAL <- "^[ \\t]*([0-9]{1,2})\\.[ \\t]+([A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1][A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1 ,.()\u00ba\u00b0-]{4,})"
+
 # ---- Diccionario tematico ---------------------------------------------------
 # DECISION METODOLOGICA DECLARADA, no inferencia del asistente.
 # El tema NO viene marcado en los documentos: es una columna derivada. Se asigna

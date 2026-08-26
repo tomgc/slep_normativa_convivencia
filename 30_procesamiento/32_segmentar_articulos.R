@@ -163,7 +163,12 @@ segmentar <- function(texto) {
 
   if (any(es_encabezado)) return(segmentar_por_articulos(bloques, cap, es_encabezado))
 
-  es_seccion <- grepl(REGEX_ENCABEZADO_SECCION, bloques, perl = TRUE)
+  # Dos clases de encabezado conviven en un dictamen: la etiqueta en versalitas
+  # con dos puntos (MATERIA:, ANTECEDENTES:) que abre la carátula, y el numeral en
+  # versalitas (1. SOBRE LAS CAUSALES...) que estructura el cuerpo. Se detectan
+  # juntas: con solo la primera, el cuerpo entero quedaba en un unico segmento.
+  es_seccion <- grepl(REGEX_ENCABEZADO_SECCION, bloques, perl = TRUE) |
+                grepl(REGEX_ENCABEZADO_NUMERAL, bloques, perl = TRUE)
   if (sum(es_seccion) >= 2L) return(segmentar_por_secciones(bloques, es_seccion))
 
   # Sin articulado ni secciones: documento unico. Es el caso de las resoluciones
@@ -232,8 +237,18 @@ segmentar_por_secciones <- function(bloques, es_seccion) {
   for (k in seq_along(cortes)) {
     i   <- cortes[k]
     fin <- if (k < length(cortes)) cortes[k + 1L] - 1L else length(bloques)
-    etiqueta <- trimws(sub("^[ \t]*([^:]{4,44}):.*$", "\\1", bloques[i]))
-    id <- slugificar(etiqueta)
+    # La etiqueta y el id se derivan de la clase de encabezado que corresponda.
+    # El numeral usa "num-N" y no el titulo slugificado: los titulos de seccion de
+    # un dictamen tienen setenta caracteres y producirian anclas ilegibles e
+    # inestables ante la menor correccion de redaccion.
+    m_num <- regmatches(bloques[i], regexec(REGEX_ENCABEZADO_NUMERAL, bloques[i], perl = TRUE))[[1]]
+    if (length(m_num) > 0L) {
+      etiqueta <- trimws(sub("[ ,.]+$", "", m_num[1]))
+      id <- paste0("num-", m_num[2])
+    } else {
+      etiqueta <- trimws(sub("^[ \t]*([^:]{4,44}):.*$", "\\1", bloques[i]))
+      id <- slugificar(etiqueta)
+    }
     if (id %in% vistos) id <- paste0(id, "-", sum(vistos == id) + 1L)
     vistos <- c(vistos, id)
     segs[[length(segs) + 1L]] <- list(
@@ -373,6 +388,11 @@ construir_norma <- function(meta) {
     # tema. Lo detecto el recuento con jq del cierre.
     tema = I(temas),
     fuente_anio = if (!is.null(curado$fuente_anio)) curado$fuente_anio else NULL,
+    # Anios adicionales legitimos de la norma, para los textos refundidos: el
+    # catalogo la ubica en uno solo, pero una cita a cualquiera de ellos apunta a
+    # este mismo documento.
+    anios_alternativos = I(if (!is.null(curado$anios_alternativos))
+      unlist(curado$anios_alternativos) else integer(0)),
     # Vigencia. Por defecto `vigente`; la sustitucion la declara la curaduria en
     # la norma SUSTITUIDA y una sola vez. El vinculo inverso ("sustituye a") lo
     # deriva el pipeline mas abajo, para que las dos direcciones no puedan
