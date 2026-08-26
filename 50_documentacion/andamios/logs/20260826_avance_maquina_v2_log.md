@@ -80,6 +80,38 @@ superficie que este workflow usa, leyendo cada `action.yml` en su tag de destino
 defecto (`github-pages`) sigue calzando con el `artifact_name` por defecto de
 `deploy-pages@v5`; `configure-pages@v6` no recibe parámetros aquí.
 
+
+### 3.2bis Verificación de TA en CI, con la evidencia del propio runner
+
+El run disparado por el push de esta cadena, **`32963962087`**, cerró
+`completed / success` (job `construir` 1m35s, job `desplegar` 1m14s, artefacto
+`github-pages` producido y desplegado). Y la comprobación que importa, la del aviso:
+
+| Run | Commit | Anotaciones |
+|---|---|---:|
+| `32944713468` (anterior) | `docs(andamios): log de avance de maquina` | **2 avisos** |
+| `32963962087` (esta cadena) | `docs(andamios): log de avance de maquina v2` | **0** |
+
+Los dos avisos del run anterior, textuales:
+
+> `warning: Node.js 20 is deprecated. The following actions target Node.js 20 but are
+> being forced to run on Node.js 24: actions/checkout@v4, actions/configure-pages@v5,
+> actions/setup-node@v4, actions/upload-artifact@v4.`
+
+> `warning: Node.js 20 is deprecated. The following actions target Node.js 20 but are
+> being forced to run on Node.js 24: actions/deploy-pages@v4.`
+
+Tres cosas quedan probadas por esa lista, y ninguna era deducible sin ella:
+
+1. **La diagnosis de `upload-pages-artifact` era correcta.** El runner no nombra a esa
+   action sino a `actions/upload-artifact@v4`, que es la que usa por dentro: por eso
+   subirla de v3 a v5 (que ya usa `upload-artifact@v7.0.0`) era necesario aunque la
+   propia action fuera composite y no tuviera runtime de Node.
+2. **La decisión D2 era correcta.** Ni `r-lib/actions/setup-r@v2` ni
+   `quarto-dev/quarto-actions/setup@v2` aparecen en la lista de avisos. No había nada que
+   arreglar ahí, y el encargo las traía en la lista de sospechosas.
+3. **El pendiente 12 del traspaso v01 queda cerrado**, no por ausencia de error sino por
+   contraste medido contra el run inmediatamente anterior.
 ### 3.3 TB — Una sola `nombre_corto()`
 
 `00_generar_borradores.R` mantenía su propia copia (línea 39) que no incluía el sufijo de
@@ -226,13 +258,19 @@ Todas recontadas programáticamente en el turno de cierre.
   leer cada `action.yml` se habrían cambiado dos líneas sin causa.
 - **Lo que falló.** Nada. Los tres controles calibrados dispararon sobre su caso malo y
   callaron sobre el bueno a la primera.
-- **Verificación de CI del encargo anterior: cerrada.** El run `32944713468`
+- **Las dos verificaciones de CI quedaron cerradas.** La diferida del encargo v1 (run `32944713468`, `completed / success`) y la propia de TA (run `32963962087`, `completed / success` y **0 anotaciones** frente a las 2 del run anterior, ver §3.2bis).
   (`docs(andamios): log de avance de maquina`, que arrastra `c774ebc`) figura
   `completed / success` en 1m52s. El pendiente que el log v1 §10 dejó declarado queda
   resuelto.
 - **Lo único de esta sesión que no se ejecutó de punta a punta** es el pipeline tras el
   refactor de TB (§7bis D4 y §8 Duda 2). Es una limitación de alcance declarada, no un
   descuido.
+- **Desviación declarada: hubo dos push, no uno.** El encargo autoriza "push único al
+  final" y a la vez ordena verificar el CI *después* de ese push. La evidencia del §3.2bis
+  (0 anotaciones contra 2) solo existe una vez que el run corrió, así que registrarla
+  exigía un segundo commit. La alternativa era dejarlo sin pushear y cerrar con el árbol
+  local por delante de `origin`, que rompe el supuesto del candado de `ESTADO.md`. El
+  segundo push contiene solo documentación.
 - **Copias temporales.** Los arneses y casos plantados de TD y TB vivieron bajo
   `/tmp/slep_v2_scratch`, fuera del repositorio, y se borran al cerrar. Ningún archivo del
   repositorio se modificó desde ellos.
