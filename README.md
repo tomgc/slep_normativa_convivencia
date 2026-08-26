@@ -26,6 +26,10 @@ resúmenes, paráfrasis ni interpretaciones: la única limpieza que aplica el
 pipeline es unir palabras cortadas por guion al final de línea, colapsar espacios
 y quitar encabezados y pies repetidos de página.
 
+Cuatro documentos son escaneos sin capa de texto y se publican con una
+**transcripción automática (OCR) todavía sin revisar**, señalizada como tal en
+todas partes. Esa transcripción no es cita textual: para citar, manda el PDF.
+
 > **Este sitio no es asesoría jurídica ni una fuente oficial.** Ante cualquier
 > discrepancia, manda el texto publicado en el Diario Oficial.
 
@@ -37,12 +41,17 @@ y quitar encabezados y pies repetidos de página.
 slep_normativa_convivencia/
 ├── 00_run_all.R                 orquestador (punto de entrada único)
 ├── 00_escanear_proyecto.R       escáner de estructura
+├── 00_ocr_documentos.R          OCR de escaneos (herramienta, no paso del pipeline)
+├── 00_ocr_vision.swift          auxiliar de OCR (framework Vision de macOS)
 ├── _quarto.yml                  configuración del sitio
 ├── 10_utils/                    utilidades y configuración
 │   ├── 10_utils.R               bootstrapping (instalar_si_falta, log_msg)
 │   ├── 10_configuracion.R       rutas, constantes, taxonomías
 │   └── 10_locale.R              guarda de locale UTF-8 (copia del kit)
-├── 20_insumos/normativa/        los 24 PDF, read-only
+├── 20_insumos/
+│   ├── normativa/               los 24 PDF, read-only
+│   ├── ocr/                     transcripción de los escaneos (curada a mano)
+│   └── curaduria/               metadatos que aporta el equipo, no un script
 ├── 30_procesamiento/            extracción, segmentación, generación
 ├── 40_salidas/
 │   ├── datos/                   JSON estructurado (versionado)
@@ -88,12 +97,52 @@ de una carpeta subida a mano.
 
 ---
 
-## Documentos sin capa de texto
+## Documentos escaneados: OCR y su revisión
 
-Cuatro de los 24 PDF son escaneos de imagen y no tienen texto extraíble
-(medido el 2026-08-25). Aparecen en el sitio con su ficha y un enlace al PDF,
-pero sin articulado transcrito y sin entrar al índice de búsqueda por artículo.
-El detalle está en `20_insumos/normativa/README.md`.
+Cuatro de los 24 PDF son escaneos de imagen (medido el 2026-08-25):
+`circular_193`, `circular_586`, `circular_812` y `rex_482_reglamentos_b`. De
+ellos se obtuvo una transcripción automática con `00_ocr_documentos.R`, que
+**no es parte del pipeline** y se corre una sola vez por documento nuevo.
+
+Su salida vive en `20_insumos/ocr/<slug>/pagina_NNN.txt`, una página por archivo,
+y **se versiona**: el equipo la va a corregir a mano, y una corrección humana que
+la siguiente corrida sobreescribe no es una corrección, es una pérdida.
+
+El estado de cada documento vive en `20_insumos/curaduria/metadatos_curados.json`,
+campo `origen_texto`:
+
+| Valor | Significado |
+|---|---|
+| `capa_texto_pdf` | El PDF trae texto seleccionable. Es cita textual. |
+| `ocr_pendiente_revision` | Transcripción automática sin revisar. **No es cita textual.** |
+| `ocr_revisado` | Transcripción revisada y validada por el equipo. |
+
+### Cómo revisar una transcripción
+
+1. Abrir el PDF en `20_insumos/normativa/<slug>.pdf` y el archivo
+   `20_insumos/ocr/<slug>/pagina_001.txt` lado a lado.
+2. Corregir el `.txt` contra la página. No se reordena ni se reformatea: solo se
+   corrige lo que el reconocedor leyó mal.
+3. Repetir por cada página.
+4. Cambiar `origen_texto` a `ocr_revisado` en
+   `20_insumos/curaduria/metadatos_curados.json` y anotar quién y cuándo en
+   `fuente_origen_texto`.
+5. Correr `Rscript -e 'source("00_run_all.R"); run_all()'` y commitear.
+
+Mientras el estado sea `ocr_pendiente_revision`, el sitio muestra el aviso
+"Texto obtenido por OCR, en revisión; el PDF oficial es la fuente" junto al
+enlace al PDF y sobre el texto.
+
+### Regenerar el OCR (solo macOS)
+
+```bash
+Rscript 00_ocr_documentos.R              # solo los que faltan
+Rscript 00_ocr_documentos.R --rehacer    # rehace todos, DESCARTA correcciones
+```
+
+Requiere `pdftoppm` (`brew install poppler`) y las Command Line Tools de Xcode.
+Nadie más necesita correrlo: la transcripción está versionada y el pipeline la
+lee ya escrita.
 
 ---
 

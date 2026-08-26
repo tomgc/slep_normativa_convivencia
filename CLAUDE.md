@@ -315,6 +315,9 @@ publicar nada.
 |---|---|
 | `20_insumos/normativa/*.pdf` | 🔒 corpus, read-only, fuente legal de verdad |
 | `20_insumos/normativa/README.md` | tabla de equivalencias nombre original → canónico |
+| `20_insumos/ocr/<slug>/pagina_NNN.txt` | transcripción de los escaneos; la corrige el equipo a mano |
+| `20_insumos/curaduria/metadatos_curados.json` | 🔒 lo edita una persona; NINGÚN script lo escribe |
+| `00_ocr_documentos.R` | OCR de escaneos; herramienta suelta, NO es paso del pipeline |
 | `30_procesamiento/31_extraer_texto.R` | PDF → texto plano limpio |
 | `30_procesamiento/32_segmentar_articulos.R` | texto → artículos + JSON por norma |
 | `30_procesamiento/33_generar_paginas.R` | JSON → `.qmd` en `40_salidas/sitio_src/` |
@@ -337,12 +340,23 @@ publicar nada.
   (`slugificar()` en `10_utils/10_utils.R`). Si divergen, los resultados de
   búsqueda apuntan a fragmentos que no existen.
 - **Cuatro PDF no tienen capa de texto** (escaneos): `circular_193`,
-  `circular_586`, `circular_812` y `rex_482_reglamentos_b`. Su extracción está
-  congelada por diseño, no rota. Aparecen en el sitio como ficha con enlace al
-  PDF. Si alguien agrega OCR, es una decisión de sesión, no un arreglo.
+  `circular_586`, `circular_812` y `rex_482_reglamentos_b`. Desde el 2026-08-25
+  se publican con transcripción automática en estado `ocr_pendiente_revision`.
+- **El texto OCR no es cita textual hasta que una persona lo revise.** El campo
+  `origen_texto` gobierna cómo lo presenta el sitio, y solo `capa_texto_pdf` y
+  `ocr_revisado` se muestran como cita. El texto reconocido se segmenta por
+  PÁGINA, nunca con anclas `art-N`: un texto sin revisar no puede parecerse a un
+  artículo verificado. Ningún script mueve un documento a `ocr_revisado`.
+- **`20_insumos/curaduria/metadatos_curados.json` no lo escribe ningún script.**
+  Es donde vive lo que el pipeline no puede derivar sin adivinar (años de los
+  dictámenes, notas de ficha, avisos de vigencia, estado de revisión del texto).
+  Si un script lo regenerara, borraría la validación del equipo en cada corrida.
+  Todo valor lleva su campo `fuente_*`: un metadato curado sin procedencia es
+  indistinguible de uno inventado.
 
 ### 10.6 Últimos cambios
 
 | Fecha | Cambio |
 |---|---|
 | 2026-08-25 | Bootstrap completo: estructura Rama A, corpus normalizado, pipeline de extracción y segmentación, sitio Quarto, Pagefind y despliegue a Pages (encargo `50_documentacion/andamios/20260825_encargo_bootstrap_v1.md`) |
+| 2026-08-25 | OCR de los 4 escaneos (75 páginas) con estado `origen_texto`, capa de curaduría de metadatos, años curados de los 3 dictámenes, nota de artículos incorporados en ley 20.536 y aviso de vigencia en dictamen 065 |

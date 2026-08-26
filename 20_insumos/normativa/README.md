@@ -78,12 +78,17 @@ caracteres alfabéticos sobre ellos.
 | `circular_812_identidad_genero.pdf` | 10 | Circular 812, derechos de niñas, niños y estudiantes trans |
 | `rex_482_reglamentos_b.pdf` | 48 | Cuerpo de la Circular 482 sobre reglamentos internos |
 
-Su extracción está **congelada por diseño**, no rota (regla de detención 2 del
-encargo de bootstrap). En el sitio aparecen con su ficha y un enlace al PDF, sin
-articulado transcrito y fuera del índice de búsqueda por artículo. Incorporarlos
-exige OCR, que es una decisión de sesión con su propio costo de verificación:
-un OCR sin revisar produciría texto legal *plausible pero falso*, que es
-exactamente lo que el invariante de fidelidad prohíbe.
+Desde el **2026-08-25** los cuatro tienen transcripción automática, generada por
+`00_ocr_documentos.R` y depositada en `20_insumos/ocr/<slug>/pagina_NNN.txt`, una
+página por archivo. Esa transcripción está en estado `ocr_pendiente_revision`:
+**no es cita textual** y el sitio lo declara junto al enlace al PDF y sobre el
+texto. La condición la fijó el equipo al autorizar el OCR: un texto legal
+reconocido por máquina y sin revisar es *plausible pero no verificado*, y este
+sitio se lee para tomar decisiones que afectan a estudiantes.
+
+El procedimiento de revisión, página por página, está en el README de la raíz.
+Solo una persona del equipo mueve un documento a `ocr_revisado`, editando
+`20_insumos/curaduria/metadatos_curados.json`.
 
 ---
 
