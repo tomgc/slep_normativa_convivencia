@@ -1,10 +1,10 @@
 # =============================================================================
-# 33_generar_paginas.R
+# 34_generar_paginas.R
 # -----------------------------------------------------------------------------
 # Proposito: JSON -> .qmd en 40_salidas/sitio_src/. Genera una pagina por norma
 #            (ficha + articulos anclados), la home con el buscador, tres indices
 #            (tipo, tema, anio) y la pagina institucional. Copia ademas
-#            _quarto.yml y las plantillas de 33_plantillas_sitio/.
+#            _quarto.yml y las plantillas de 34_plantillas_sitio/.
 #
 # LOS .qmd NO SE EDITAN A MANO. Este script los reescribe enteros en cada
 # corrida y 40_salidas/sitio_src/ esta en .gitignore. Editar uno es trabajo que
@@ -59,6 +59,58 @@ parrafos_html <- function(texto) {
   bloques <- strsplit(texto, "\n\n", fixed = TRUE)[[1]]
   bloques <- bloques[nzchar(trimws(bloques))]
   paste0("<p>", escapar_html(trimws(bloques)), "</p>", collapse = "\n")
+}
+
+# ---- Bloque de relacionados --------------------------------------------------
+# Va DESPUES del articulado y FUERA del contenedor indexado por Pagefind. Fuera a
+# proposito: si las explicaciones entraran al indice, buscar "expulsion" empezaria
+# a devolver paginas cuyo unico vinculo con la palabra es la frase "Comparten
+# temas: medidas disciplinarias", y el buscador dejaria de responder sobre texto
+# legal para responder sobre sus propios metadatos.
+#
+# Orden: sustitucion > remision > tema. Es orden de fuerza juridica, no de
+# similitud: que una norma haya sido sustituida cambia cual hay que aplicar; que
+# comparta temas solo sugiere donde seguir leyendo.
+TOPE_RELACIONES_TEMA <- 5L
+
+RELACIONES <- NULL
+
+bloque_relacionados <- function(n) {
+  propias <- Filter(function(r) identical(r$desde, n$slug), RELACIONES)
+  if (length(propias) == 0L) return(character(0))
+
+  por <- function(t) Filter(function(r) identical(r$tipo, t), propias)
+  sus <- por("sustitucion")
+  rem <- por("remision")
+  tem <- por("tema")
+  tem <- tem[order(-vapply(tem, function(r) r$n_temas, integer(1)),
+                   vapply(tem, function(r) r$hacia, character(1)))]
+  omitidas <- max(0L, length(tem) - TOPE_RELACIONES_TEMA)
+  tem <- utils::head(tem, TOPE_RELACIONES_TEMA)
+
+  item <- function(r, clase) sprintf(
+    '<li class="rel rel-%s"><span class="badge-fuente badge-rel-%s">%s</span> %s <span class="rel-por">%s</span></li>',
+    clase, clase,
+    switch(clase, sustitucion = "vigencia", remision = "remisión", tema = "tema"),
+    enlace_norma(r$hacia), escapar_html(r$explicacion))
+
+  c("",
+    "## Normas relacionadas {#relacionadas}",
+    "",
+    "```{=html}",
+    '<ul class="lista-relaciones">',
+    vapply(sus, item, character(1), clase = "sustitucion"),
+    vapply(rem, item, character(1), clase = "remision"),
+    vapply(tem, item, character(1), clase = "tema"),
+    "</ul>",
+    # Los topes se declaran, no se aplican en silencio: si el lector no sabe que
+    # la lista esta recortada, la lee como si fuera completa.
+    if (omitidas > 0L)
+      sprintf('<p class="procedencia">Se muestran los %d vínculos temáticos más fuertes; hay %d más con menos temas en común.</p>',
+              TOPE_RELACIONES_TEMA, omitidas) else NULL,
+    '<p class="procedencia">Los vínculos se derivan de datos del pipeline (campo de vigencia, cita del número de la norma en el texto, temas compartidos), no de una lectura interpretativa.</p>',
+    "```",
+    "")
 }
 
 # ---- Pagina de una norma ----------------------------------------------------
@@ -204,7 +256,8 @@ pagina_norma <- function(n) {
       "```",
       ""
     )
-    return(paste(c(cab, banda, ficha, abre, "", spans_filtro, cuerpo, ":::", ""),
+    return(paste(c(cab, banda, ficha, abre, "", spans_filtro, cuerpo, ":::",
+                   bloque_relacionados(n), ""),
                  collapse = "\n"))
   }
 
@@ -248,7 +301,7 @@ pagina_norma <- function(n) {
     }))
 
     return(paste(c(cab, banda, ficha, abre, "", spans_filtro, encabezado_ocr,
-                   secciones, ":::", ""),
+                   secciones, ":::", bloque_relacionados(n), ""),
                  collapse = "\n"))
   }
 
@@ -268,7 +321,8 @@ pagina_norma <- function(n) {
       "")
   }))
 
-  paste(c(cab, banda, ficha, abre, "", spans_filtro, secciones, ":::", ""),
+  paste(c(cab, banda, ficha, abre, "", spans_filtro, secciones, ":::",
+          bloque_relacionados(n), ""),
         collapse = "\n")
 }
 
@@ -433,6 +487,9 @@ cat_json <- jsonlite::fromJSON(ruta_datos("catalogo.json"), simplifyDataFrame = 
 normas <- lapply(cat_json$normas, function(x)
   jsonlite::fromJSON(ruta_normas(paste0(x$slug, ".json")), simplifyDataFrame = FALSE))
 
+RELACIONES <- jsonlite::fromJSON(ruta_datos("relaciones.json"),
+                                 simplifyDataFrame = FALSE)$relaciones
+
 for (n in normas) assign(n$slug, nombre_corto(n), envir = NOMBRES)
 
 destino <- ruta_sitio_src()
@@ -446,7 +503,7 @@ fs::file_copy(fs::dir_ls(ruta_normativa(), glob = "*.pdf"), file.path(destino, "
 
 fs::file_copy(here::here("_quarto.yml"), file.path(destino, "_quarto.yml"))
 fs::file_copy(
-  fs::dir_ls(here::here("30_procesamiento", "33_plantillas_sitio")),
+  fs::dir_ls(here::here("30_procesamiento", "34_plantillas_sitio")),
   destino
 )
 

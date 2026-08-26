@@ -1,5 +1,5 @@
 # =============================================================================
-# 35_indexar_pagefind.R
+# 36_indexar_pagefind.R
 # -----------------------------------------------------------------------------
 # Proposito: construir el indice de busqueda de Pagefind sobre el sitio ya
 #            renderizado. Deja 40_salidas/sitio/pagefind/ con el indice, el WASM
@@ -14,7 +14,7 @@
 # La indexacion es a nivel de ARTICULO: cada pagina de norma marca su cuerpo con
 # data-pagefind-body y cada articulo es un encabezado con id, de modo que
 # Pagefind devuelve un sub-resultado por articulo con su ancla. Esa correspondencia
-# vive en 33_generar_paginas.R; aqui solo se dispara el indexador.
+# vive en 34_generar_paginas.R; aqui solo se dispara el indexador.
 # =============================================================================
 
 source(here::here("10_utils", "10_utils.R"))
@@ -24,7 +24,7 @@ source(here::here("10_utils", "10_configuracion.R"))
 ORIGEN <- "35_indexar_pagefind"
 
 if (!fs::dir_exists(ruta_sitio())) {
-  stop("No existe ", ruta_sitio(), ". Correr antes el paso 34 (run_all(only = 34)).")
+  stop("No existe ", ruta_sitio(), ". Correr antes el paso 35 (run_all(only = 35)).")
 }
 if (!nzchar(Sys.which("npx"))) {
   stop("No se encontro 'npx' en el PATH. Pagefind se instala con Node: ",

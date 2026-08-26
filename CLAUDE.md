@@ -320,7 +320,7 @@ publicar nada.
 | `00_ocr_documentos.R` | OCR de escaneos; herramienta suelta, NO es paso del pipeline |
 | `30_procesamiento/31_extraer_texto.R` | PDF → texto plano limpio |
 | `30_procesamiento/32_segmentar_articulos.R` | texto → artículos + JSON por norma |
-| `30_procesamiento/33_generar_paginas.R` | JSON → `.qmd` en `40_salidas/sitio_src/` |
+| `30_procesamiento/34_generar_paginas.R` | JSON → `.qmd` en `40_salidas/sitio_src/` |
 | `40_salidas/datos/catalogo.json` | catálogo maestro (versionado) |
 | `40_salidas/datos/normas/<slug>.json` | una norma por archivo (versionado) |
 | `10_utils/10_configuracion.R` | TODAS las rutas, regex y taxonomías |
@@ -333,7 +333,7 @@ publicar nada.
   sitio institucional es un riesgo jurídico, no un detalle de estilo.
 - **Nada se inventa.** Título, año o tema que no se puedan derivar del texto
   quedan `null` con marca `MARCA_REVISAR` en el JSON. Nunca un año plausible.
-- **Los `.qmd` no se editan a mano.** Los genera `33_generar_paginas.R` desde el
+- **Los `.qmd` no se editan a mano.** Los genera `34_generar_paginas.R` desde el
   JSON y `40_salidas/sitio_src/` está en `.gitignore`. Editar uno es trabajo que
   el siguiente `run_all()` borra sin avisar.
 - **Los id de artículo y las anclas del HTML salen de la misma función**

@@ -1,7 +1,7 @@
 # =============================================================================
 # _quarto.yml - configuracion del sitio
 # -----------------------------------------------------------------------------
-# Este archivo es la FUENTE. 33_generar_paginas.R lo copia sin modificar a
+# Este archivo es la FUENTE. 34_generar_paginas.R lo copia sin modificar a
 # 40_salidas/sitio_src/ junto con los .qmd que genera, y el render se dispara
 # sobre esa carpeta. El rodeo tiene una razon concreta: Quarto calcula la ruta de
 # cada salida relativa al directorio del proyecto, asi que con el _quarto.yml en

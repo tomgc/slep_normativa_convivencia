@@ -1,5 +1,5 @@
 # =============================================================================
-# 34_renderizar_sitio.R
+# 35_renderizar_sitio.R
 # -----------------------------------------------------------------------------
 # Proposito: renderizar 40_salidas/sitio_src/ (Quarto) a 40_salidas/sitio/.
 #            Es el unico paso del pipeline que invoca una herramienta externa a R.
@@ -7,7 +7,7 @@
 # El render se dispara sobre la CARPETA, no sobre cada .qmd: Quarto necesita
 # tratarla como proyecto para resolver la barra de navegacion, el tema y las
 # rutas relativas entre paginas. El _quarto.yml que hay ahi lo deposito el paso
-# 33 por copia desde la raiz del repositorio, que es donde se versiona.
+# 34 por copia desde la raiz del repositorio, que es donde se versiona.
 # =============================================================================
 
 source(here::here("10_utils", "10_utils.R"))
@@ -22,7 +22,7 @@ if (!nzchar(Sys.which("quarto"))) {
 }
 
 if (!fs::dir_exists(ruta_sitio_src())) {
-  stop("No existe ", ruta_sitio_src(), ". Correr antes el paso 33 (run_all(only = 33)).")
+  stop("No existe ", ruta_sitio_src(), ". Correr antes el paso 34 (run_all(only = 34)).")
 }
 
 n_qmd <- length(fs::dir_ls(ruta_sitio_src(), glob = "*.qmd"))

@@ -34,12 +34,14 @@ PASOS <- list(
        ruta = "30_procesamiento/31_extraer_texto.R"),
   list(id = 32L, etiqueta = "Segmentar por artículo y escribir JSON",
        ruta = "30_procesamiento/32_segmentar_articulos.R"),
-  list(id = 33L, etiqueta = "Generar las páginas .qmd del sitio",
-       ruta = "30_procesamiento/33_generar_paginas.R"),
-  list(id = 34L, etiqueta = "Renderizar el sitio con Quarto",
-       ruta = "30_procesamiento/34_renderizar_sitio.R"),
-  list(id = 35L, etiqueta = "Construir el índice de búsqueda (Pagefind)",
-       ruta = "30_procesamiento/35_indexar_pagefind.R")
+  list(id = 33L, etiqueta = "Derivar relaciones entre normas",
+       ruta = "30_procesamiento/33_relaciones.R"),
+  list(id = 34L, etiqueta = "Generar las páginas .qmd del sitio",
+       ruta = "30_procesamiento/34_generar_paginas.R"),
+  list(id = 35L, etiqueta = "Renderizar el sitio con Quarto",
+       ruta = "30_procesamiento/35_renderizar_sitio.R"),
+  list(id = 36L, etiqueta = "Construir el índice de búsqueda (Pagefind)",
+       ruta = "30_procesamiento/36_indexar_pagefind.R")
 )
 
 # ---- Funcion principal ------------------------------------------------------
