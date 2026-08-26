@@ -9,6 +9,7 @@
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "estatuto del personal", "seguridad escolar", "revisión de pertenencias"],
   "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
   "anios_alternativos": [],
+  "fuente_anios_alternativos": null,
   "vigencia": {
     "estado": "sustituido",
     "sustituido_por": "dictamen_078_detectores_revision_mochilas",

@@ -9,6 +9,7 @@
   "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "reconocimiento oficial"],
   "fuente_anio": null,
   "anios_alternativos": [],
+  "fuente_anios_alternativos": null,
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

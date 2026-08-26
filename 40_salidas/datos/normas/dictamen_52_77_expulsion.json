@@ -9,6 +9,7 @@
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "estatuto del personal", "reconocimiento oficial"],
   "fuente_anio": "texto del propio documento, sección ANTECEDENTES: es un texto refundido y se adopta el año del dictamen más reciente de los dos para el índice por año",
   "anios_alternativos": [2020],
+  "fuente_anios_alternativos": "texto refundido: el documento refunde el Dictamen N° 52, de 17 de febrero de 2020, y el N° 77, de 19 de diciembre de 2025, ambos citados en su propia sección ANTECEDENTES. El catálogo lo ubica en 2025; una cita a «Dictamen N° 52, de 2020» apunta a este documento.",
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

@@ -9,6 +9,7 @@
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "embarazo y maternidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
   "fuente_anio": null,
   "anios_alternativos": [],
+  "fuente_anios_alternativos": null,
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

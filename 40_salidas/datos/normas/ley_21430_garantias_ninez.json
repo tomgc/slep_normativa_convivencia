@@ -9,6 +9,7 @@
   "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad"],
   "fuente_anio": null,
   "anios_alternativos": [],
+  "fuente_anios_alternativos": null,
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []

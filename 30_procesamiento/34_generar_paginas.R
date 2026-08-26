@@ -196,13 +196,32 @@ pagina_norma <- function(n) {
 
   # El anio curado viaja con su procedencia a la vista. Un metadato aportado por
   # una persona sin decir de donde salio es indistinguible de uno inventado.
-  linea_anio <- if (is.null(n$anio)) {
+  #
+  # Acceso con [[ ]] y no con $: desde que la norma publica
+  # `fuente_anios_alternativos`, `fuente_anio` es prefijo de otra clave del mismo
+  # objeto, y `anio` lo es de `anios_alternativos`. Hoy el escritor emite las dos
+  # claves siempre, asi que $ acertaria; el acceso exacto no depende de eso.
+  linea_anio <- if (is.null(n[["anio"]])) {
     "<dt>Año de publicación</dt><dd><em>No consta en el documento. Pendiente de revisión del equipo.</em></dd>"
-  } else if (!is.null(n$fuente_anio)) {
+  } else if (!is.null(n[["fuente_anio"]])) {
     sprintf("<dt>Año de publicación</dt><dd>%d <span class=\"procedencia\">(dato curado — %s)</span></dd>",
-            n$anio, escapar_html(n$fuente_anio))
+            n[["anio"]], escapar_html(n[["fuente_anio"]]))
   } else {
-    sprintf("<dt>Año de publicación</dt><dd>%d</dd>", n$anio)
+    sprintf("<dt>Año de publicación</dt><dd>%d</dd>", n[["anio"]])
+  }
+
+  # Anios de cita reconocidos. Solo aparece cuando la curaduria declaro alguno:
+  # es el dato que explica por que una cita "de 1996" a un documento que el
+  # catalogo ubica en 1997 se acepta como remision y no se descarta.
+  linea_anios_cita <- if (length(n[["anios_alternativos"]]) == 0L) NULL else {
+    todos <- unique(c(n[["anio"]], unlist(n[["anios_alternativos"]])))
+    lista <- paste(todos[!is.na(todos)], collapse = ", ")
+    if (!is.null(n[["fuente_anios_alternativos"]])) {
+      sprintf("<dt>Años de cita reconocidos</dt><dd>%s <span class=\"procedencia\">(dato curado — %s)</span></dd>",
+              lista, escapar_html(n[["fuente_anios_alternativos"]]))
+    } else {
+      sprintf("<dt>Años de cita reconocidos</dt><dd>%s</dd>", lista)
+    }
   }
 
   linea_extension <- if (es_ocr) {
@@ -225,6 +244,7 @@ pagina_norma <- function(n) {
             if (is.null(n$titulo)) "<em>No fue posible extraerlo del documento. Pendiente de revisión del equipo.</em>"
             else escapar_html(n$titulo)),
     linea_anio,
+    linea_anios_cita,
     linea_extension,
     sprintf("<dt>Temas</dt><dd>%s</dd>",
             if (length(n$tema) == 0L) "<em>sin tema asignado</em>"

@@ -472,6 +472,11 @@ construir_norma <- function(meta) {
     # este mismo documento.
     anios_alternativos = I(if (!is.null(curado[["anios_alternativos"]]))
       unlist(curado[["anios_alternativos"]]) else integer(0)),
+    # La procedencia viaja al JSON junto al dato, no se queda en la curaduria: la
+    # ficha la imprime, y un anio de cita aceptado sin decir de donde sale es
+    # indistinguible de uno inventado. Mismo trato que `fuente_anio`.
+    fuente_anios_alternativos = if (!is.null(curado[["fuente_anios_alternativos"]]))
+      curado[["fuente_anios_alternativos"]] else NULL,
     # Vigencia. Por defecto `vigente`; la sustitucion la declara la curaduria en
     # la norma SUSTITUIDA y una sola vez. El vinculo inverso ("sustituye a") lo
     # deriva el pipeline mas abajo, para que las dos direcciones no puedan

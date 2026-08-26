@@ -14,6 +14,7 @@
       "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -41,6 +42,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "embarazo y maternidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -68,6 +70,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "participación de la comunidad", "estatuto del personal"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -95,6 +98,7 @@
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "formación ciudadana", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -122,6 +126,7 @@
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "formación ciudadana"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -149,6 +154,7 @@
       "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -176,6 +182,7 @@
       "tema": ["medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "trastorno del espectro autista", "estatuto del personal"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -203,6 +210,7 @@
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "uso de dispositivos móviles"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -230,6 +238,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "trastorno del espectro autista", "formación ciudadana", "jornada escolar", "estatuto del personal"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -257,6 +266,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [1996],
+      "fuente_anios_alternativos": "el DFL N° 1 del Ministerio de Educación, que fija el texto refundido de la ley N° 19.070, se promulgó el 10-09-1996 y se publicó en el Diario Oficial el 22-01-1997: las dos formas de citarlo son legítimas y apuntan al mismo documento. El catálogo lo ubica en 1997, el año de publicación. Verificado en Ley Chile (BCN, idNorma 60439) el 2026-08-26; el propio corpus lo cita de las dos maneras (ley_21545_tea art-19 dice «de 1997»; ley_21809_convivencia_educativa art-5 dice «de 1996», ambas describiendo el refundido de la ley 19.070). Decisión del titular delegada al asistente, 2026-08-26 (duda 2 del log 20260826_avance_maquina_v2_log.md).",
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -284,6 +294,7 @@
       "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "embarazo y maternidad", "jornada escolar", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -311,6 +322,7 @@
       "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -338,6 +350,7 @@
       "tema": ["medidas disciplinarias", "participación de la comunidad", "uniforme y presentación personal", "reconocimiento oficial", "seguridad escolar"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -365,6 +378,7 @@
       "tema": ["medidas disciplinarias", "participación de la comunidad", "embarazo y maternidad", "estatuto del personal"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -392,6 +406,7 @@
       "tema": ["medidas disciplinarias", "participación de la comunidad"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -419,6 +434,7 @@
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "uniforme y presentación personal", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -446,6 +462,7 @@
       "tema": ["inclusión y no discriminación", "trastorno del espectro autista", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -473,6 +490,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "uniforme y presentación personal", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -500,6 +518,7 @@
       "tema": ["uso de dispositivos móviles"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -527,6 +546,7 @@
       "tema": ["medidas disciplinarias", "reconocimiento oficial"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -561,6 +581,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "uso de dispositivos móviles", "uniforme y presentación personal", "jornada escolar", "estatuto del personal", "reconocimiento oficial", "seguridad escolar"],
       "fuente_anio": null,
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -595,6 +616,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": "texto del propio documento, sección ANTECEDENTES: es un texto refundido y se adopta el año del dictamen más reciente de los dos para el índice por año",
       "anios_alternativos": [2020],
+      "fuente_anios_alternativos": "texto refundido: el documento refunde el Dictamen N° 52, de 17 de febrero de 2020, y el N° 77, de 19 de diciembre de 2025, ambos citados en su propia sección ANTECEDENTES. El catálogo lo ubica en 2025; una cita a «Dictamen N° 52, de 2020» apunta a este documento.",
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -622,6 +644,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "estatuto del personal", "seguridad escolar", "revisión de pertenencias"],
       "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "sustituido",
         "sustituido_por": "dictamen_078_detectores_revision_mochilas",
@@ -651,6 +674,7 @@
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "formación ciudadana", "reconocimiento oficial"],
       "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": []
@@ -678,6 +702,7 @@
       "tema": ["convivencia escolar", "violencia y acoso escolar", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "estatuto del personal", "reconocimiento oficial", "seguridad escolar", "revisión de pertenencias"],
       "fuente_anio": "verificación web del asistente, 2026-08-25 (Boletín Jurídico OLR); el PDF no trae fecha estructural legible: su carátula dice \"SANTIAGO, A 1 JUN MI\", con la fecha ilegible en la capa de texto.",
       "anios_alternativos": [],
+      "fuente_anios_alternativos": null,
       "vigencia": {
         "estado": "vigente",
         "sustituye_a": ["dictamen_065_revision_mochilas"]

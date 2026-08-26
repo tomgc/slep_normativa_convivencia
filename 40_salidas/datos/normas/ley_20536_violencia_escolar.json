@@ -9,6 +9,7 @@
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "participación de la comunidad", "estatuto del personal"],
   "fuente_anio": null,
   "anios_alternativos": [],
+  "fuente_anios_alternativos": null,
   "vigencia": {
     "estado": "vigente",
     "sustituye_a": []
