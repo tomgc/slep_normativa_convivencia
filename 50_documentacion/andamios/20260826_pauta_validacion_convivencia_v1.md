@@ -2,7 +2,7 @@
 
 **Para:** Equipo de convivencia, SLEP Costa Central
 **De:** Área de Monitoreo y Seguimiento de Procesos y Resultados Educativos
-**Sitio a revisar:** [ENLACE AL SITIO]
+**Sitio a revisar:** https://tomgc.github.io/slep_normativa_convivencia/
 **Fecha de entrega de la pauta:** 26-08-2026
 
 ---
