@@ -1,0 +1,42 @@
+{
+  "generado_por": "00_ocr_documentos.R",
+  "motor": "Apple Vision (VNRecognizeTextRequest, .accurate, es-ES)",
+  "rasterizador": "pdftoppm (poppler)",
+  "sistema": "Darwin 25.6.0",
+  "dpi": 300,
+  "fecha": "2026-08-25",
+  "documentos": [
+    {
+      "slug": "circular_193_estudiantes_embarazadas",
+      "paginas": 16,
+      "paginas_pdf": 16,
+      "caracteres": 27683,
+      "paginas_vacias": 0,
+      "md5_pdf": "91a0bb6ca82ba46064752c2e9a023ad8"
+    },
+    {
+      "slug": "circular_586_tea",
+      "paginas": 1,
+      "paginas_pdf": 1,
+      "caracteres": 2649,
+      "paginas_vacias": 0,
+      "md5_pdf": "ece5c0fccfb802be65fc10cd49fc4429"
+    },
+    {
+      "slug": "circular_812_identidad_genero",
+      "paginas": 10,
+      "paginas_pdf": 10,
+      "caracteres": 36367,
+      "paginas_vacias": 0,
+      "md5_pdf": "26187828e3bcad20400fa40ee86680b1"
+    },
+    {
+      "slug": "rex_482_reglamentos_b",
+      "paginas": 48,
+      "paginas_pdf": 48,
+      "caracteres": 122868,
+      "paginas_vacias": 0,
+      "md5_pdf": "fb6d0ed59ea2e9fbe374c06bffa0b381"
+    }
+  ]
+}

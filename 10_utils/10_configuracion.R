@@ -56,6 +56,34 @@ ORDEN_TIPOS <- names(TIPOS_NORMA)
 # discrimina con dos ordenes de magnitud de holgura.
 MIN_CHARS_ALFABETICOS <- 500L
 
+# ---- Reconocimiento optico (OCR) --------------------------------------------
+# Resolucion de rasterizado para 00_ocr_documentos.R. 300 dpi es el minimo con el
+# que el reconocedor distingue con fiabilidad la tilde y la enie en un escaneo de
+# oficina; por debajo confunde "nino" con "nino" y la correccion la paga una
+# persona.
+OCR_DPI <- 300L
+
+# Estados posibles del campo `origen_texto` de cada norma. Es un dominio cerrado:
+# un valor fuera de esta lista es un error, no una variante.
+#   capa_texto_pdf         el PDF trae texto seleccionable; es cita textual.
+#   ocr_pendiente_revision texto reconocido por maquina, SIN revisar. No es cita
+#                          textual y el sitio lo declara asi. La fuente es el PDF.
+#   ocr_revisado           texto reconocido y validado por el equipo de
+#                          convivencia. Solo el equipo mueve un documento a este
+#                          estado, editando 20_insumos/curaduria/.
+#   sin_texto              ni capa de texto ni reconocimiento disponible.
+ORIGENES_TEXTO <- c("capa_texto_pdf", "ocr_pendiente_revision",
+                    "ocr_revisado", "sin_texto")
+
+# Aviso que el sitio muestra junto al enlace al PDF mientras el texto reconocido
+# no este validado. Literal fijado por el equipo el 2026-08-25.
+AVISO_OCR_PENDIENTE <- "Texto obtenido por OCR, en revisión; el PDF oficial es la fuente"
+
+# Separador con el que 31 une las paginas reconocidas y 32 las vuelve a separar.
+# Se elige una secuencia que no puede aparecer en un texto legal reconocido: dos
+# saltos, un marcador de formulario y dos saltos.
+SEPARADOR_PAGINA_OCR <- "\n\n\u000c\n\n"
+
 # ---- Segmentacion por articulado --------------------------------------------
 # Dos formas conviven en el corpus chileno y hay que cubrir las dos:
 #   numerica ("Articulo 5", "Art. 5 bis", "ARTICULO 12 TRANSITORIO")
