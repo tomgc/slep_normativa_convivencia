@@ -10,12 +10,14 @@
 # Incorporar una norma nueva es, gracias a esto, dejar el PDF con nombre canonico
 # en 20_insumos/normativa/ y correr 00_run_all.R. Nada mas manual.
 #
-# LA HUELLA NO ES SOLO EL PDF. Para los documentos escaneados incluye tambien la
-# transcripcion: si alguien corrige una pagina de OCR, el documento tiene que
-# volver a procesarse aunque el PDF no se haya movido un byte. Un manifiesto que
-# solo mirara el PDF dejaria las correcciones humanas fuera del sitio publicado,
-# que es exactamente el trabajo que la compuerta de 00_ocr_documentos.R existe
-# para proteger.
+# LA HUELLA NO ES SOLO EL PDF. Tiene tres componentes, y los tres pueden cambiar
+# la salida del paso 31 sin que el PDF se mueva un byte:
+#   1. el PDF,
+#   2. la transcripcion OCR, si la hay (corregir una pagina tiene que reprocesar),
+#   3. el `origen_texto` que declara la curaduria (declarar un documento como
+#      transcripcion cambia como se extrae: por pagina y sin reflujo).
+# Un manifiesto que solo mirara el PDF dejaria fuera del sitio tanto las
+# correcciones humanas del OCR como las decisiones de la curaduria.
 #
 # LA FECHA DE MODIFICACION NO CUENTA, manda el hash: copiar el corpus, restaurar
 # un respaldo o clonar el repositorio cambia mtime en todos los archivos sin
@@ -55,8 +57,20 @@ huella_documento <- function(slug) {
     }
   }
 
-  list(slug = slug, md5_pdf = h_pdf, md5_ocr = h_ocr,
-       huella = paste(h_pdf, if (is.na(h_ocr)) "-" else h_ocr, sep = ":"))
+  # Tercer componente: el `origen_texto` que declara la curaduria. No es un
+  # metadato mas: DETERMINA la extraccion, porque un documento declarado
+  # transcripcion se extrae por pagina y sin reflujo aunque su PDF traiga capa de
+  # texto. Sin esto en la huella, cambiar esa declaracion no reprocesaba el
+  # documento y el sitio seguia mostrando la version anterior indefinidamente.
+  # Medido el 2026-08-25 al pasar el dictamen 078 a ocr_pendiente_revision.
+  ruta_cur <- ruta_insumos("curaduria", "metadatos_curados.json")
+  h_origen <- if (fs::file_exists(ruta_cur)) {
+    cur <- jsonlite::fromJSON(ruta_cur, simplifyDataFrame = FALSE)$normas[[slug]]
+    if (is.null(cur$origen_texto)) "-" else cur$origen_texto
+  } else "-"
+
+  list(slug = slug, md5_pdf = h_pdf, md5_ocr = h_ocr, origen_declarado = h_origen,
+       huella = paste(h_pdf, if (is.na(h_ocr)) "-" else h_ocr, h_origen, sep = ":"))
 }
 
 # ---- Clasificacion -----------------------------------------------------------

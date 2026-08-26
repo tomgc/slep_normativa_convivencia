@@ -21,6 +21,24 @@ source(here::here("10_utils", "10_configuracion.R"))
 
 ORIGEN <- "31_extraer_texto"
 
+# ---- Origen del texto declarado por la curaduria ----------------------------
+# El pipeline deduce el origen mirando si el PDF trae capa de texto, pero la
+# curaduria manda: un PDF puede TENER capa de texto y aun asi no merecer el
+# estatus de cita textual, porque esa capa la produjo un reconocedor en el origen
+# y arrastra sus errores. Es el caso del dictamen 078, cuya capa dice "á Ley" por
+# "la Ley" y "artículos incendiados" por "incendiarios".
+#
+# Cuando la curaduria declara un documento como OCR, se le da el mismo trato que
+# a un escaneo: texto por pagina, sin reflujo, para que el sitio lo presente como
+# transcripcion y no como cita, y para que sus anclas sean de pagina y no de
+# articulo.
+origen_curado <- function(slug) {
+  ruta <- ruta_insumos("curaduria", "metadatos_curados.json")
+  if (!fs::file_exists(ruta)) return(NA_character_)
+  cur <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$normas[[slug]]
+  if (is.null(cur$origen_texto)) NA_character_ else cur$origen_texto
+}
+
 # ---- Deteccion de encabezados y pies repetidos ------------------------------
 # Se comparan las lineas NORMALIZADAS (espacios colapsados y digitos sustituidos
 # por #) porque el pie de la Biblioteca del Congreso trae el numero de pagina y
@@ -183,6 +201,25 @@ extraer_documento <- function(ruta_pdf) {
   repetidos <- detectar_repetidos(paginas)
   limpias   <- vapply(paginas, quitar_repetidos, character(1), repetidos = repetidos,
                       USE.NAMES = FALSE)
+
+  declarado <- origen_curado(slug)
+  if (!is.na(declarado) && declarado %in% c("ocr_pendiente_revision", "ocr_revisado")) {
+    # Tiene capa de texto, pero la curaduria la declara transcripcion automatica.
+    # Se conserva el salto de linea original y se separa por pagina: mismo trato
+    # que un escaneo reconocido aqui. NO se refluye, por la misma razon que alli:
+    # a un texto que nadie ha revisado no se le adivina ademas la estructura de
+    # parrafos.
+    texto <- paste(trimws(limpias), collapse = SEPARADOR_PAGINA_OCR)
+    stopifnot(nchar(texto) > 0)
+    log_msg(sprintf("%s: tiene capa de texto pero la curaduría la declara '%s'; se trata como transcripción (%d páginas, %d caracteres).",
+                    slug, declarado, info$pages, nchar(texto)),
+            nivel = "WARN", origen = ORIGEN)
+    return(list(slug = slug, paginas = info$pages, chars_alfabeticos = alfabeticos,
+                sin_capa_texto = FALSE, origen_texto = declarado,
+                chars_limpio = nchar(texto), lineas_maquetacion = length(repetidos),
+                cabecera = cabecera, texto = texto))
+  }
+
   bloques   <- unir_a_traves_de_paginas(lapply(limpias, reflujo_pagina))
   texto     <- paste(bloques, collapse = "\n\n")
 
