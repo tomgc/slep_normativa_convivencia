@@ -359,6 +359,13 @@ publicar nada.
   (sustitución, remisión textual, tema compartido) y cada explicación se compone
   por plantilla desde el tipo. La remisión transcribe la cita literal que la
   disparó, porque el número por sí solo no identifica una norma chilena.
+- **Un acto administrativo puede vivir en dos archivos.** `grupos_acto`, en
+  `20_insumos/curaduria/metadatos_curados.json`, lo declara UNA sola vez por grupo,
+  no una vez por miembro: dos mitades editables por separado acaban afirmando cosas
+  incompatibles, que es el mismo motivo por el que la sustitución se declara una
+  sola vez. El derivador no emite remisiones dentro de un grupo, lo sondea una sola
+  vez por su `resolucion` y dirige ahí toda cita de terceros, con una nota que
+  declara qué incluye el enlace.
 - **`20_insumos/curaduria/metadatos_curados.json` no lo escribe ningún script.**
   Es donde vive lo que el pipeline no puede derivar sin adivinar (años de los
   dictámenes, notas de ficha, avisos de vigencia, estado de revisión del texto).
@@ -373,3 +380,4 @@ publicar nada.
 | 2026-08-25 | Bootstrap completo: estructura Rama A, corpus normalizado, pipeline de extracción y segmentación, sitio Quarto, Pagefind y despliegue a Pages (encargo `50_documentacion/andamios/20260825_encargo_bootstrap_v1.md`) |
 | 2026-08-25 | OCR de los 4 escaneos (75 páginas) con estado `origen_texto`, capa de curaduría de metadatos, años curados de los 3 dictámenes, nota de artículos incorporados en ley 20.536 y aviso de vigencia en dictamen 065 |
 | 2026-08-25 | Fase 2: compuerta que protege las correcciones de OCR, manifiesto de incorporación por huella, dictamen 78/2026 incorporado, campo `vigencia`, recomendador por metadatos (563 relaciones), 17 páginas temáticas y 22 borradores de piezas interpretativas sin publicar (encargo `50_documentacion/andamios/20260825_encargo_fase2_v1.md`) |
+| 2026-08-26 | Dos fixes correctivos: el año de la cita se lee también en la forma `D.O. dd.mm.aaaa` de las notas marginales de la BCN (cae la remisión falsa `dto_453 → dto_215`; sus 42 citas pasan al registro de descartadas) y la curaduría gana `grupos_acto`, que declara el REX 482 como un solo acto en dos archivos (relaciones 553 → 552, remisión 47 → 44, tipo nuevo `grupo_acto`). Log: `50_documentacion/andamios/logs/20260826_fixes_remision_grupo_acto_log.md` |
