@@ -8,6 +8,10 @@
   "anio": 2025,
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "estatuto del personal", "reconocimiento oficial"],
   "fuente_anio": "texto del propio documento, sección ANTECEDENTES: es un texto refundido y se adopta el año del dictamen más reciente de los dos para el índice por año",
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 8,
   "pdf": "dictamen_52_77_expulsion.pdf",
   "sin_capa_texto": false,

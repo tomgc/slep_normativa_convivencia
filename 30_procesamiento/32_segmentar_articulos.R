@@ -260,6 +260,53 @@ segmentar_ocr <- function(texto) {
   })
 }
 
+# ---- Vigencia ----------------------------------------------------------------
+# Dominio cerrado de dos estados. `sustituido` exige las dos cosas: a que norma
+# se sustituyo y de donde consta. Una sustitucion sin procedencia es una
+# afirmacion juridica sin respaldo, y este sitio la publicaria en una banda roja
+# sobre el articulado.
+ESTADOS_VIGENCIA <- c("vigente", "sustituido")
+
+vigencia_de <- function(slug, curado) {
+  v <- curado$vigencia
+  if (is.null(v)) return(list(estado = "vigente"))
+  if (!v$estado %in% ESTADOS_VIGENCIA) {
+    stop(sprintf("Slug '%s': vigencia.estado '%s' fuera del dominio (%s).",
+                 slug, v$estado, paste(ESTADOS_VIGENCIA, collapse = ", ")))
+  }
+  if (identical(v$estado, "sustituido")) {
+    if (is.null(v$sustituido_por) || !nzchar(v$sustituido_por)) {
+      stop(sprintf("Slug '%s': vigencia 'sustituido' sin `sustituido_por`.", slug))
+    }
+    if (is.null(v$fuente) || !nzchar(v$fuente)) {
+      stop(sprintf("Slug '%s': vigencia 'sustituido' sin `fuente`. La procedencia es obligatoria.", slug))
+    }
+  }
+  v
+}
+
+# Deriva el vinculo inverso y valida que la norma sustituta exista en el corpus.
+# Sin esta comprobacion, un slug mal escrito produce una banda que enlaza a una
+# pagina inexistente, y el error no aparece hasta que alguien hace clic.
+derivar_sustituciones <- function(normas) {
+  slugs <- vapply(normas, function(n) n$slug, character(1))
+  sustituye <- setNames(vector("list", length(slugs)), slugs)
+  for (n in normas) {
+    if (!identical(n$vigencia$estado, "sustituido")) next
+    destino <- n$vigencia$sustituido_por
+    if (!destino %in% slugs) {
+      stop(sprintf("Slug '%s': declara `sustituido_por: %s`, que no existe en el corpus.",
+                   n$slug, destino))
+    }
+    sustituye[[destino]] <- c(sustituye[[destino]], n$slug)
+  }
+  lapply(normas, function(n) {
+    n$vigencia$sustituye_a <- I(if (is.null(sustituye[[n$slug]])) character(0)
+                                else sustituye[[n$slug]])
+    n
+  })
+}
+
 # ---- Construccion de una norma ----------------------------------------------
 construir_norma <- function(meta) {
   slug <- meta$slug
@@ -326,6 +373,12 @@ construir_norma <- function(meta) {
     # tema. Lo detecto el recuento con jq del cierre.
     tema = I(temas),
     fuente_anio = if (!is.null(curado$fuente_anio)) curado$fuente_anio else NULL,
+    # Vigencia. Por defecto `vigente`; la sustitucion la declara la curaduria en
+    # la norma SUSTITUIDA y una sola vez. El vinculo inverso ("sustituye a") lo
+    # deriva el pipeline mas abajo, para que las dos direcciones no puedan
+    # divergir: si cada norma declarara su mitad, bastaria con que alguien
+    # editara una para que el sitio afirmara dos cosas incompatibles.
+    vigencia = vigencia_de(slug, curado),
     paginas = meta$paginas,
     pdf = paste0(slug, ".pdf"),
     sin_capa_texto = isTRUE(meta$sin_capa_texto),
@@ -348,7 +401,7 @@ manifiesto <- jsonlite::fromJSON(ruta_salidas("intermedios", "extraccion.json"),
 log_msg(sprintf("Segmentando %d documentos.", length(manifiesto)), origen = ORIGEN)
 
 fs::dir_create(ruta_normas())
-normas <- unname(lapply(manifiesto, construir_norma))
+normas <- derivar_sustituciones(unname(lapply(manifiesto, construir_norma)))
 
 for (n in normas) {
   escribir_atomico(n, ruta_normas(paste0(n$slug, ".json")),
@@ -416,6 +469,11 @@ if (length(entraron) > 0L) {
               fs::path_rel(ruta_insumos("curaduria", "metadatos_curados.json"), here::here())))
   cat(strrep("-", 76), "\n\n", sep = "")
 }
+
+n_sustituidas <- sum(vapply(normas, function(n)
+  identical(n$vigencia$estado, "sustituido"), logical(1)))
+log_msg(sprintf("Vigencia: %d vigentes, %d sustituidas.",
+                length(normas) - n_sustituidas, n_sustituidas), origen = ORIGEN)
 
 log_msg(sprintf("Segmentacion terminada: %d normas, %d articulos, %d documentos con marca de revision.",
                 length(normas),

@@ -8,6 +8,10 @@
   "anio": 1992,
   "tema": ["medidas disciplinarias", "participación de la comunidad", "embarazo y maternidad", "estatuto del personal"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 56,
   "pdf": "dto_453_estatuto_docente.pdf",
   "sin_capa_texto": false,

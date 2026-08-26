@@ -8,6 +8,10 @@
   "anio": 2022,
   "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 41,
   "pdf": "ley_21430_garantias_ninez.pdf",
   "sin_capa_texto": false,

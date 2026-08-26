@@ -8,6 +8,10 @@
   "anio": 2011,
   "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "embarazo y maternidad", "jornada escolar", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 28,
   "pdf": "dfl_315_perdida_reconocimiento_oficial.pdf",
   "sin_capa_texto": false,

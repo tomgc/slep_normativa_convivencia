@@ -8,6 +8,10 @@
   "anio": 2024,
   "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "formación ciudadana", "reconocimiento oficial"],
   "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 8,
   "pdf": "dictamen_71_expulsion_cancelacion_matricula.pdf",
   "sin_capa_texto": false,

@@ -8,6 +8,10 @@
   "anio": 2026,
   "tema": ["convivencia escolar", "violencia y acoso escolar", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "estatuto del personal", "reconocimiento oficial", "seguridad escolar", "revisión de pertenencias"],
   "fuente_anio": "verificación web del asistente, 2026-08-25 (Boletín Jurídico OLR); el PDF no trae fecha estructural legible: su carátula dice \"SANTIAGO, A 1 JUN MI\", con la fecha ilegible en la capa de texto.",
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": ["dictamen_065_revision_mochilas"]
+  },
   "paginas": 9,
   "pdf": "dictamen_078_detectores_revision_mochilas.pdf",
   "sin_capa_texto": false,

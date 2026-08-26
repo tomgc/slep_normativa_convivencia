@@ -8,6 +8,10 @@
   "anio": 2011,
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "participación de la comunidad", "estatuto del personal"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 3,
   "pdf": "ley_20536_violencia_escolar.pdf",
   "sin_capa_texto": false,

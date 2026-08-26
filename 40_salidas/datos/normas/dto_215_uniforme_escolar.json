@@ -8,6 +8,10 @@
   "anio": 2009,
   "tema": ["medidas disciplinarias", "participación de la comunidad", "uniforme y presentación personal", "reconocimiento oficial", "seguridad escolar"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 4,
   "pdf": "dto_215_uniforme_escolar.pdf",
   "sin_capa_texto": false,

@@ -13,6 +13,10 @@
       "anio": 2004,
       "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 22,
       "pdf": "ley_19979_jornada_escolar_completa.pdf",
       "sin_capa_texto": false,
@@ -34,6 +38,10 @@
       "anio": 2009,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "embarazo y maternidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 32,
       "pdf": "ley_20370_general_educacion.pdf",
       "sin_capa_texto": false,
@@ -55,6 +63,10 @@
       "anio": 2011,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "participación de la comunidad", "estatuto del personal"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 3,
       "pdf": "ley_20536_violencia_escolar.pdf",
       "sin_capa_texto": false,
@@ -76,6 +88,10 @@
       "anio": 2015,
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "formación ciudadana", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 56,
       "pdf": "ley_20845_inclusion_escolar.pdf",
       "sin_capa_texto": false,
@@ -97,6 +113,10 @@
       "anio": 2016,
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "formación ciudadana"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 3,
       "pdf": "ley_20911_formacion_ciudadana.pdf",
       "sin_capa_texto": false,
@@ -118,6 +138,10 @@
       "anio": 2022,
       "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 41,
       "pdf": "ley_21430_garantias_ninez.pdf",
       "sin_capa_texto": false,
@@ -139,6 +163,10 @@
       "anio": 2023,
       "tema": ["medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "trastorno del espectro autista", "estatuto del personal"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 9,
       "pdf": "ley_21545_tea.pdf",
       "sin_capa_texto": false,
@@ -160,6 +188,10 @@
       "anio": 2026,
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "uso de dispositivos móviles"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 4,
       "pdf": "ley_21801_celulares.pdf",
       "sin_capa_texto": false,
@@ -181,6 +213,10 @@
       "anio": 2026,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "trastorno del espectro autista", "formación ciudadana", "jornada escolar", "estatuto del personal"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 30,
       "pdf": "ley_21809_convivencia_educativa.pdf",
       "sin_capa_texto": false,
@@ -202,6 +238,10 @@
       "anio": 1997,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 96,
       "pdf": "dfl_1_estatuto_asistentes_educacion.pdf",
       "sin_capa_texto": false,
@@ -223,6 +263,10 @@
       "anio": 2011,
       "tema": ["violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "embarazo y maternidad", "jornada escolar", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 28,
       "pdf": "dfl_315_perdida_reconocimiento_oficial.pdf",
       "sin_capa_texto": false,
@@ -244,6 +288,10 @@
       "anio": 2005,
       "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 6,
       "pdf": "dto_24_consejos_escolares.pdf",
       "sin_capa_texto": false,
@@ -265,6 +313,10 @@
       "anio": 2009,
       "tema": ["medidas disciplinarias", "participación de la comunidad", "uniforme y presentación personal", "reconocimiento oficial", "seguridad escolar"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 4,
       "pdf": "dto_215_uniforme_escolar.pdf",
       "sin_capa_texto": false,
@@ -286,6 +338,10 @@
       "anio": 1992,
       "tema": ["medidas disciplinarias", "participación de la comunidad", "embarazo y maternidad", "estatuto del personal"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 56,
       "pdf": "dto_453_estatuto_docente.pdf",
       "sin_capa_texto": false,
@@ -307,6 +363,10 @@
       "anio": 1990,
       "tema": ["medidas disciplinarias", "participación de la comunidad"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 7,
       "pdf": "dto_565_centros_padres_apoderados.pdf",
       "sin_capa_texto": false,
@@ -328,6 +388,10 @@
       "anio": null,
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "uniforme y presentación personal", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 16,
       "pdf": "circular_193_estudiantes_embarazadas.pdf",
       "sin_capa_texto": true,
@@ -349,6 +413,10 @@
       "anio": null,
       "tema": ["inclusión y no discriminación", "trastorno del espectro autista", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 1,
       "pdf": "circular_586_tea.pdf",
       "sin_capa_texto": true,
@@ -370,6 +438,10 @@
       "anio": null,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "uniforme y presentación personal", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 10,
       "pdf": "circular_812_identidad_genero.pdf",
       "sin_capa_texto": true,
@@ -391,6 +463,10 @@
       "anio": 2026,
       "tema": ["uso de dispositivos móviles"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 1,
       "pdf": "rex_181_celulares.pdf",
       "sin_capa_texto": false,
@@ -412,6 +488,10 @@
       "anio": 2018,
       "tema": ["medidas disciplinarias", "reconocimiento oficial"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 1,
       "pdf": "rex_482_instrucciones_reglamentos_internos.pdf",
       "sin_capa_texto": false,
@@ -433,6 +513,10 @@
       "anio": null,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "uso de dispositivos móviles", "uniforme y presentación personal", "jornada escolar", "estatuto del personal", "reconocimiento oficial", "seguridad escolar"],
       "fuente_anio": null,
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 48,
       "pdf": "rex_482_reglamentos_b.pdf",
       "sin_capa_texto": true,
@@ -454,6 +538,10 @@
       "anio": 2025,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "estatuto del personal", "reconocimiento oficial"],
       "fuente_anio": "texto del propio documento, sección ANTECEDENTES: es un texto refundido y se adopta el año del dictamen más reciente de los dos para el índice por año",
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 8,
       "pdf": "dictamen_52_77_expulsion.pdf",
       "sin_capa_texto": false,
@@ -475,6 +563,12 @@
       "anio": 2022,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "estatuto del personal", "seguridad escolar", "revisión de pertenencias"],
       "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
+      "vigencia": {
+        "estado": "sustituido",
+        "sustituido_por": "dictamen_078_detectores_revision_mochilas",
+        "fuente": "texto del propio documento: la línea MATERIA declara \"Sustituye Dictamen N° 65, de la Superintendencia de Educación\", y el cuerpo cita \"el Dictamen N 65, del año 2022\". Corroborado por el equipo con verificación web, 2026-08-25 (Boletín Jurídico OLR).",
+        "sustituye_a": []
+      },
       "paginas": 6,
       "pdf": "dictamen_065_revision_mochilas.pdf",
       "sin_capa_texto": false,
@@ -496,6 +590,10 @@
       "anio": 2024,
       "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "formación ciudadana", "reconocimiento oficial"],
       "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": []
+      },
       "paginas": 8,
       "pdf": "dictamen_71_expulsion_cancelacion_matricula.pdf",
       "sin_capa_texto": false,
@@ -517,6 +615,10 @@
       "anio": 2026,
       "tema": ["convivencia escolar", "violencia y acoso escolar", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "estatuto del personal", "reconocimiento oficial", "seguridad escolar", "revisión de pertenencias"],
       "fuente_anio": "verificación web del asistente, 2026-08-25 (Boletín Jurídico OLR); el PDF no trae fecha estructural legible: su carátula dice \"SANTIAGO, A 1 JUN MI\", con la fecha ilegible en la capa de texto.",
+      "vigencia": {
+        "estado": "vigente",
+        "sustituye_a": ["dictamen_065_revision_mochilas"]
+      },
       "paginas": 9,
       "pdf": "dictamen_078_detectores_revision_mochilas.pdf",
       "sin_capa_texto": false,

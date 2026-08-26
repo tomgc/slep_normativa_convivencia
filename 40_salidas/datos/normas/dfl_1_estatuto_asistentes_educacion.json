@@ -8,6 +8,10 @@
   "anio": 1997,
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 96,
   "pdf": "dfl_1_estatuto_asistentes_educacion.pdf",
   "sin_capa_texto": false,

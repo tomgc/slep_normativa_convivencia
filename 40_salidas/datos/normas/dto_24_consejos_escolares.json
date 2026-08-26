@@ -8,6 +8,10 @@
   "anio": 2005,
   "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 6,
   "pdf": "dto_24_consejos_escolares.pdf",
   "sin_capa_texto": false,

@@ -8,6 +8,10 @@
   "anio": null,
   "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "embarazo y maternidad", "uniforme y presentación personal", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 16,
   "pdf": "circular_193_estudiantes_embarazadas.pdf",
   "sin_capa_texto": true,

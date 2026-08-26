@@ -8,6 +8,10 @@
   "anio": 2004,
   "tema": ["medidas disciplinarias", "inclusión y no discriminación", "participación de la comunidad", "jornada escolar", "estatuto del personal", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 22,
   "pdf": "ley_19979_jornada_escolar_completa.pdf",
   "sin_capa_texto": false,

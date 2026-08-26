@@ -8,6 +8,10 @@
   "anio": 2016,
   "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "formación ciudadana"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 3,
   "pdf": "ley_20911_formacion_ciudadana.pdf",
   "sin_capa_texto": false,

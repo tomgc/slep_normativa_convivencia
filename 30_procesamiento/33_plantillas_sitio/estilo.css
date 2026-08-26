@@ -124,3 +124,10 @@
 
 /* Procedencia de un metadato curado: visible pero subordinada al dato. */
 .procedencia { color: #6c757d; font-size: 0.82rem; }
+
+/* --- Vigencia -------------------------------------------------------------- */
+/* Una norma sustituida sigue publicada (es referencia histórica y puede seguir
+   citándose en procesos en curso), pero quien llega a ella tiene que saberlo
+   antes de leer el articulado, no después. De ahí la banda roja arriba de todo
+   y la insignia en la ficha. */
+.badge-sustituida { background: #a4243b; color: #fff; }

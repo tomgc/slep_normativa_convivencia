@@ -8,6 +8,12 @@
   "anio": 2022,
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "estatuto del personal", "seguridad escolar", "revisión de pertenencias"],
   "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
+  "vigencia": {
+    "estado": "sustituido",
+    "sustituido_por": "dictamen_078_detectores_revision_mochilas",
+    "fuente": "texto del propio documento: la línea MATERIA declara \"Sustituye Dictamen N° 65, de la Superintendencia de Educación\", y el cuerpo cita \"el Dictamen N 65, del año 2022\". Corroborado por el equipo con verificación web, 2026-08-25 (Boletín Jurídico OLR).",
+    "sustituye_a": []
+  },
   "paginas": 6,
   "pdf": "dictamen_065_revision_mochilas.pdf",
   "sin_capa_texto": false,

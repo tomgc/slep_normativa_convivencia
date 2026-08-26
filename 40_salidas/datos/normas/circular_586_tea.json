@@ -8,6 +8,10 @@
   "anio": null,
   "tema": ["inclusión y no discriminación", "trastorno del espectro autista", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 1,
   "pdf": "circular_586_tea.pdf",
   "sin_capa_texto": true,

@@ -8,6 +8,10 @@
   "anio": null,
   "tema": ["convivencia escolar", "violencia y acoso escolar", "medidas disciplinarias", "inclusión y no discriminación", "derechos de la niñez", "participación de la comunidad", "identidad de género", "embarazo y maternidad", "uso de dispositivos móviles", "uniforme y presentación personal", "jornada escolar", "estatuto del personal", "reconocimiento oficial", "seguridad escolar"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 48,
   "pdf": "rex_482_reglamentos_b.pdf",
   "sin_capa_texto": true,

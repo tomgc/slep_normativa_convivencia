@@ -8,6 +8,10 @@
   "anio": 2018,
   "tema": ["medidas disciplinarias", "reconocimiento oficial"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 1,
   "pdf": "rex_482_instrucciones_reglamentos_internos.pdf",
   "sin_capa_texto": false,

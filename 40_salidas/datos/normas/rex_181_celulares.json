@@ -8,6 +8,10 @@
   "anio": 2026,
   "tema": ["uso de dispositivos móviles"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 1,
   "pdf": "rex_181_celulares.pdf",
   "sin_capa_texto": false,

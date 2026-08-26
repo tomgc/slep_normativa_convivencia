@@ -8,6 +8,10 @@
   "anio": 1990,
   "tema": ["medidas disciplinarias", "participación de la comunidad"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 7,
   "pdf": "dto_565_centros_padres_apoderados.pdf",
   "sin_capa_texto": false,

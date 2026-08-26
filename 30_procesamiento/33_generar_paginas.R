@@ -39,6 +39,16 @@ formatear_numero <- function(numero) {
 
 nombre_corto <- function(n) paste(n$tipo_etiqueta, formatear_numero(n$numero))
 
+# Diccionario slug -> nombre corto, para poder rotular un enlace a otra norma sin
+# tener que cargar su JSON entero cada vez. Se rellena en la corrida.
+NOMBRES <- new.env(parent = emptyenv())
+nombre_de <- function(slug) {
+  if (!is.null(NOMBRES[[slug]])) NOMBRES[[slug]] else slug
+}
+enlace_norma <- function(slug) {
+  sprintf('<a href="%s.html">%s</a>', slug, escapar_html(nombre_de(slug)))
+}
+
 # YAML acepta JSON como subconjunto, asi que serializar con toJSON produce un
 # escalar siempre valido: titulos con comillas, dos puntos o corchetes no rompen
 # el front matter. Escribirlos a mano con paste0('"', x, '"') si lo rompe.
@@ -74,7 +84,8 @@ pagina_norma <- function(n) {
     paste0("tipo:", n$tipo_etiqueta),
     paste0("anio:", if (is.null(n$anio)) "sin año determinado" else as.character(n$anio)),
     paste0("fuente:", n$tipo_fuente),
-    paste0("texto:", if (ocr_sin_revisar) "OCR sin revisar" else "verificado")
+    paste0("texto:", if (ocr_sin_revisar) "OCR sin revisar" else "verificado"),
+    paste0("vigencia:", if (identical(n$vigencia$estado, "sustituido")) "sustituida" else "vigente")
   )
   if (length(n$tema) > 0L) filtros <- c(filtros, paste0("tema:", n$tema))
   spans_filtro <- c(
@@ -98,10 +109,24 @@ pagina_norma <- function(n) {
   # Banda de vigencia. Va ARRIBA DE TODO, antes incluso de la ficha: si un
   # documento fue sustituido, esa es la primera cosa que quien lo consulta
   # necesita saber, y saberla despues de haber leido el articulado es tarde.
-  banda <- if (!is.null(n$aviso_vigencia)) c(
+  # El texto lo compone el mecanismo desde el campo `vigencia`, no una nota
+  # escrita a mano por norma: asi enlaza siempre a la sustituta y no puede quedar
+  # desincronizado del dato.
+  banda <- if (identical(n$vigencia$estado, "sustituido")) c(
     "```{=html}",
     '<div class="aviso aviso-fuerte" role="alert">',
-    sprintf("<p><strong>Vigencia.</strong> %s</p>", escapar_html(n$aviso_vigencia)),
+    sprintf("<p><strong>Documento sustituido.</strong> Esta norma fue sustituida por %s. Se mantiene publicada como referencia histórica.</p>",
+            enlace_norma(n$vigencia$sustituido_por)),
+    sprintf('<p class="procedencia">Consta en: %s</p>', escapar_html(n$vigencia$fuente)),
+    "</div>",
+    "```",
+    ""
+  ) else if (length(n$vigencia$sustituye_a) > 0L) c(
+    "```{=html}",
+    '<div class="aviso" role="note">',
+    sprintf("<p><strong>Sustituye a %s.</strong> Aquella norma se mantiene publicada como referencia histórica.</p>",
+            paste(vapply(n$vigencia$sustituye_a, enlace_norma, character(1)),
+                  collapse = " y ")),
     "</div>",
     "```",
     ""
@@ -141,7 +166,10 @@ pagina_norma <- function(n) {
     '<div class="ficha-norma">',
     sprintf('<p><span class="badge-fuente badge-%s">%s</span><span class="badge-fuente badge-tipo">%s</span>%s</p>',
             n$tipo_fuente, n$tipo_fuente, escapar_html(n$tipo_etiqueta),
-            if (ocr_sin_revisar) '<span class="badge-fuente badge-ocr">OCR sin revisar</span>' else ""),
+            paste0(
+              if (ocr_sin_revisar) '<span class="badge-fuente badge-ocr">OCR sin revisar</span>' else "",
+              if (identical(n$vigencia$estado, "sustituido"))
+                '<span class="badge-fuente badge-sustituida">sustituida</span>' else "")),
     "<dl>",
     sprintf("<dt>Título oficial</dt><dd>%s</dd>",
             if (is.null(n$titulo)) "<em>No fue posible extraerlo del documento. Pendiente de revisión del equipo.</em>"
@@ -296,10 +324,16 @@ pagina_home <- function(cat) {
 # ---- Indices ----------------------------------------------------------------
 item_norma <- function(n) {
   corto <- nombre_corto(n)
+  marcas <- c(
+    if (identical(n$vigencia$estado, "sustituido"))
+      sprintf("**sustituida por %s**", nombre_de(n$vigencia$sustituido_por)) else NULL,
+    if (identical(n$origen_texto, "ocr_pendiente_revision"))
+      "*transcripción OCR en revisión*" else NULL
+  )
   sprintf('- [%s](%s.qmd)%s%s',
           corto, n$slug,
           if (is.null(n$titulo)) "" else paste0(" — ", n$titulo),
-          if (isTRUE(n$sin_capa_texto)) " *(sin capa de texto)*" else "")
+          if (length(marcas)) paste0(" · ", paste(marcas, collapse = " · ")) else "")
 }
 
 pagina_indice <- function(titulo, subtitulo, grupos) {
@@ -398,6 +432,8 @@ pagina_acerca <- function(cat) {
 cat_json <- jsonlite::fromJSON(ruta_datos("catalogo.json"), simplifyDataFrame = FALSE)
 normas <- lapply(cat_json$normas, function(x)
   jsonlite::fromJSON(ruta_normas(paste0(x$slug, ".json")), simplifyDataFrame = FALSE))
+
+for (n in normas) assign(n$slug, nombre_corto(n), envir = NOMBRES)
 
 destino <- ruta_sitio_src()
 if (fs::dir_exists(destino)) fs::dir_delete(destino)

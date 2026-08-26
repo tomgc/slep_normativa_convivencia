@@ -8,6 +8,10 @@
   "anio": 2026,
   "tema": ["convivencia escolar", "medidas disciplinarias", "inclusión y no discriminación", "uso de dispositivos móviles"],
   "fuente_anio": null,
+  "vigencia": {
+    "estado": "vigente",
+    "sustituye_a": []
+  },
   "paginas": 4,
   "pdf": "ley_21801_celulares.pdf",
   "sin_capa_texto": false,
