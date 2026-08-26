@@ -79,9 +79,13 @@ extraer_titulo <- function(cabecera) {
   if (length(idx_materia) > 0L) {
     resto <- cabecera[seq(idx_materia[1], length(cabecera))]
     resto[1] <- sub("^MATERIA\\s*:\\s*", "", resto[1])
+    # fin se busca sobre resto[-1], asi que su indice i corresponde a resto[i+1]:
+    # el encabezado de la seccion siguiente. El titulo son las lineas resto[1..i],
+    # sin incluirlo. La version anterior sumaba uno y se llevaba el encabezado
+    # dentro del titulo ("... Sustituye Dictamen N° 65. ANTECEDENTES:").
     fin <- which(grepl(REGEX_ENCABEZADO_SECCION, resto[-1], perl = TRUE))
-    hasta <- if (length(fin) > 0L) fin[1] else length(resto) - 1L
-    cand <- resto[seq_len(hasta + 1L)]
+    hasta <- if (length(fin) > 0L) fin[1] else length(resto)
+    cand <- resto[seq_len(hasta)]
     cand <- cand[nzchar(trimws(cand))]
     if (length(cand) > 0L) return(paste(cand, collapse = " "))
   }
@@ -112,9 +116,18 @@ extraer_anio <- function(cabecera) {
 # quedo en un tema.
 asignar_temas <- function(texto) {
   plano <- tolower(stringi::stri_trans_general(texto, "Latin-ASCII"))
+  # Frontera de palabra al INICIO de cada clave, no coincidencia por subcadena.
+  # Con subcadena, "trans" etiquetaba como identidad de genero los 16 documentos
+  # que contienen "transitorio" o "transparencia". La frontera va solo al inicio
+  # y no al final a proposito: asi "expulsion" sigue encontrando "expulsiones" y
+  # "neurodivergen" sigue encontrando "neurodivergente", que es justo para lo que
+  # esas claves se escribieron.
+  coincide <- function(clave) {
+    grepl(paste0("\\b", gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", clave)),
+          plano, perl = TRUE)
+  }
   hits <- vapply(TEMAS_PALABRAS_CLAVE,
-                 function(claves) any(vapply(claves, grepl, logical(1),
-                                             x = plano, fixed = TRUE)),
+                 function(claves) any(vapply(claves, coincide, logical(1))),
                  logical(1))
   names(TEMAS_PALABRAS_CLAVE)[hits]
 }

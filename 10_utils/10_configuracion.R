@@ -177,15 +177,32 @@ TEMAS_PALABRAS_CLAVE <- list(
   "inclusión y no discriminación" = c("inclusion", "discriminacion arbitraria", "necesidades educativas especiales", "integracion"),
   "derechos de la niñez"       = c("interes superior del nino", "garantias de la ninez", "derechos del nino", "ninos, ninas y adolescentes"),
   "participación de la comunidad" = c("consejo escolar", "centro de padres", "centro de alumnos", "participacion"),
-  "identidad de género"        = c("identidad de genero", "nombre social", "trans"),
+  # "trans" a secas NO se usa: con coincidencia por subcadena etiquetaba 16 de 25
+  # documentos del corpus por contener "transitorio", "transparencia" o
+  # "transcribo" (medido el 2026-08-25). Las formas explicitas son largas a
+  # proposito.
+  "identidad de género"        = c("identidad de genero", "nombre social",
+                                   "estudiantes trans", "estudiante trans",
+                                   "personas trans", "persona trans",
+                                   "ninas, ninos y estudiantes trans"),
   "embarazo y maternidad"      = c("embarazada", "embarazo", "maternidad", "paternidad", "lactancia"),
-  "trastorno del espectro autista" = c("espectro autista", "autismo", "neurodivergen"),
+  "trastorno del espectro autista" = c("espectro autista", "autismo",
+                                       "neurodivergen"),
   "uso de dispositivos móviles" = c("dispositivos moviles", "telefono movil", "celular"),
   "uniforme y presentación personal" = c("uniforme escolar", "presentacion personal"),
   "formación ciudadana"        = c("formacion ciudadana", "educacion civica"),
   "jornada escolar"            = c("jornada escolar completa", "jornada escolar"),
   "estatuto del personal"      = c("estatuto docente", "asistentes de la educacion", "profesionales de la educacion"),
-  "reconocimiento oficial"     = c("reconocimiento oficial", "perdida del reconocimiento")
+  "reconocimiento oficial"     = c("reconocimiento oficial", "perdida del reconocimiento"),
+  # Temas incorporados el 2026-08-25 al entrar el dictamen 078: el corpus pasa a
+  # tener dos documentos sobre deteccion y revision, y sin estas entradas ambos
+  # quedaban repartidos en temas genericos que no los describen.
+  "seguridad escolar"          = c("detector de metales", "detectores de metales",
+                                   "porticos detectores", "arma blanca",
+                                   "elementos incendiarios", "seguridad escolar"),
+  "revisión de pertenencias"   = c("revision de mochilas", "mochilas y bolsos",
+                                   "efectos personales", "revision de pertenencias",
+                                   "registro de mochilas")
 )
 
 # ---- Metadatos que NO se inventan -------------------------------------------
