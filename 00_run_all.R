@@ -133,4 +133,20 @@ run_all <- function(from = NULL, to = NULL, only = NULL, skip = NULL) {
 # `source()` el marco de llamada es > 0 (medido: 4), asi que el uso documentado
 # arriba y el del workflow de CI —ambos `source("00_run_all.R"); run_all()`—
 # siguen corriendo el pipeline UNA sola vez y no dos.
-if (sys.nframe() == 0L && !interactive()) run_all()
+# El `!interactive()` NO es redundante: pegar este archivo entero en una consola
+# interactiva tambien da sys.nframe() == 0, y ahi no se quiere disparar nada.
+#
+# Y se rechazan los argumentos de linea de comandos en vez de ignorarlos: este archivo
+# no lee commandArgs(), asi que `Rscript 00_run_all.R --from 32` correria el pipeline
+# COMPLETO en silencio, que es peor que no correr nada. Varios encargos del proyecto
+# instruyen la forma `Rscript 00_run_all.R`, de modo que la confusion es esperable.
+if (sys.nframe() == 0L && !interactive()) {
+  .args <- commandArgs(trailingOnly = TRUE)
+  if (length(.args) > 0L) {
+    stop("00_run_all.R no acepta argumentos de linea de comandos (recibio: ",
+         paste(.args, collapse = " "), ").\n",
+         "  Para el pipeline completo:  Rscript 00_run_all.R\n",
+         "  Para un rango:              Rscript -e 'source(\"00_run_all.R\"); run_all(from = 32)'")
+  }
+  run_all()
+}
