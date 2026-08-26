@@ -13,8 +13,17 @@ la unidad de recuperación que el equipo necesita es "ley X, artículo Y".
 
 ## Qué contiene
 
-24 documentos: leyes, decretos con fuerza de ley, decretos supremos, circulares,
+25 documentos: leyes, decretos con fuerza de ley, decretos supremos, circulares,
 resoluciones exentas y dictámenes de la Superintendencia de Educación.
+
+Además de la página de cada norma, el sitio ofrece **páginas temáticas** que
+cruzan lo que dicen todas las fuentes sobre una misma materia, y un bloque de
+**normas relacionadas** al final de cada norma (sustitución, remisión textual y
+tema compartido), derivado de datos del pipeline y no de una lectura
+interpretativa.
+
+Las normas **sustituidas** siguen publicadas como referencia histórica, con una
+banda visible que enlaza a la norma que las reemplazó.
 
 Todos provienen de **fuentes oficiales** (Biblioteca del Congreso Nacional,
 Ministerio de Educación, Superintendencia de Educación) y se conservan en el
@@ -49,10 +58,12 @@ slep_normativa_convivencia/
 │   ├── 10_configuracion.R       rutas, constantes, taxonomías
 │   └── 10_locale.R              guarda de locale UTF-8 (copia del kit)
 ├── 20_insumos/
-│   ├── normativa/               los 24 PDF, read-only
+│   ├── normativa/               los 25 PDF, read-only
 │   ├── ocr/                     transcripción de los escaneos (curada a mano)
-│   └── curaduria/               metadatos que aporta el equipo, no un script
-├── 30_procesamiento/            extracción, segmentación, generación
+│   ├── curaduria/               metadatos que aporta el equipo, no un script
+│   └── curaduria/piezas/        fichas, FAQ y glosario (solo se publica lo firmado)
+├── 30_procesamiento/            manifiesto, extracción, segmentación,
+│                               relaciones, generación, render, índice
 ├── 40_salidas/
 │   ├── datos/                   JSON estructurado (versionado)
 │   ├── sitio_src/               .qmd generados (no versionado)

@@ -318,9 +318,13 @@ publicar nada.
 | `20_insumos/ocr/<slug>/pagina_NNN.txt` | transcripción de los escaneos; la corrige el equipo a mano |
 | `20_insumos/curaduria/metadatos_curados.json` | 🔒 lo edita una persona; NINGÚN script lo escribe |
 | `00_ocr_documentos.R` | OCR de escaneos; herramienta suelta, NO es paso del pipeline |
-| `30_procesamiento/31_extraer_texto.R` | PDF → texto plano limpio |
+| `30_procesamiento/30_manifiesto_corpus.R` | huella por documento; decide qué se reprocesa |
+| `30_procesamiento/31_extraer_texto.R` | PDF → texto plano limpio (incremental) |
 | `30_procesamiento/32_segmentar_articulos.R` | texto → artículos + JSON por norma |
+| `30_procesamiento/33_relaciones.R` | JSON → `relaciones.json` (sustitución, remisión, tema) |
 | `30_procesamiento/34_generar_paginas.R` | JSON → `.qmd` en `40_salidas/sitio_src/` |
+| `20_insumos/curaduria/piezas/` | 🔒 fichas, FAQ y glosario; solo se publica lo firmado |
+| `00_generar_borradores.R` | siembra borradores de piezas; NO es paso del pipeline |
 | `40_salidas/datos/catalogo.json` | catálogo maestro (versionado) |
 | `40_salidas/datos/normas/<slug>.json` | una norma por archivo (versionado) |
 | `10_utils/10_configuracion.R` | TODAS las rutas, regex y taxonomías |
@@ -347,6 +351,14 @@ publicar nada.
   `ocr_revisado` se muestran como cita. El texto reconocido se segmenta por
   PÁGINA, nunca con anclas `art-N`: un texto sin revisar no puede parecerse a un
   artículo verificado. Ningún script mueve un documento a `ocr_revisado`.
+- **Nada interpretativo se publica sin firma.** Fichas, FAQ y glosario viven en
+  `20_insumos/curaduria/piezas/`; el generador publica una pieza solo si declara
+  `estado: validada` Y trae `validado_por`. Una pieza validada sin firma **aborta**
+  el pipeline, no se salta en silencio.
+- **Las relaciones son datos, no prosa.** `33_relaciones.R` deriva tres tipos
+  (sustitución, remisión textual, tema compartido) y cada explicación se compone
+  por plantilla desde el tipo. La remisión transcribe la cita literal que la
+  disparó, porque el número por sí solo no identifica una norma chilena.
 - **`20_insumos/curaduria/metadatos_curados.json` no lo escribe ningún script.**
   Es donde vive lo que el pipeline no puede derivar sin adivinar (años de los
   dictámenes, notas de ficha, avisos de vigencia, estado de revisión del texto).
@@ -360,3 +372,4 @@ publicar nada.
 |---|---|
 | 2026-08-25 | Bootstrap completo: estructura Rama A, corpus normalizado, pipeline de extracción y segmentación, sitio Quarto, Pagefind y despliegue a Pages (encargo `50_documentacion/andamios/20260825_encargo_bootstrap_v1.md`) |
 | 2026-08-25 | OCR de los 4 escaneos (75 páginas) con estado `origen_texto`, capa de curaduría de metadatos, años curados de los 3 dictámenes, nota de artículos incorporados en ley 20.536 y aviso de vigencia en dictamen 065 |
+| 2026-08-25 | Fase 2: compuerta que protege las correcciones de OCR, manifiesto de incorporación por huella, dictamen 78/2026 incorporado, campo `vigencia`, recomendador por metadatos (563 relaciones), 17 páginas temáticas y 22 borradores de piezas interpretativas sin publicar (encargo `50_documentacion/andamios/20260825_encargo_fase2_v1.md`) |
