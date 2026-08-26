@@ -395,3 +395,47 @@ Todas recontadas programáticamente en el turno de cierre.
 - **Push.** Uno solo al cierre. El segundo push que el encargo autorizaba de antemano queda
   sin usar salvo que la evidencia de CI lo exija; si se usa, se registra en una adenda a este
   log.
+
+---
+
+## Adenda — evidencia de CI posterior al push (segundo push, autorizado de antemano)
+
+El encargo autoriza «UN segundo push autorizado de antemano si la evidencia del CI
+posterior al primero debe quedar registrada en el log». Esta adenda es ese caso, y por eso
+el commit que la trae es el segundo y último push de la cadena. La tensión que el log v2
+tuvo que improvisar (§10, «hubo dos push, no uno») queda resuelta por diseño.
+
+### El run del push de cierre
+
+| Campo | Valor |
+|---|---|
+| Run | **32976901286** |
+| `headSha` | `6b4ab7188a617399b7763f8f2172626b321bf4f1` |
+| Estado | `completed` / **`success`** |
+| Job `construir` | success, 13:53:25 → 13:55:02 UTC |
+| Job `desplegar` | success, 13:55:06 → 13:56:16 UTC |
+| Anotaciones | **0** en ambos jobs |
+| Deployment activo | sha `6b4ab71`, 13:55:03 UTC |
+
+Sin avisos de deprecación: las actions que el encargo v2 subió a `node24` siguen limpias
+tres runs después.
+
+### Verificación de TC en producción, no solo en el build local
+
+El punto 2 de la auditoría quedó acotado al build local porque `40_salidas/sitio/` está en
+`.gitignore` y lo que sirve Pages lo reconstruye el runner. Con el deployment de `6b4ab71`
+ya activo, el cambio de TC se comprueba **sobre el HTML que sirve GitHub Pages**:
+
+| Comprobación | Resultado |
+|---|---|
+| `dfl_1_estatuto_asistentes_educacion.html` publicado | **HTTP 200** |
+| Línea nueva en la ficha publicada | `Años de cita reconocidos</dt><dd>1997, 1996 <span class="procedencia">(dato curado — el DFL N° 1 del Ministerio de Educación, que fija el texto refundido de la ley N° 19.070…` |
+| Control negativo: `ley_20536_violencia_escolar.html` publicado | **0** apariciones de la línea, como corresponde a una norma sin años alternativos |
+
+El chequeo (a) de TC, que se calibró contra el árbol local (fallaba antes, pasaba después),
+se confirma ahora en el artefacto que el equipo de convivencia va a abrir.
+
+### Estado al cierre
+
+`HEAD` == `origin/main` == el commit de esta adenda. Árbol limpio. Copias temporales de
+`/tmp/slep_v3_scratch/` borradas.
