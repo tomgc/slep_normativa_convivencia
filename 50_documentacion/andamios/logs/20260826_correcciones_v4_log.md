@@ -534,3 +534,48 @@ Todas recontadas programáticamente en el turno de cierre.
   que los revisores no refutan una cifra sino el **alcance** de una afirmación, y el segundo en
   que además corrigen algo que la propia cadena acababa de escribir.
 - **La sesión queda abierta.** `ESTADO.md` no se tocó.
+
+---
+
+## Adenda — evidencia de CI del push de cierre (segundo push, autorizado de antemano)
+
+El encargo autoriza «UN segundo push solo-documentación si la evidencia de CI debe quedar en
+el log». Esta adenda es ese caso: la prueba que faltaba de T2 solo existe una vez que el
+runner corrió.
+
+| Campo | Valor |
+|---|---|
+| Run | **32997082575** |
+| `headSha` | `21d2525` |
+| Estado | `completed` / **`success`** |
+| Jobs | `construir` success, `desplegar` success |
+| Anotaciones | **0** en ambos |
+
+### La prueba que importaba, en el runner y no en mi máquina
+
+El riesgo que T2 descubrió era que el CI corriera el pipeline **dos veces**, porque
+`.github/workflows/publicar.yml:96` usa `Rscript -e 'source("00_run_all.R"); run_all()'` y la
+guardia obvia (`!interactive()`) habría disparado en el `source()` y otra vez en la llamada.
+Medido sobre el log del propio runner:
+
+```
+gh run view 32997082575 --log | grep -c 'RESUMEN:'   → 1
+construir  Correr el pipeline completo  RESUMEN: 7 pasos ejecutados, 0 saltados, 28.0s en total.
+```
+
+**Una sola vez.** La guardia `sys.nframe() == 0L && !interactive()` hace lo que se diseñó
+para hacer, y ahora está comprobado donde importa.
+
+### Estado del sitio publicado
+
+| Comprobación | Resultado |
+|---|---|
+| Raíz | **HTTP 200** |
+| `piezas.html` | **404**, como corresponde: ninguna de las 22 piezas está validada |
+| Ficha del DFL 1 | HTTP 200, con la línea «Años de cita reconocidos» que introdujo el encargo v3 intacta |
+
+### Estado al cierre
+
+`HEAD` == `origin/main` == el commit de esta adenda. Árbol limpio. Temporales de
+`/tmp/slep_v4_scratch/` y `/tmp/slep_v4_panel{1,2}/` borrados.
+**`ESTADO.md` no se tocó: la sesión sigue abierta.**
