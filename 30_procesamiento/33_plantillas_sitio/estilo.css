@@ -79,3 +79,48 @@
 .lista-normas { list-style: none; padding-left: 0; }
 .lista-normas li { padding: 0.55rem 0; border-bottom: 1px solid #f1f3f5; }
 .lista-normas .titulo-norma { color: #495057; }
+
+/* --- Transcripción automática (OCR) --------------------------------------- */
+/* Tipográficamente DISTINTA del texto legal verificado, y a propósito. El texto
+   reconocido y sin revisar no puede parecerse a una cita textual: si se ve igual,
+   el aviso que dice que no lo es queda desmentido por la propia página.
+   Monoespaciada, sin serif, con el fondo levemente marcado. */
+.transcripcion-ocr {
+  border-left: 3px dashed #b58900;
+  background: #fffdf5;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 2.2rem;
+}
+.transcripcion-ocr pre {
+  /* pre-wrap conserva los saltos de línea del reconocedor y aun así ajusta al
+     ancho. No se refluye el texto: lo que se lee aquí es exactamente lo que hay
+     en el archivo que el equipo va a corregir. */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.87rem;
+  line-height: 1.55;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #3d3d3d;
+}
+
+.aviso-ocr { border-left-color: #b58900; background: #fffbe9; }
+
+/* Insignia de estado del texto y marca junto al enlace al PDF. */
+.badge-ocr { background: #b58900; color: #fff; }
+.marca-ocr {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1em 0.5em;
+  border: 1px solid #b58900;
+  border-radius: 0.25rem;
+  background: #fffbe9;
+  color: #6b5200;
+  font-size: 0.8rem;
+}
+
+/* Procedencia de un metadato curado: visible pero subordinada al dato. */
+.procedencia { color: #6c757d; font-size: 0.82rem; }

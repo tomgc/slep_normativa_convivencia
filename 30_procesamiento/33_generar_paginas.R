@@ -55,6 +55,8 @@ parrafos_html <- function(texto) {
 pagina_norma <- function(n) {
   corto <- nombre_corto(n)
   titulo_mostrado <- if (is.null(n$titulo)) corto else paste0(corto, ": ", n$titulo)
+  es_ocr <- n$origen_texto %in% c("ocr_pendiente_revision", "ocr_revisado")
+  ocr_sin_revisar <- identical(n$origen_texto, "ocr_pendiente_revision")
 
   # Filtros de Pagefind. Salen del mismo dato que alimenta los indices
   # navegables, no de una lista paralela.
@@ -71,7 +73,8 @@ pagina_norma <- function(n) {
   filtros <- c(
     paste0("tipo:", n$tipo_etiqueta),
     paste0("anio:", if (is.null(n$anio)) "sin año determinado" else as.character(n$anio)),
-    paste0("fuente:", n$tipo_fuente)
+    paste0("fuente:", n$tipo_fuente),
+    paste0("texto:", if (ocr_sin_revisar) "OCR sin revisar" else "verificado")
   )
   if (length(n$tema) > 0L) filtros <- c(filtros, paste0("tema:", n$tema))
   spans_filtro <- c(
@@ -87,69 +90,145 @@ pagina_norma <- function(n) {
     paste("subtitle:", escalar_yaml(if (is.null(n$titulo)) "Título pendiente de revisión" else n$titulo)),
     paste("pagetitle:", escalar_yaml(titulo_mostrado)),
     "toc: true",
-    'toc-title: "Articulado"',
+    paste("toc-title:", escalar_yaml(if (es_ocr) "Páginas" else "Articulado")),
     "---",
     ""
   )
 
-  # Ficha de metadatos. La insignia de capa de fuente va primero y siempre:
-  # invariante 1 de la decision de funcionalidad del 2026-08-25.
+  # Banda de vigencia. Va ARRIBA DE TODO, antes incluso de la ficha: si un
+  # documento fue sustituido, esa es la primera cosa que quien lo consulta
+  # necesita saber, y saberla despues de haber leido el articulado es tarde.
+  banda <- if (!is.null(n$aviso_vigencia)) c(
+    "```{=html}",
+    '<div class="aviso aviso-fuerte" role="alert">',
+    sprintf("<p><strong>Vigencia.</strong> %s</p>", escapar_html(n$aviso_vigencia)),
+    "</div>",
+    "```",
+    ""
+  ) else character(0)
+
+  # Aviso de texto reconocido, JUNTO AL ENLACE AL PDF, tal como lo fijo el equipo
+  # el 2026-08-25. La condicion completa es que el texto reconocido no se publica
+  # como cita textual hasta que una persona lo revise: de ahi que la ficha lo
+  # declare aqui y el cuerpo lo repita donde se lee.
+  linea_pdf <- if (ocr_sin_revisar) {
+    sprintf('<dt>Documento oficial</dt><dd><a href="%s">%s</a> (PDF) <span class="marca-ocr">%s</span></dd>',
+            paste0("pdf/", n$pdf), escapar_html(n$pdf), escapar_html(AVISO_OCR_PENDIENTE))
+  } else {
+    sprintf('<dt>Documento oficial</dt><dd><a href="%s">%s</a> (PDF)</dd>',
+            paste0("pdf/", n$pdf), escapar_html(n$pdf))
+  }
+
+  # El anio curado viaja con su procedencia a la vista. Un metadato aportado por
+  # una persona sin decir de donde salio es indistinguible de uno inventado.
+  linea_anio <- if (is.null(n$anio)) {
+    "<dt>Año de publicación</dt><dd><em>No consta en el documento. Pendiente de revisión del equipo.</em></dd>"
+  } else if (!is.null(n$fuente_anio)) {
+    sprintf("<dt>Año de publicación</dt><dd>%d <span class=\"procedencia\">(dato curado — %s)</span></dd>",
+            n$anio, escapar_html(n$fuente_anio))
+  } else {
+    sprintf("<dt>Año de publicación</dt><dd>%d</dd>", n$anio)
+  }
+
+  linea_extension <- if (es_ocr) {
+    sprintf("<dt>Extensión</dt><dd>%d páginas · transcripción automática</dd>", n$paginas)
+  } else {
+    sprintf("<dt>Extensión</dt><dd>%d páginas · %d artículos</dd>", n$paginas, n$n_articulos)
+  }
+
   ficha <- c(
     "```{=html}",
     '<div class="ficha-norma">',
-    sprintf('<p><span class="badge-fuente badge-%s">%s</span><span class="badge-fuente badge-tipo">%s</span></p>',
-            n$tipo_fuente, n$tipo_fuente, escapar_html(n$tipo_etiqueta)),
+    sprintf('<p><span class="badge-fuente badge-%s">%s</span><span class="badge-fuente badge-tipo">%s</span>%s</p>',
+            n$tipo_fuente, n$tipo_fuente, escapar_html(n$tipo_etiqueta),
+            if (ocr_sin_revisar) '<span class="badge-fuente badge-ocr">OCR sin revisar</span>' else ""),
     "<dl>",
     sprintf("<dt>Título oficial</dt><dd>%s</dd>",
             if (is.null(n$titulo)) "<em>No fue posible extraerlo del documento. Pendiente de revisión del equipo.</em>"
             else escapar_html(n$titulo)),
-    sprintf("<dt>Año de publicación</dt><dd>%s</dd>",
-            if (is.null(n$anio)) "<em>No consta en el documento. Pendiente de revisión del equipo.</em>"
-            else as.character(n$anio)),
-    sprintf("<dt>Extensión</dt><dd>%d páginas · %d artículos</dd>", n$paginas, n$n_articulos),
+    linea_anio,
+    linea_extension,
     sprintf("<dt>Temas</dt><dd>%s</dd>",
             if (length(n$tema) == 0L) "<em>sin tema asignado</em>"
             else paste0('<span class="badge-fuente badge-tema">', escapar_html(n$tema), "</span>", collapse = " ")),
-    sprintf('<dt>Documento oficial</dt><dd><a href="%s">%s</a> (PDF)</dd>',
-            paste0("pdf/", n$pdf), escapar_html(n$pdf)),
+    linea_pdf,
+    if (length(n$notas_ficha) > 0L)
+      sprintf("<dt>Notas</dt><dd>%s</dd>",
+              paste0(escapar_html(n$notas_ficha), collapse = "</dd><dd>")) else NULL,
     "</dl>",
     "</div>",
     "```",
     ""
   )
+  ficha <- ficha[!vapply(ficha, is.null, logical(1))]
 
-  if (isTRUE(n$sin_capa_texto)) {
+  abre <- sprintf('::: {data-pagefind-body="true" data-pagefind-meta="norma:%s"}',
+                  gsub('"', "", corto))
+
+  # --- Documento sin texto de ninguna clase ---
+  if (identical(n$origen_texto, "sin_texto")) {
     cuerpo <- c(
       "```{=html}",
       '<div class="aviso aviso-fuerte">',
-      "<p><strong>Este documento no tiene capa de texto.</strong> El PDF oficial es un ",
-      "escaneo de imagen, de modo que su articulado no se puede transcribir ni indexar ",
-      "sin un reconocimiento óptico de caracteres que nadie ha revisado todavía.</p>",
-      "<p>El documento está disponible completo en el enlace al PDF de la ficha. ",
-      "No se transcribe aquí porque un texto legal reconocido automáticamente y sin ",
-      "revisar sería <em>plausible pero no verificado</em>, y este sitio se lee para ",
-      "tomar decisiones que afectan a estudiantes.</p>",
+      "<p><strong>Este documento no tiene capa de texto ni transcripción disponible.</strong> ",
+      "Está disponible completo en el enlace al PDF de la ficha.</p>",
       "</div>",
       "```",
       ""
     )
-    # Los documentos escaneados TAMBIEN entran al indice, con su ficha como
-    # cuerpo. No tienen articulado que indexar, pero dejarlos fuera del buscador
-    # los volveria invisibles: alguien que busque "circular 812" tiene que
-    # encontrarla y llegar al PDF, aunque el sitio no pueda transcribirla.
-    abre_sin <- sprintf('::: {data-pagefind-body="true" data-pagefind-meta="norma:%s"}',
-                        gsub('"', "", corto))
-    return(paste(c(cab, ficha, abre_sin, "", spans_filtro, cuerpo, ":::", ""),
+    return(paste(c(cab, banda, ficha, abre, "", spans_filtro, cuerpo, ":::", ""),
                  collapse = "\n"))
   }
 
+  # --- Transcripcion automatica ---
+  if (es_ocr) {
+    encabezado_ocr <- if (ocr_sin_revisar) c(
+      "```{=html}",
+      '<div class="aviso aviso-ocr" role="note">',
+      sprintf("<p><strong>%s.</strong></p>", escapar_html(AVISO_OCR_PENDIENTE)),
+      "<p>Lo que sigue es una transcripción hecha por reconocimiento óptico de ",
+      "caracteres sobre un documento escaneado. <strong>No es una cita textual</strong> ",
+      "y todavía no ha sido revisada por el equipo de convivencia: puede contener ",
+      "errores de lectura. Se publica para poder encontrar el documento y ubicarse ",
+      "dentro de él; para citar, use el PDF.</p>",
+      "</div>",
+      "```",
+      ""
+    ) else c(
+      "```{=html}",
+      '<div class="aviso" role="note">',
+      "<p>Transcripción obtenida por reconocimiento óptico y <strong>revisada por el ",
+      "equipo de convivencia</strong>. La fuente oficial sigue siendo el PDF.</p>",
+      "</div>",
+      "```",
+      ""
+    )
+
+    # Los saltos de linea se conservan tal cual (pre-wrap en la hoja de estilo).
+    # No se refluye: a un texto sin revisar no se le adivina ademas la estructura
+    # de parrafos, y revisarlo es mucho mas facil si lo que se ve en el sitio es
+    # exactamente lo que hay en el archivo que se corrige.
+    secciones <- unlist(lapply(n$articulos, function(a) {
+      c(sprintf("## %s {#%s}", a$etiqueta, a$id),
+        "",
+        "```{=html}",
+        sprintf('<div class="transcripcion-ocr" id="cuerpo-%s">', a$id),
+        paste0("<pre>", escapar_html(a$texto), "</pre>"),
+        "</div>",
+        "```",
+        "")
+    }))
+
+    return(paste(c(cab, banda, ficha, abre, "", spans_filtro, encabezado_ocr,
+                   secciones, ":::", ""),
+                 collapse = "\n"))
+  }
+
+  # --- Articulado verificado ---
   # Contenedor indexable. Pagefind toma como registro el contenido marcado con
   # data-pagefind-body y genera un sub-resultado por cada encabezado con id que
   # encuentre dentro: por eso cada articulo lleva su "## etiqueta {#id}" y por eso
   # el ancla del HTML es exactamente el id que escribio el segmentador.
-  abre <- sprintf('::: {data-pagefind-body="true" data-pagefind-meta="norma:%s"}',
-                  gsub('"', "", corto))
-
   secciones <- unlist(lapply(n$articulos, function(a) {
     c(sprintf("## %s {#%s}", a$etiqueta, a$id),
       "",
@@ -161,14 +240,16 @@ pagina_norma <- function(n) {
       "")
   }))
 
-  paste(c(cab, ficha, abre, "", spans_filtro, secciones, ":::", ""), collapse = "\n")
+  paste(c(cab, banda, ficha, abre, "", spans_filtro, secciones, ":::", ""),
+        collapse = "\n")
 }
 
 # ---- Home -------------------------------------------------------------------
 pagina_home <- function(cat) {
   n_normas <- length(cat$normas)
   n_arts   <- cat$n_articulos
-  n_sin    <- sum(vapply(cat$normas, function(x) isTRUE(x$sin_capa_texto), logical(1)))
+  n_ocr    <- sum(vapply(cat$normas, function(x)
+    identical(x$origen_texto, "ocr_pendiente_revision"), logical(1)))
 
   ejemplos <- c("revisión de mochilas", "cancelación de matrícula", "uso de celulares",
                 "encargado de convivencia", "expulsión", "identidad de género")
@@ -190,8 +271,8 @@ pagina_home <- function(cat) {
     "",
     "```{=html}",
     '<div class="ficha-norma">',
-    sprintf("<p><strong>%d normas · %d artículos indexados · %d documentos sin capa de texto.</strong></p>",
-            n_normas, n_arts, n_sin),
+    sprintf("<p><strong>%d normas · %d artículos indexados · %d documentos con transcripción automática en revisión.</strong></p>",
+            n_normas, n_arts, n_ocr),
     "<p>Todo el contenido proviene de fuentes oficiales y se reproduce sin editar.</p>",
     "</div>",
     "```",
@@ -232,7 +313,8 @@ pagina_indice <- function(titulo, subtitulo, grupos) {
 
 # ---- Pagina institucional ---------------------------------------------------
 pagina_acerca <- function(cat) {
-  n_sin <- Filter(function(x) isTRUE(x$sin_capa_texto), cat$normas)
+  n_ocr <- Filter(function(x)
+    identical(x$origen_texto, "ocr_pendiente_revision"), cat$normas)
   c("---",
     'title: "Acerca de este sitio"',
     "toc: true",
@@ -263,18 +345,28 @@ pagina_acerca <- function(cat) {
     "línea, y reunir en un párrafo las líneas que el PDF partió por ancho de columna.",
     "Son artefactos de maquetación, no texto de la norma.",
     "",
-    "## Documentos sin capa de texto",
+    "## Documentos escaneados y transcripción automática",
     "",
-    sprintf("%d de los documentos del corpus son escaneos de imagen y no tienen texto",
-            length(n_sin)),
-    "extraíble. Aparecen con su ficha y el enlace al PDF, pero sin articulado transcrito",
-    "y fuera del buscador por artículo:",
+    sprintf("%d de los documentos del corpus son escaneos de imagen: el PDF no contiene",
+            length(n_ocr)),
+    "texto seleccionable, solo la fotografía de las páginas. De ellos se obtuvo una",
+    "**transcripción automática** por reconocimiento óptico de caracteres:",
     "",
-    vapply(n_sin, item_norma, character(1)),
+    vapply(n_ocr, item_norma, character(1)),
     "",
-    "Incorporarlos exige reconocimiento óptico de caracteres revisado por una persona.",
-    "Un OCR sin revisar produce texto legal plausible pero falso, que es peor que un",
-    "hueco declarado.",
+    "Esa transcripción **no es una cita textual y no ha sido revisada**. Se publica",
+    "señalizada como tal, con el aviso a la vista tanto en la ficha como sobre el texto,",
+    "para que el documento se pueda encontrar y recorrer; para citar, manda el PDF.",
+    "",
+    "El estado de cada documento se declara en el campo `origen_texto` de sus datos:",
+    "",
+    "- `capa_texto_pdf` — el PDF trae texto seleccionable. Es cita textual.",
+    "- `ocr_pendiente_revision` — transcripción automática sin revisar. No es cita textual.",
+    "- `ocr_revisado` — transcripción revisada y validada por el equipo de convivencia.",
+    "",
+    "El paso de `ocr_pendiente_revision` a `ocr_revisado` no lo hace ningún programa: lo",
+    "hace una persona del equipo, leyendo la transcripción página por página contra el",
+    "PDF y editando el archivo de curaduría. Mientras eso no ocurra, el aviso queda.",
     "",
     "## Metadatos pendientes de revisión",
     "",
