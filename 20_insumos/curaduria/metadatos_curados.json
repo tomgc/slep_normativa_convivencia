@@ -47,6 +47,12 @@
       ],
       "fuente_anios_alternativos": "texto refundido: el documento refunde el Dictamen N° 52, de 17 de febrero de 2020, y el N° 77, de 19 de diciembre de 2025, ambos citados en su propia sección ANTECEDENTES. El catálogo lo ubica en 2025; una cita a «Dictamen N° 52, de 2020» apunta a este documento."
     },
+    "dfl_1_estatuto_asistentes_educacion": {
+      "anios_alternativos": [
+        1996
+      ],
+      "fuente_anios_alternativos": "el DFL N° 1 del Ministerio de Educación, que fija el texto refundido de la ley N° 19.070, se promulgó el 10-09-1996 y se publicó en el Diario Oficial el 22-01-1997: las dos formas de citarlo son legítimas y apuntan al mismo documento. El catálogo lo ubica en 1997, el año de publicación. Verificado en Ley Chile (BCN, idNorma 60439) el 2026-08-26; el propio corpus lo cita de las dos maneras (ley_21545_tea art-19 dice «de 1997»; ley_21809_convivencia_educativa art-5 dice «de 1996», ambas describiendo el refundido de la ley 19.070). Decisión del titular delegada al asistente, 2026-08-26 (duda 2 del log 20260826_avance_maquina_v2_log.md)."
+    },
     "ley_20536_violencia_escolar": {
       "notas_ficha": [
         "Artículos 16 A a 16 E: incorporados a la Ley General de Educación (DFL 2/2009) por esta ley."
