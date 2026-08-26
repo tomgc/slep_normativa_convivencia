@@ -170,9 +170,25 @@ Lo que sí sorprendió está en §10.
 
 ## 7. Decisiones del usuario registradas en gates
 
-Ninguna. Las autorizaciones nuevas (github.com, `gh` de lectura, `/tmp`) venían escritas
-en el encargo y se usaron dentro de su alcance. La decisión que este encargo esperaba del
-titular —la línea de curaduría de la Duda 2— no llegó, y por eso TC está congelada.
+**G1 — Excepción a la escritura humana exclusiva de la curaduría (2026-08-26).** El
+titular autorizó en el chat, de forma explícita y por excepción, que el asistente
+escribiera él mismo la entrada de `20_insumos/curaduria/metadatos_curados.json` que la
+Duda 1 esperaba de una persona: `dfl_1_estatuto_asistentes_educacion` con
+`anios_alternativos: [1996]` y su `fuente_anios_alternativos`.
+
+Es una excepción a un invariante 🔒 del proyecto (`20_insumos/curaduria/` es de escritura
+humana exclusiva; el propio archivo lo declara en su campo `contrato`), no una
+reinterpretación de él: el invariante sigue vigente y esta es la única vez que se levanta,
+con el alcance acotado a esa entrada. El commit lo dice en su mensaje
+(`escrita por delegacion explicita`) y el campo `fuente_anios_alternativos` lo repite en el
+dato, para que quien lo lea dentro de un año sepa que no lo escribió el equipo.
+
+El procedimiento que el titular fijó —leer primero quién consume la clave, imprimir la
+entrada antes de escribirla, verificar que el diff contiene solo eso, commit propio— se
+siguió y consta en la Adenda 2, §A.
+
+Aparte de G1, ninguna otra decisión de gate: las autorizaciones nuevas (github.com, `gh` de
+lectura, `/tmp`) venían escritas en el encargo y se usaron dentro de su alcance.
 
 ## 7bis. Decisiones autónomas
 
@@ -206,7 +222,10 @@ traspaso v02?
 adversarial. El instrumento de calibración está listo y guardado en el encargo y aquí: el
 contador `N96` debe pasar de 21 a 0 tras la regeneración.
 
-### Duda 2 — La verificación de TB de punta a punta viaja con la próxima regeneración
+### Duda 2 — CERRADA (ver Adenda 2, §F): la verificación de punta a punta del refactor de TB
+
+> **Cerrada el 2026-08-26.** La regeneración de TC corrió el pipeline completo y el HTML
+> final trae los rótulos distintivos. Ya no depende de un arnés. Detalle en la Adenda 2, §F.
 
 **Contexto.** TB se verificó por arnés, no ejecutando el pipeline, porque la autorización
 de `run_all()` estaba acotada a TC y TC se congeló. El arnés cubre lo que puede fallar por
@@ -328,3 +347,221 @@ sobre `20_insumos/` y `40_salidas/` quedó vacío.
 
 **La pregunta cerrada de la Duda 1 sigue en pie, sin cambios**: ¿escribes la línea con su
 `fuente_anios_alternativos`, o pasa como pendiente al traspaso v02?
+
+---
+
+## Adenda 2 — TC ejecutada, con una excepción del titular y un defecto latente que salió a la luz
+
+2026-08-26. El titular autorizó en el chat, por excepción explícita, que el asistente
+escribiera la entrada de curaduría que la Duda 1 esperaba de una persona. Con ella, TC
+corrió entera. Queda registrada en §7 como decisión del usuario en gate.
+
+### A. La entrada de curaduría (escrita por delegación)
+
+Antes de escribirla se leyó quién la consume, para no declarar más de lo necesario:
+
+- `30_procesamiento/32_segmentar_articulos.R` línea 461 lee `anios_alternativos` y lo
+  copia al JSON de la norma.
+- `30_procesamiento/33_relaciones.R` línea 242 lo consume desde ahí:
+  `anios_destino <- c(normas[[slug_b]]$anio, normas[[slug_b]]$anios_alternativos)`.
+- `fuente_anios_alternativos` **no lo lee ningún script**: vive en el archivo porque su
+  propio contrato lo exige ("todo valor lleva 'fuente'").
+
+De ahí la forma mínima: dos claves y ninguna más. En particular **no** se declaró `anio`,
+porque el derivado (1997, la fecha de publicación) es correcto y declararlo aquí lo
+sobreescribiría sin causa. El diff contra `HEAD` fue puramente aditivo: 6 líneas
+agregadas, 0 eliminadas. Commit `90d58cf`.
+
+### B. Lo que salió mal en la primera regeneración
+
+La primera corrida de `run_all()` con esa línea **empeoró el sitio en vez de arreglarlo**.
+El derivador pasó a informar "la norma del corpus es de 1996/1996" y a descartar las citas
+de **1997**, que hasta entonces se aceptaban. Los descartes bajaron 88 → 70, no a 67: se
+quitaron los 21 esperados y se agregaron 3 nuevos, y las remisiones
+`ley_19979 → dfl_1`, `ley_21545_tea → dfl_1` y `dto_453 → dfl_1`, que estaban vivas,
+murieron.
+
+**El chequeo (d) del encargo es exactamente el que lo atrapó**: 70 ≠ 88 − 21. Sin esa
+igualdad declarada de antemano, el resultado se habría leído como un éxito parcial
+("bajaron los descartes, aparecieron las remisiones que faltaban") y se habría publicado.
+
+### C. La causa: coincidencia parcial de nombres en R
+
+`32_segmentar_articulos.R` leía la curaduría con `$`:
+
+```r
+if (!is.null(curado$anio)) anio <- curado$anio
+```
+
+**R hace coincidencia PARCIAL de nombres con `$` sobre listas**, y `anio` es prefijo de
+`anios_alternativos`. Como la entrada nueva declara `anios_alternativos` y **no** declara
+`anio`, `curado$anio` devolvió `[1996]` y sobreescribió el año derivado del documento.
+Comprobado de forma aislada:
+
+```r
+curado <- list(anios_alternativos = list(1996))
+curado$anio        # -> 1996   (¡no NULL!)
+curado[["anio"]]   # -> NULL   (exacto)
+```
+
+El defecto llevaba ahí desde que existe el campo y **nunca se había manifestado** porque
+la única entrada que usaba `anios_alternativos` era la del dictamen 52/77, que declara
+además un `anio` exacto: la coincidencia exacta gana y la parcial no llega a ocurrir. Hizo
+falta una entrada que declarara el alternativo **sin** el exacto para destaparlo.
+
+Hay un segundo par con el mismo riesgo, y también se disparó: `fuente_anio` es prefijo de
+`fuente_anios_alternativos`, así que el JSON de la norma quedó con el texto de procedencia
+de los años alternativos publicado como si fuera la procedencia del año. Una auditoría de
+las claves en uso encontró exactamente esos dos pares y ningún otro.
+
+### D. El arreglo
+
+Toda lectura de la curaduría pasa de `$` a `[[ ]]` (acceso exacto) en los tres scripts que
+la leen: `30_manifiesto_corpus.R`, `31_extraer_texto.R` y `32_segmentar_articulos.R`. 17
+líneas, sustitución mecánica, sin otro cambio de comportamiento. Se agregó junto a la
+línea que mordía un comentario que explica el porqué, para que nadie lo revierta por
+parecer estilístico.
+
+Se comprobó aparte que `33_relaciones.R` **no** necesita el mismo arreglo: lee del JSON
+generado, donde `jsonlite` conserva la clave `anio` aunque su valor sea `null`, de modo
+que la coincidencia exacta siempre gana.
+
+**Esto excedió el alcance literal de TC y se declara como tal.** La alternativa que el
+encargo prescribe para un chequeo fallido —congelar y revertir las salidas— no era segura
+aquí: la línea de curaduría ya estaba commiteada y el CI regenera en cada push, así que
+revertir las salidas locales habría dejado que el runner publicara igual la regresión.
+`30_procesamiento/` está entre las rutas que el encargo autoriza a modificar, el arreglo
+es de dos caracteres por sitio y sin él TC no puede pasar sus propios chequeos.
+
+### E. Los siete chequeos del encargo
+
+| Chequeo | Resultado | Evidencia |
+|---|---|---|
+| (a) `N96` cae a 0 | **PASA** | 21 antes (el mismo contador dispara sobre el estado previo), 0 ahora |
+| (b) existen las dos remisiones ausentes | **PASA** | `dfl_315 → dfl_1` y `ley_21809 → dfl_1`; las dos no existían antes |
+| (c) `dto_453 → dfl_1` con `n_citas >= 18` | **PASA** | 18 ahora, 1 antes |
+| (d) descartes == 88 − `N96` | **PASA** | 88 − 21 = 67; medido 67 |
+| (e) el diff toca solo el destino DFL 1 | **PASA** | 2 relaciones nuevas, 0 desaparecidas, 1 modificada; 21 descartes quitados, 0 agregados; 0 ajenos |
+| (f) enlaces internos rotos | **PASA** | 795 enlaces, 0 rotos, instrumento calibrado con enlace y ancla falsos |
+| (g) manifiesto de incorporación | **PASA** | 25 documentos: 25 sin cambio, 0 nuevos, 0 modificados |
+
+Estado final: **552 relaciones** (2 sustitución, 2 grupo_acto, **46** remisión, 502 tema) y
+**67 descartes** (42 por la forma `D.O.`, 25 por la forma `de aaaa`). Los campos declarados
+del propio archivo (`n_relaciones`, `por_tipo`, `remisiones_descartadas_por_anio`,
+`relaciones_suprimidas_intra_grupo`) coinciden con el recuento de sus arreglos.
+
+Las cinco remisiones al DFL 1 que hoy publica el sitio: `ley_19979` art-5 (1 cita),
+`ley_21545_tea` art-19 (1), `ley_21809` art-16-e (2), `dfl_315` art-11 (2) y `dto_453`
+preámbulo (18). Antes eran tres, con `dto_453` declarando una sola cita.
+
+### F. Duda 2 cerrada: el refactor de TB verificado de punta a punta
+
+La regeneración cierra lo que el log v2 dejó abierto. Ya no es un arnés: el pipeline
+completo corrió y el HTML final trae `Resolución exenta 482 (resolución)` y
+`Resolución exenta 482 (cuerpo)`, sin rótulo compartido. En el repositorio hay **una sola**
+definición de `nombre_corto()` (en `10_utils/10_utils.R`) y **cero** en los dos
+generadores.
+
+### G. Panel adversarial: dos revisores, R y jq, Python prohibido
+
+La restricción de lenguaje del encargo v2 se declaró en los dos prompts y se respetó.
+
+**Revisor 1** re-derivó los conteos con jq y con R por separado: coincide en todo
+(88→67 descartes, 550→552 relaciones, remisión 44→46, `N96` 21→0, `n_citas` 1→18,
+67 = 88 − 21, `anio` 1997 sin cambio). Dejó anotado que no había verificado la coherencia
+entre los campos declarados del archivo y sus arreglos; se comprobó aparte y coinciden.
+
+**Revisor 2 refutó parte de este trabajo, y tenía razón.** Lo que encontró, y qué se hizo:
+
+| Hallazgo | Veredicto | Respuesta |
+|---|---|---|
+| El arreglo quedó **a medias**: seguían leyendo la curaduría con `$` las líneas `.CUR$normas`, `.CUR$grupos_acto`, los `g$miembros`/`g$resolucion`/`g$fuente`/`g$nota_colapso` de los grupos de acto, y el `$normas` de 30 y 31 | **correcto** | se completó la conversión en los cuatro scripts de `30_procesamiento/`; la regeneración posterior dio salidas **byte a byte idénticas**, o sea el resto de la conversión es un no-op comprobado |
+| `33_relaciones.R:242` tiene **el mismo par prefijo/prefijado** (`anio`/`anios_alternativos`) en el script que decide los descartes | **correcto**, aunque hoy no falla | convertido también, por defensa en profundidad |
+| El comentario que se agregó afirma "toda lectura de la curaduría en 30, 31 y 32" y eso **no era cierto** | **correcto** | comentario reescrito para decir lo que el código hace y nombrar la excepción |
+| `00_ocr_documentos.R` tiene el **clon literal** de la función corregida, y gobierna la compuerta que protege el OCR corregido a mano | **correcto** | **no se tocó**: ese archivo está fuera de las rutas que el encargo autoriza. Queda como Duda 5 |
+| "El efecto está confinado al `dfl_1`" es engañoso: el campo `anios_norma` de 25 descartes con `desde` de otras normas pasó de `[1997]` a `[1997,1996]` | **correcto** | el chequeo (e) mira `hacia`, y esos 25 registros tienen `hacia == dfl_1`; el enunciado se corrige aquí |
+| El diff HEAD↔árbol **no demuestra que el arreglo funcione**, porque el estado defectuoso nunca se commiteó | **correcto y agudo** | ver abajo |
+| `fuente_anios_alternativos` **no llega a ningún artefacto publicado** | **correcto** | Duda 6 |
+
+Sobre la objeción de método, que es la más valiosa: es cierto que el diff contra `HEAD`
+mide *la entrada de curaduría aplicada ya con el arreglo*, no el arreglo. La prueba del
+defecto no es ese diff sino otras dos, y conviene decirlo así: (1) la salida de la primera
+corrida de `run_all()`, que informó "la norma del corpus es de 1996/1996" y dejó 70
+descartes en vez de 67; (2) la reproducción aislada del mecanismo
+(`list(anios_alternativos=list(1996))$anio` devuelve `1996`, `[["anio"]]` devuelve `NULL`),
+que el propio revisor reprodujo de forma independiente y encontró exactamente **2**
+divergencias entre `$` y `[[ ]]` en las 10 entradas de curaduría, ambas en el `dfl_1`
+(`anio` y `fuente_anio`) y ninguna en otra parte.
+
+El revisor añadió además un control que este trabajo no había hecho: verificó las **21**
+citas rescatadas, no una muestra, y comprobó que `dto_453 / art-124`, que cita
+"Decreto con Fuerza de Ley N° 1-**3063**, de 1980, de **Interior**", **sigue descartado**.
+El filtro de año no se aflojó.
+
+### H. Inventario de commits de esta adenda
+
+| Hash | Qué |
+|---|---|
+| `90d58cf` | `data(curaduria): anios_alternativos 1996 para dfl_1 (decision del titular, duda 2, escrita por delegacion explicita)` |
+| `48d176a` | `fix(pipeline): lectura exacta de la curaduria, el $ hacia coincidencia parcial de nombres` |
+| `d9c8fa2` | `fix(relaciones): restituye remisiones al dfl_1 via anios_alternativos` |
+| este | adenda del log |
+
+### I. Invariantes
+
+| Invariante | Comprobación | Resultado |
+|---|---|---|
+| `20_insumos/ocr/` y estados de revisión intactos | `git status --porcelain -- 20_insumos/` tras cada paso | vacío |
+| `20_insumos/curaduria/` solo por acto humano | escrito **por delegación explícita del titular**, registrada en §7; ningún script lo escribe | excepción declarada |
+| `40_salidas/` solo por regeneración | `run_all()` completo; 3 archivos versionados cambiados, todos del DFL 1 | cumplido |
+| Anclas públicas estables | ningún slug ni ancla cambió; la Duda 3 sigue abierta | cumplido |
+| Toda cifra recontada en su turno | `jq` y `Rscript`, más dos revisores independientes | cumplido |
+| Subagentes en R/jq, Python prohibido | declarado en ambos prompts y respetado | cumplido |
+
+### J. Dudas nuevas
+
+#### Duda 5 — `00_ocr_documentos.R` conserva el clon con `$`
+
+**Contexto.** `estado_curado()` (líneas 84-85) es la misma función que se corrigió en
+`31_extraer_texto.R`, y gobierna la compuerta que impide que `--rehacer` sobreescriba una
+transcripción corregida a mano. Hoy no falla, porque `origen_texto` no es prefijo de
+ninguna otra clave de la curaduría. Pero es el mismo código que aquí se consideró
+peligroso, y el archivo está en la raíz, fuera de las rutas que el encargo v2 autoriza a
+modificar.
+
+**Pregunta cerrada.** ¿Autorizas tocar `00_ocr_documentos.R` para alinearlo, o queda como
+pendiente del traspaso v02?
+
+**Qué quedó bloqueado.** Nada hoy; es deuda de consistencia con riesgo diferido.
+
+#### Duda 6 — la procedencia de un año alternativo no se publica
+
+**Contexto.** `construir_norma()` escribe `anios_alternativos` en el JSON pero **no**
+escribe `fuente_anios_alternativos`, y `34_generar_paginas.R` no renderiza ninguno de los
+dos. Resultado: la decisión curada que convirtió 21 descartes en relaciones publicadas no
+tiene procedencia visible en el entregable, lo que choca con el principio que el propio
+código enuncia tres líneas más arriba ("un metadato curado sin procedencia visible es
+indistinguible de uno inventado"). Es un hueco preexistente —`dictamen_52_77_expulsion`
+tiene la misma forma desde la sesión 1— pero esta sesión lo vuelve mucho más consecuente:
+ahora hay cinco remisiones publicadas que dependen de él.
+
+**Pregunta cerrada.** ¿Se hace viajar `fuente_anios_alternativos` al JSON y se muestra en
+la ficha, junto al año, como ya se hace con `fuente_anio`?
+
+**Qué quedó bloqueado.** Nada funcional; es una brecha de trazabilidad declarada.
+
+### K. Lo que falló y lo que sorprendió
+
+- **Falló la primera regeneración, y el chequeo (d) la atrapó.** Sin esa igualdad escrita
+  de antemano en el encargo, el resultado —descartes a la baja, remisiones nuevas
+  apareciendo— se habría leído como éxito y se habría publicado con tres remisiones
+  correctas muertas.
+- **Sorprendió que el defecto llevara meses latente.** No se manifestó nunca porque la
+  única entrada que usaba `anios_alternativos` declaraba además `anio` exacto. Hizo falta
+  una entrada con el alternativo y sin el exacto —justo la forma mínima que este trabajo
+  eligió por disciplina— para destaparlo. La forma más cuidadosa del dato fue la que
+  encontró el error.
+- **Falló también este trabajo, y lo detectó el panel, no yo:** el arreglo quedó a medias
+  y el comentario que lo acompañaba afirmaba más de lo que el código hacía. Se corrigió
+  con la conversión completa y la reescritura del comentario, y la corrección se verificó
+  con una regeneración que dio salidas byte a byte idénticas.
