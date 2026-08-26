@@ -19,10 +19,10 @@
 # =============================================================================
 
 source(here::here("10_utils", "10_utils.R"))
-instalar_si_falta(c("jsonlite", "fs", "here"))
+instalar_si_falta(c("jsonlite", "fs", "here", "stringi"))
 source(here::here("10_utils", "10_configuracion.R"))
 
-ORIGEN <- "33_generar_paginas"
+ORIGEN <- "34_generar_paginas"
 
 # ---- Utilidades de presentacion ---------------------------------------------
 # Los numeros de ley chilenos se citan con separador de miles ("ley 20.536") y
@@ -326,6 +326,124 @@ pagina_norma <- function(n) {
         collapse = "\n")
 }
 
+# ---- Paginas tematicas -------------------------------------------------------
+# Una pagina por tema, que cruza lo que dicen TODAS las fuentes sobre el. Es la
+# hermana navegable del buscador: sirve para la pregunta "que dice la normativa
+# sobre celulares", que no se responde bien escribiendo una palabra suelta.
+#
+# El orden de las capas es la jerarquia normativa (ley -> reglamento -> acto
+# administrativo -> interpretacion), no el alfabeto ni la relevancia: leer un
+# dictamen antes que la ley que interpreta invierte el razonamiento juridico.
+CAPAS_TEMA <- list(
+  list(id = "leyes",      titulo = "Leyes",                          tipos = c("ley")),
+  list(id = "reglamento", titulo = "Decretos y decretos con fuerza de ley", tipos = c("dfl", "dto")),
+  list(id = "actos",      titulo = "Circulares y resoluciones",      tipos = c("circular", "rex")),
+  list(id = "dictamenes", titulo = "Dictámenes",                     tipos = c("dictamen"))
+)
+
+TOPE_EXTRACTO <- 700L
+
+# Extracto textual: el PRIMER bloque de la norma que menciona el tema, entero.
+# No una ventana de N caracteres alrededor de la palabra: recortar por posicion
+# parte frases a la mitad y produce exactamente la "elipsis enganosa" que el
+# invariante de contenido prohibe. Un parrafo entero nunca miente por recorte.
+# Si el parrafo es larguisimo se corta en el ultimo punto antes del tope y se
+# marca el corte, con el enlace al articulo completo siempre a la vista.
+extracto_tematico <- function(n, claves) {
+  plano_de <- function(x) tolower(stringi::stri_trans_general(x, "Latin-ASCII"))
+  patron <- paste0("\\b(?:", paste(vapply(claves, function(k)
+    gsub("([.|()\\^{}+$*?\\[\\]])", "\\\\\\1", k), character(1)), collapse = "|"), ")")
+  # Se buscan primero los ARTICULOS y solo despues el resto de los segmentos. El
+  # preambulo suele contener el titulo de la norma y por lo tanto casi siempre
+  # menciona el tema: sin esta preferencia, la pagina tematica de TEA mostraba
+  # como extracto la ficha bibliografica de la ley 21.545 en vez de su articulado.
+  # Es literal en ambos casos, pero uno responde la pregunta y el otro no.
+  segmentos <- c(Filter(function(x) isTRUE(x$es_articulo), n$articulos),
+                 Filter(function(x) !isTRUE(x$es_articulo), n$articulos))
+  for (seg in segmentos) {
+    for (bloque in strsplit(seg$texto, "\n\n", fixed = TRUE)[[1]]) {
+      if (!nzchar(trimws(bloque))) next
+      if (!grepl(patron, plano_de(bloque), perl = TRUE)) next
+      texto <- trimws(bloque)
+      cortado <- FALSE
+      if (nchar(texto) > TOPE_EXTRACTO) {
+        recorte <- substr(texto, 1, TOPE_EXTRACTO)
+        ultimo <- max(c(0L, unlist(gregexpr("[.;] ", recorte))))
+        texto <- if (ultimo > 200L) substr(recorte, 1, ultimo) else recorte
+        cortado <- TRUE
+      }
+      return(list(id = seg$id, etiqueta = seg$etiqueta, texto = texto, cortado = cortado))
+    }
+  }
+  NULL
+}
+
+ficha_tematica <- function(n, claves) {
+  ex <- extracto_tematico(n, claves)
+  corto <- nombre_corto(n)
+  sustituida <- identical(n$vigencia$estado, "sustituido")
+  ocr <- identical(n$origen_texto, "ocr_pendiente_revision")
+
+  encabezado <- sprintf(
+    '<p class="tema-norma"><span class="badge-fuente badge-%s">%s</span><span class="badge-fuente badge-tipo">%s</span>%s%s <a href="%s.html"><strong>%s</strong></a>%s</p>',
+    n$tipo_fuente, n$tipo_fuente, escapar_html(n$tipo_etiqueta),
+    if (sustituida) '<span class="badge-fuente badge-sustituida">sustituida</span>' else "",
+    if (ocr) '<span class="badge-fuente badge-ocr">OCR sin revisar</span>' else "",
+    n$slug, escapar_html(corto),
+    if (is.null(n$titulo)) "" else paste0(" — ", escapar_html(n$titulo)))
+
+  if (is.null(ex)) {
+    return(c(encabezado,
+             '<p class="procedencia">Trata el tema, pero no fue posible aislar un extracto: el término aparece repartido en el documento. Abrir la norma para leerlo en contexto.</p>'))
+  }
+
+  c(encabezado,
+    sprintf('<blockquote class="%s"><p>%s%s</p></blockquote>',
+            if (ocr) "transcripcion-ocr" else "texto-legal",
+            escapar_html(ex$texto), if (ex$cortado) " […]" else ""),
+    sprintf('<p class="leer-contexto"><a href="%s.html#%s">Leer en contexto: %s</a></p>',
+            n$slug, ex$id, escapar_html(ex$etiqueta)))
+}
+
+pagina_tema <- function(tema, normas_tema, claves) {
+  # Dentro de cada capa: primero las vigentes, y las sustituidas al final con su
+  # marca. Una norma sustituida sigue siendo parte de la historia del tema, pero
+  # no es lo que hay que aplicar hoy.
+  cuerpo <- unlist(lapply(CAPAS_TEMA, function(capa) {
+    del_capa <- Filter(function(n) n$tipo %in% capa$tipos, normas_tema)
+    if (length(del_capa) == 0L) return(NULL)
+    sustituida <- vapply(del_capa, function(n)
+      identical(n$vigencia$estado, "sustituido"), logical(1))
+    del_capa <- c(del_capa[!sustituida], del_capa[sustituida])
+    c(sprintf("## %s {#%s}", capa$titulo, capa$id),
+      "",
+      "```{=html}",
+      unlist(lapply(del_capa, ficha_tematica, claves = claves)),
+      "```",
+      "")
+  }))
+
+  c("---",
+    paste("title:", escalar_yaml(tema)),
+    paste("subtitle:", escalar_yaml(sprintf(
+      "%d norma%s del corpus tratan este tema", length(normas_tema),
+      if (length(normas_tema) == 1L) "" else "s"))),
+    "toc: true",
+    'toc-title: "Capas de fuente"',
+    "---",
+    "",
+    "```{=html}",
+    '<div class="aviso" role="note">',
+    "<p>Cada extracto es <strong>texto literal</strong> de la norma y enlaza al ",
+    "artículo completo. El orden de las secciones sigue la jerarquía normativa. ",
+    "La pertenencia al tema se deriva de un diccionario de palabras clave ",
+    "declarado en el código, no de una lectura interpretativa.</p>",
+    "</div>",
+    "```",
+    "",
+    cuerpo) |> paste(collapse = "\n")
+}
+
 # ---- Home -------------------------------------------------------------------
 pagina_home <- function(cat) {
   n_normas <- length(cat$normas)
@@ -541,22 +659,68 @@ writeLines(
 # Indice por tema. Una norma puede aparecer en varios temas: la clasificacion es
 # por coincidencia de palabras clave del diccionario cerrado de la configuracion,
 # no una taxonomia excluyente.
+# ---- Temas: una pagina por tema + el directorio que las enlaza --------------
 temas <- sort(unique(unlist(lapply(normas, function(n) n$tema))))
 por_tema <- setNames(
   lapply(temas, function(t) Filter(function(n) t %in% n$tema, normas)),
   temas
 )
+slug_tema <- function(t) paste0("tema-", slugificar(t))
+
+for (t in temas) {
+  claves <- TEMAS_PALABRAS_CLAVE[[t]]
+  if (is.null(claves)) claves <- t   # tema aportado por curaduria, sin diccionario
+  writeLines(pagina_tema(t, por_tema[[t]], claves),
+             file.path(destino, paste0(slug_tema(t), ".qmd")))
+}
+
+# El indice de temas deja de ser una lista plana de normas y pasa a ser el
+# directorio de las paginas tematicas: es la puerta hermana del buscador que pide
+# el encargo, y repetir aqui el listado completo duplicaria lo que cada pagina ya
+# muestra mejor.
+filas_tema <- vapply(temas, function(t) {
+  ns <- por_tema[[t]]
+  sust <- sum(vapply(ns, function(n) identical(n$vigencia$estado, "sustituido"), logical(1)))
+  sprintf("| [%s](%s.qmd) | %d | %s |", t, slug_tema(t), length(ns),
+          paste(sort(unique(vapply(ns, function(n) n$tipo_etiqueta, character(1)))), collapse = ", "))
+}, character(1))
+
 sin_tema <- Filter(function(n) length(n$tema) == 0L, normas)
-if (length(sin_tema) > 0L) por_tema[["Sin tema asignado"]] <- sin_tema
 writeLines(
-  pagina_indice("Por tema",
-                "Los temas se asignan por coincidencia de palabras clave sobre el texto extraído, con un diccionario declarado en el código. Una norma puede estar en varios temas.",
-                por_tema),
+  c("---",
+    'title: "Temas"',
+    'subtitle: "Qué dice el corpus completo sobre cada materia, cruzando todas las fuentes."',
+    "toc: false",
+    "---",
+    "",
+    "Cada página temática reúne lo que dicen las leyes, los reglamentos, las",
+    "circulares y los dictámenes sobre una misma materia, con extractos textuales",
+    "y enlace al artículo completo.",
+    "",
+    "| Tema | Normas | Tipos de fuente |",
+    "|---|---:|---|",
+    filas_tema,
+    "",
+    if (length(sin_tema) > 0L) c(
+      "## Sin tema asignado",
+      "",
+      vapply(sin_tema, item_norma, character(1)),
+      "",
+      "Un documento sin tema es casi siempre un documento sin texto disponible.",
+      "") else NULL,
+    "",
+    "```{=html}",
+    '<p class="procedencia">Los temas se asignan por coincidencia de palabras clave sobre el texto extraído, con un diccionario declarado en <code>10_utils/10_configuracion.R</code>. Una norma puede estar en varios temas.</p>',
+    "```",
+    ""),
   file.path(destino, "indice-tema.qmd")
 )
 
 n_qmd <- length(fs::dir_ls(destino, glob = "*.qmd"))
-log_msg(sprintf("Generadas %d páginas .qmd (%d normas + home + acerca + 3 índices) en %s.",
-                n_qmd, length(normas), destino),
+esperadas <- length(normas) + length(temas) + 5L   # normas + temas + home + acerca + 3 indices
+log_msg(sprintf("Generadas %d páginas .qmd (%d normas + %d temas + home + acerca + 3 índices) en %s.",
+                n_qmd, length(normas), length(temas), destino),
         origen = ORIGEN)
-stopifnot(n_qmd == length(normas) + 5L)
+if (n_qmd != esperadas) {
+  stop(sprintf("Se esperaban %d páginas .qmd y hay %d.", esperadas, n_qmd))
+}

@@ -14,7 +14,7 @@ source(here::here("10_utils", "10_utils.R"))
 instalar_si_falta(c("quarto", "fs", "here"))
 source(here::here("10_utils", "10_configuracion.R"))
 
-ORIGEN <- "34_renderizar_sitio"
+ORIGEN <- "35_renderizar_sitio"
 
 if (!nzchar(Sys.which("quarto"))) {
   stop("No se encontro el ejecutable 'quarto' en el PATH. ",

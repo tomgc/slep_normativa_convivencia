@@ -139,3 +139,15 @@
 .badge-rel-sustitucion { background: #a4243b; color: #fff; }
 .badge-rel-remision    { background: #0d3b66; color: #fff; }
 .badge-rel-tema        { background: #e9ecef; color: #212529; }
+
+/* --- Páginas temáticas ----------------------------------------------------- */
+.tema-norma { margin-bottom: 0.35rem; }
+.tema-norma a { text-decoration: none; }
+blockquote.texto-legal, blockquote.transcripcion-ocr {
+  border-left: 3px solid #dee2e6;
+  margin: 0 0 0.4rem 0;
+  padding: 0.6rem 1rem;
+  background: #fbfbfc;
+}
+blockquote.transcripcion-ocr { border-left-color: #b58900; background: #fffdf5; }
+.leer-contexto { margin-bottom: 2rem; font-size: 0.9rem; }

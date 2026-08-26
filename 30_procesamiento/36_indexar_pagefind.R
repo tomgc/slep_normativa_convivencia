@@ -21,7 +21,7 @@ source(here::here("10_utils", "10_utils.R"))
 instalar_si_falta(c("fs", "here"))
 source(here::here("10_utils", "10_configuracion.R"))
 
-ORIGEN <- "35_indexar_pagefind"
+ORIGEN <- "36_indexar_pagefind"
 
 if (!fs::dir_exists(ruta_sitio())) {
   stop("No existe ", ruta_sitio(), ". Correr antes el paso 35 (run_all(only = 35)).")

@@ -34,7 +34,7 @@ website:
       - href: indice-tipo.qmd
         text: Por tipo de norma
       - href: indice-tema.qmd
-        text: Por tema
+        text: Temas
       - href: indice-anio.qmd
         text: Por año
       - href: acerca.qmd
