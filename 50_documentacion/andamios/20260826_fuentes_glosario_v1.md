@@ -36,7 +36,7 @@ Dos frentes de búsqueda:
 | debido proceso escolar | **Circular 482** (en el corpus) define `procedimiento justo y racional`; su base legal es el **DFL 2, de 1998**, art. 6 letra d) | `rex_482_reglamentos_b`, pág. 12 · DFL 2 art. 6 d) | [Ley Chile, idNorma 127911](https://www.bcn.cl/leychile/navegar?idNorma=127911) | Parcialmente: la circular sí, el DFL 2 no | **Sí**, el DFL 2 |
 | dupla psicosocial | **Ley 21.109, de 2018** (Estatuto de los Asistentes de la Educación Pública): no define el término, pero define la función profesional que lo sustenta | art. 5 (categorías) y art. 6 (funciones de carácter psicosocial o psicopedagógico) | [Ley Chile, idNorma 1123513](https://www.bcn.cl/leychile/navegar?idNorma=1123513) | **No** | **Sí** |
 | medida formativa | **no hallada** como definición legal | usada sin definir en Ley 21.809 art. 16 B y en la circular 482 (págs. 35, 37, 39 y 44) | — | La regulación sí, la definición no existe | No |
-| protocolo de actuación | **no hallada** como definición legal | usado sin definir en la circular 482 (11 segmentos) y en Ley 21.809 art. 46 letra f) | — | La regulación sí, la definición no existe | No |
+| protocolo de actuación | **no hallada** como definición legal | usado sin definir en la circular 482 (**12** segmentos, ver nota de criterio en §3) y en el artículo 46 letra f) de la Ley General de Educación, que la Ley 21.809 modifica | — | La regulación sí, la definición no existe | No |
 
 ## 3. Evidencia por término
 
@@ -98,10 +98,31 @@ protocolo"). Ninguno es una definición: son enumeraciones de aplicación.
 
 ### protocolo de actuación — no hallada
 
-Mismo resultado. Once segmentos de la circular 482 los regulan (qué debe contener un
-protocolo, cuándo se activa) y la Ley 21.809 los menciona en el artículo 46 letra f), sin
-que ninguna norma diga qué es un protocolo de actuación. Es un término definido por su
-contenido obligatorio, no por una fórmula.
+Mismo resultado. **Doce** segmentos de la circular 482 lo mencionan y regulan (qué debe
+contener un protocolo, cuándo se activa), sin que ninguna norma diga qué es un protocolo de
+actuación. Es un término definido por su contenido obligatorio, no por una fórmula.
+
+> **Criterio del conteo (corregido el 2026-08-26).** La v1 de este documento decía «once
+> segmentos». El criterio ahora es explícito: **segmentos del documento que contienen la
+> expresión «protocolo de actuación» o «protocolos de actuación»**, y con ese criterio son
+> **12**: páginas 2, 3, 4, 21, 22, 23, 24, 30, 35, 38, 39 y 44 (20 apariciones en total).
+> Dos de esos segmentos no regulan nada —las páginas 2 y 3 son el índice y la 38 es una
+> referencia bibliográfica a un documento externo de convivenciaescolar.cl—, pero excluir
+> solo una de las tres habría sido arbitrario, así que se declara el criterio amplio y se
+> nombran las excepciones. Recontado en este turno sobre
+> `40_salidas/datos/normas/rex_482_reglamentos_b.json`.
+
+> **Referencia corregida el 2026-08-26.** La v1 decía «la Ley 21.809 los menciona en el
+> artículo 46 letra f)». **La Ley 21.809 no tiene un artículo 46**: sus 47 segmentos no
+> incluyen `art-46` y el sitio no tiene esa ancla. El artículo 46 letra f) es de la **Ley
+> General de Educación** (ley N° 20.370, cuyo texto refundido fijó el DFL N° 2, de 2009, del
+> Ministerio de Educación), y es el que exige «contar con un reglamento interno que regule
+> las relaciones entre el establecimiento y los distintos actores de la comunidad escolar».
+> La Ley 21.809 lo **modifica**, en el numeral 16 de su artículo 1: «Reemplázase en el
+> literal f) del inciso primero del artículo 46 el texto "políticas de prevención, medidas
+> pedagógicas, protocolos de actuación y diversas conductas que constituyan falta a la buena
+> convivencia escolar"». En el sitio ese texto vive en el segmento `art-44-bis` de la Ley
+> 21.809, que es donde el segmentador cortó el articulado modificatorio.
 
 ## 4. Calibración del instrumento
 

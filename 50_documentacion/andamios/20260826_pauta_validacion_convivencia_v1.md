@@ -19,9 +19,9 @@ Esta pauta tiene 4 bloques. Pueden repartirse los bloques entre distintas person
 
 ---
 
-## BLOQUE 1 — Revisión de los documentos escaneados (lo más urgente)
+## BLOQUE 1 — Revisión del texto que leyó una máquina (lo más urgente)
 
-**Qué pasó:** 5 de los 25 documentos no existían en formato de texto, solo como imagen escaneada. Una herramienta automática "leyó" esas imágenes y las convirtió en texto. Esa lectura automática comete errores: confunde letras parecidas, mete números dentro de palabras, mezcla los membretes del encabezado con el texto, corta líneas.
+**Qué pasó:** 5 de los 25 documentos llegan al sitio con un texto que leyó una máquina y que ninguna persona ha revisado todavía. **Cuatro de ellos** —las circulares 193, 586 y 812, y el cuerpo de la Resolución exenta 482— no existían en formato de texto, solo como imagen escaneada, y una herramienta automática las "leyó" para convertirlas en texto. **El quinto, el dictamen 078, sí traía texto en el archivo**, pero ese texto también lo produjo un lector automático antes de llegarnos y arrastra los mismos errores: por eso está en esta lista y no entre los documentos ya confiables. En los cinco casos la lectura automática comete errores: confunde letras parecidas, mete números dentro de palabras, mezcla los membretes del encabezado con el texto, corta líneas.
 
 **Qué tienen que hacer:** comparar el texto del sitio contra el documento original (el PDF original está enlazado en la misma página de cada norma), párrafo por párrafo, y anotar toda diferencia.
 
