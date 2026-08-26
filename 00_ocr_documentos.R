@@ -78,11 +78,18 @@ hashes_registrados <- function(slug) {
   unlist(d[[1]]$hashes_paginas)
 }
 
+# Lectura de la curaduria SIEMPRE con [[ ]], nunca con $: R hace coincidencia
+# PARCIAL de nombres con $ sobre listas, asi que una clave ausente puede resolver
+# a otra que la tenga por prefijo. Es el mismo defecto que 48d176a arreglo en
+# 30_procesamiento/ (ahi `anio` resolvia a `anios_alternativos` y ponia el anio de
+# la norma en 1996). Esta funcion es el clon de origen_curado() de
+# 31_extraer_texto.R y gobierna la compuerta que impide que --rehacer sobreescriba
+# una transcripcion corregida a mano: no conviene que sea la unica que quede con $.
 estado_curado <- function(slug) {
   ruta <- ruta_insumos("curaduria", "metadatos_curados.json")
   if (!fs::file_exists(ruta)) return(NA_character_)
-  cur <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$normas[[slug]]
-  if (is.null(cur$origen_texto)) NA_character_ else cur$origen_texto
+  cur <- jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)[["normas"]][[slug]]
+  if (is.null(cur[["origen_texto"]])) NA_character_ else cur[["origen_texto"]]
 }
 
 hashear_paginas <- function(destino) {
