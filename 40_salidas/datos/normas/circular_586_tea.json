@@ -6,12 +6,24 @@
   "numero": "586",
   "titulo": null,
   "anio": null,
-  "tema": [],
+  "tema": ["inclusión y no discriminación", "trastorno del espectro autista", "reconocimiento oficial"],
+  "fuente_anio": null,
   "paginas": 1,
   "pdf": "circular_586_tea.pdf",
   "sin_capa_texto": true,
-  "marca_revisar": ["titulo", "anio", "texto"],
+  "origen_texto": "ocr_pendiente_revision",
+  "fuente_origen_texto": "OCR generado por 00_ocr_documentos.R el 2026-08-25; sin revisar",
+  "notas_ficha": [],
+  "aviso_vigencia": null,
+  "marca_revisar": ["titulo", "anio", "texto_ocr"],
   "n_articulos": 0,
-  "n_segmentos": 0,
-  "articulos": []
+  "n_segmentos": 1,
+  "articulos": [
+    {
+      "id": "ocr-pagina-001",
+      "etiqueta": "Página 1",
+      "es_articulo": false,
+      "texto": "Superintendencia\nde Educación\nCircular Nº 586\n•Vigente a partir del inicio del año escolar 2024\nCircular que imparte instrucciones sobre promoción, inclusión, atención integral y\nprotección de los derechos de párvulos y estudiantes con trastorno del espectro autista.\nPara\ninformar e instruir a todos los establecimientos\neducacionales del país sobre el alcance y contenido de la Ley\nNº 21.545 (conocida como Ley TEA), la Superintendecia de\nEducación emitió la Circular N° 586, que entrega directrices\nconcretas sobre su aplicación en contextos educativos.\n¿Cuál es el objetivo de la Circular N° 586?\nImpartir instrucciones generales a las entidades sostenedoras para que todas y todos quienes integran las\ncomunidades educativas adopten medidas concretas para asegurar el derecho a la educación de párvulos y\nestudiantes autistas, con el fin de que logren los objetivos de aprendizaje, accedan a los apoyos requeridos y se\ndesarrollen en concordancia con sus potencialidades.\n¿Qué alcance tiene?\nTodos los establecimientos de educación parvularia, básica y/o media del país, en sus distintas modalidades,\npúblicos y privados, que cuenten con Reconocimiento Oficial del Estado, y establecimientos de educación\nparvularia con Autorización de Funcionamiento o que se encuentren en período de adecuación.\n¿Qué obligaciones específicas señala la Circular N° 586 para los establecimientos?\nGarantizar medidas para la\nformación de funcionarios/as,\nprofesionales, técnicos/as y\nauxiliares, para la protección\nde la integridad física, psíquica\nde niños, niñas, adolescentes\ny adultos/as autistas\nConcurrencia del padre,\nmadre, apoderado/a, o tutor/a\nlegal ante emergencias\nrespecto a la integridad del\npárvulo y/o estudiante\nAcceso a la\neducación\nProcedimiento para la\naplicación de medidas\ndisciplinarias\nAjustar reglamentos y\nprocedimientos internos\nconsiderando situaciones\nde desregulación\nemocional y conductual\nDerivación a\nestablecimientos de salud\ncon objeto de promover\nla detección temprana\ndel trastorno autista\nProveer espacios\neducativos inclusivos,\nsin violencia y sin\ndiscriminación para las\npersonas con trastorno\ndel espectro autista\nPara mayor información te invitamos a revisar:\n• Resolución Exenta N° 586, de diciembre del\n2023, que aprueba Circular que imparte\ninstrucciones referidas a la promoción de la\ninclusión, la atención integral y la protección\nde los derechos de párvulos y estudiantes con\ntrastorno del espectro autista.\n/ Infografía Ley 21.545 en Educación.\nLey 21.545 que establece la promoción de la\ninclusión, la atención integral, у la protección de los\nderechos de las personas con trastorno del espectro\nautista en el ámbito social, de salud y educación.\nwww.supereduc.cl\n6 600 3600 390"
+    }
+  ]
 }

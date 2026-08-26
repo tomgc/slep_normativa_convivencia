@@ -19,6 +19,22 @@ source(here::here("10_utils", "10_configuracion.R"))
 
 ORIGEN <- "32_segmentar"
 
+# ---- Metadatos curados por el equipo ----------------------------------------
+# Lo que el pipeline no puede derivar del documento sin adivinar lo aporta una
+# persona en 20_insumos/curaduria/metadatos_curados.json. Ese archivo NO lo
+# escribe ningun script: es la unica manera de que una validacion humana
+# sobreviva a la siguiente corrida.
+cargar_curaduria <- function() {
+  ruta <- ruta_insumos("curaduria", "metadatos_curados.json")
+  if (!fs::file_exists(ruta)) {
+    log_msg("No hay archivo de curaduria; se usan solo metadatos derivados.",
+            nivel = "WARN", origen = ORIGEN)
+    return(list())
+  }
+  jsonlite::fromJSON(ruta, simplifyDataFrame = FALSE)$normas
+}
+CURADURIA <- cargar_curaduria()
+
 # ---- Derivacion desde el nombre canonico ------------------------------------
 # El nombre es <tipo>_<numero>_<materia>.pdf y T2 lo fijo con verificacion de
 # md5. De ahi salen tres campos sin ninguna inferencia sobre el contenido.
@@ -215,25 +231,66 @@ segmentar_por_secciones <- function(bloques, es_seccion) {
   segs
 }
 
+# ---- Segmentacion de una transcripcion automatica ---------------------------
+# El texto reconocido se segmenta por PAGINA, no por articulo, y de forma
+# deliberada. Un texto que nadie ha revisado no puede presentarse con anclas
+# "art-5" que lo hagan indistinguible de una cita textual verificada; la pagina,
+# en cambio, es una unidad que la transcripcion si tiene y que ademas es la que
+# usa quien la revisa contra el PDF.
+segmentar_ocr <- function(texto) {
+  paginas <- strsplit(texto, SEPARADOR_PAGINA_OCR, fixed = TRUE)[[1]]
+  lapply(seq_along(paginas), function(i) {
+    list(id = sprintf("ocr-pagina-%03d", i),
+         etiqueta = sprintf("Página %d", i),
+         es_articulo = FALSE,
+         texto = paginas[i])
+  })
+}
+
 # ---- Construccion de una norma ----------------------------------------------
 construir_norma <- function(meta) {
   slug <- meta$slug
   d <- derivar_de_nombre(slug)
 
-  texto <- if (isTRUE(meta$sin_capa_texto)) "" else
-    paste(readLines(ruta_salidas("intermedios", "texto", paste0(slug, ".txt")),
-                    warn = FALSE), collapse = "\n")
+  # Se lee siempre el intermedio, sin mirar si el PDF tenia capa de texto. Desde
+  # que existe el reconocimiento optico, "sin capa de texto" y "sin texto" dejaron
+  # de ser lo mismo: los cuatro escaneos no tienen capa y si tienen transcripcion.
+  # La condicion anterior los dejaba en cero segmentos con el archivo lleno al
+  # lado.
+  ruta_texto <- ruta_salidas("intermedios", "texto", paste0(slug, ".txt"))
+  texto <- if (fs::file_exists(ruta_texto)) {
+    paste(readLines(ruta_texto, warn = FALSE), collapse = "\n")
+  } else ""
 
   cabecera <- if (is.null(meta$cabecera)) character(0) else as.character(meta$cabecera)
+  curado <- if (!is.null(CURADURIA[[slug]])) CURADURIA[[slug]] else list()
+
   titulo <- extraer_titulo(cabecera)
   anio   <- extraer_anio(cabecera)
   temas  <- if (nzchar(texto)) asignar_temas(texto) else character(0)
-  arts   <- if (nzchar(texto)) segmentar(texto) else list()
+
+  # El estado del texto lo declara el equipo cuando hay curaduria y el pipeline
+  # cuando no. Asi 'ocr_revisado' solo puede llegar de una persona.
+  origen_texto <- if (!is.null(curado$origen_texto)) curado$origen_texto else meta$origen_texto
+  if (!origen_texto %in% ORIGENES_TEXTO) {
+    stop(sprintf("Slug '%s': origen_texto '%s' fuera del dominio declarado (%s).",
+                 slug, origen_texto, paste(ORIGENES_TEXTO, collapse = ", ")))
+  }
+  es_ocr <- origen_texto %in% c("ocr_pendiente_revision", "ocr_revisado")
+
+  arts <- if (!nzchar(texto)) list() else if (es_ocr) segmentar_ocr(texto) else segmentar(texto)
+
+  # La curaduria se SUPERPONE al dato derivado y, al hacerlo, retira la marca de
+  # revision del campo que resuelve. El campo `fuente_*` viaja al JSON: un
+  # metadato curado sin procedencia visible es indistinguible de uno inventado.
+  if (!is.null(curado$anio))   anio   <- curado$anio
+  if (!is.null(curado$titulo)) titulo <- curado$titulo
 
   revisar <- character(0)
   if (is.null(titulo)) revisar <- c(revisar, "titulo")
   if (is.null(anio))   revisar <- c(revisar, "anio")
-  if (isTRUE(meta$sin_capa_texto)) revisar <- c(revisar, "texto")
+  if (origen_texto == "sin_texto") revisar <- c(revisar, "texto")
+  if (origen_texto == "ocr_pendiente_revision") revisar <- c(revisar, "texto_ocr")
   if (length(temas) == 0L && nzchar(texto)) revisar <- c(revisar, "tema")
 
   list(
@@ -255,9 +312,16 @@ construir_norma <- function(meta) {
     # consumidor que iterara sobre el campo fallaba justo en las normas de un solo
     # tema. Lo detecto el recuento con jq del cierre.
     tema = I(temas),
+    fuente_anio = if (!is.null(curado$fuente_anio)) curado$fuente_anio else NULL,
     paginas = meta$paginas,
     pdf = paste0(slug, ".pdf"),
     sin_capa_texto = isTRUE(meta$sin_capa_texto),
+    # Estado del texto publicado. Gobierna como lo presenta el sitio: solo
+    # capa_texto_pdf y ocr_revisado se muestran como cita textual.
+    origen_texto = origen_texto,
+    fuente_origen_texto = if (!is.null(curado$fuente_origen_texto)) curado$fuente_origen_texto else NULL,
+    notas_ficha = I(if (!is.null(curado$notas_ficha)) unlist(curado$notas_ficha) else character(0)),
+    aviso_vigencia = if (!is.null(curado$aviso_vigencia)) curado$aviso_vigencia else NULL,
     marca_revisar = I(revisar),
     n_articulos = sum(vapply(arts, function(a) isTRUE(a$es_articulo), logical(1))),
     n_segmentos = length(arts),
@@ -277,8 +341,8 @@ for (n in normas) {
   escribir_atomico(n, ruta_normas(paste0(n$slug, ".json")),
                    function(o, p) jsonlite::write_json(o, p, auto_unbox = TRUE,
                                                        pretty = TRUE, null = "null"))
-  log_msg(sprintf("%-46s %-9s %s  articulos=%-4d segmentos=%-4d temas=%d %s",
-                  n$slug, n$tipo,
+  log_msg(sprintf("%-46s %-9s %-22s %s  articulos=%-4d segmentos=%-4d temas=%d %s",
+                  n$slug, n$tipo, n$origen_texto,
                   if (is.null(n$anio)) "????" else as.character(n$anio),
                   n$n_articulos, n$n_segmentos, length(n$tema),
                   if (length(n$marca_revisar)) paste0(MARCA_REVISAR, " ",

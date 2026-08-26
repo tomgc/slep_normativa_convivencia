@@ -1,0 +1,47 @@
+{
+  "descripcion": "Metadatos que el pipeline NO puede derivar del documento sin adivinar, aportados y validados por el equipo de convivencia. Se superponen a lo que extrae 32_segmentar_articulos.R y retiran la marca # REVISAR del campo que resuelven.",
+  "contrato": [
+    "Este archivo lo edita una persona. NINGUN script lo escribe: si el pipeline lo regenerara, borraria la validacion del equipo en cada corrida.",
+    "Todo valor lleva 'fuente': de donde salio el dato. Un metadato curado sin procedencia es indistinguible de uno inventado, que es lo que este proyecto no admite.",
+    "origen_texto solo acepta los valores de ORIGENES_TEXTO en 10_utils/10_configuracion.R. Mover un documento de 'ocr_pendiente_revision' a 'ocr_revisado' es el acto por el que el equipo se hace responsable de esa transcripcion: hacerlo sin haberla leido pagina por pagina contra el PDF vacia la garantia que el estado declara."
+  ],
+  "normas": {
+    "circular_193_estudiantes_embarazadas": {
+      "origen_texto": "ocr_pendiente_revision",
+      "fuente_origen_texto": "OCR generado por 00_ocr_documentos.R el 2026-08-25; sin revisar"
+    },
+    "circular_586_tea": {
+      "origen_texto": "ocr_pendiente_revision",
+      "fuente_origen_texto": "OCR generado por 00_ocr_documentos.R el 2026-08-25; sin revisar"
+    },
+    "circular_812_identidad_genero": {
+      "origen_texto": "ocr_pendiente_revision",
+      "fuente_origen_texto": "OCR generado por 00_ocr_documentos.R el 2026-08-25; sin revisar"
+    },
+    "rex_482_reglamentos_b": {
+      "origen_texto": "ocr_pendiente_revision",
+      "fuente_origen_texto": "OCR generado por 00_ocr_documentos.R el 2026-08-25; sin revisar"
+    },
+    "dictamen_065_revision_mochilas": {
+      "anio": 2022,
+      "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)",
+      "aviso_vigencia": "Este dictamen fue sustituido por el Dictamen N°78/2026 de la Superintendencia de Educación (Ley 21.809); se mantiene publicado como referencia histórica."
+    },
+    "dictamen_71_expulsion_cancelacion_matricula": {
+      "anio": 2024,
+      "fuente_anio": "verificación web del asistente, 2026-08-25 (dato aportado por el equipo; no se deriva del PDF, que no trae fecha estructural propia)"
+    },
+    "dictamen_52_77_expulsion": {
+      "anio": 2025,
+      "fuente_anio": "texto del propio documento, sección ANTECEDENTES: es un texto refundido y se adopta el año del dictamen más reciente de los dos para el índice por año",
+      "notas_ficha": [
+        "Texto refundido de dos dictámenes: Dictamen N° 52, de 17 de febrero de 2020, y Dictamen N° 77, de 19 de diciembre de 2025, ambos de la Superintendencia de Educación. El índice por año lo ubica en 2025, el más reciente de los dos."
+      ]
+    },
+    "ley_20536_violencia_escolar": {
+      "notas_ficha": [
+        "Artículos 16 A a 16 E: incorporados a la Ley General de Educación (DFL 2/2009) por esta ley."
+      ]
+    }
+  }
+}

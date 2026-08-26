@@ -137,14 +137,47 @@ extraer_documento <- function(ruta_pdf) {
   }
 
   if (sin_capa) {
-    # Rama congelada por diseno (regla de detencion 2 del encargo de bootstrap):
-    # es un escaneo de imagen. Se registra, no se falla, y no se inventa texto.
-    log_msg(sprintf("%s: SIN capa de texto (%d caracteres alfabeticos en %d paginas). Extraccion congelada.",
-                    slug, alfabeticos, info$pages),
-            nivel = "WARN", origen = ORIGEN)
+    # Sin capa de texto: es un escaneo de imagen. Se busca la transcripcion que
+    # dejo 00_ocr_documentos.R en 20_insumos/ocr/. Si existe se usa; si no, el
+    # documento queda sin texto y el sitio lo declara.
+    dir_ocr <- ruta_insumos("ocr", slug)
+    if (!fs::dir_exists(dir_ocr)) {
+      log_msg(sprintf("%s: SIN capa de texto (%d caracteres en %d páginas) y SIN reconocimiento. Correr Rscript 00_ocr_documentos.R.",
+                      slug, alfabeticos, info$pages),
+              nivel = "WARN", origen = ORIGEN)
+      return(list(slug = slug, paginas = info$pages, chars_alfabeticos = alfabeticos,
+                  sin_capa_texto = TRUE, origen_texto = "sin_texto", chars_limpio = 0L,
+                  lineas_maquetacion = 0L, cabecera = character(0), texto = ""))
+    }
+
+    paginas_ocr <- sort(fs::dir_ls(dir_ocr, glob = "*.txt"))
+    # Compuerta: la transcripcion tiene que cubrir el documento entero. Una a la
+    # que le falta una pagina se ve, desde aguas abajo, igual que una completa.
+    if (length(paginas_ocr) != info$pages) {
+      stop(sprintf("%s: el reconocimiento tiene %d páginas y el PDF %d. Rehacer con Rscript 00_ocr_documentos.R --rehacer.",
+                   slug, length(paginas_ocr), info$pages))
+    }
+
+    # EL TEXTO RECONOCIDO NO SE REFLUYE NI SE LIMPIA. Se conservan los saltos de
+    # linea tal como salieron del reconocedor. Dos razones: a un texto que nadie
+    # ha revisado todavia no se le adivina ademas la estructura de parrafos, y la
+    # revision es mucho mas facil si lo que se lee en el sitio es exactamente lo
+    # que hay en el archivo que se corrige.
+    # El separador de pagina permite que 32 segmente por pagina, que es la unica
+    # unidad honesta aqui: una transcripcion automatica no tiene articulos, tiene
+    # paginas.
+    texto <- paste(vapply(paginas_ocr, function(f)
+      paste(readLines(f, warn = FALSE), collapse = "\n"), character(1)),
+      collapse = SEPARADOR_PAGINA_OCR)
+
+    log_msg(sprintf("%s: sin capa de texto; se usa el reconocimiento de %d páginas (%d caracteres).",
+                    slug, length(paginas_ocr), nchar(texto)),
+            origen = ORIGEN)
+
     return(list(slug = slug, paginas = info$pages, chars_alfabeticos = alfabeticos,
-                sin_capa_texto = TRUE, chars_limpio = 0L,
-                lineas_maquetacion = 0L, cabecera = character(0), texto = ""))
+                sin_capa_texto = TRUE, origen_texto = "ocr_pendiente_revision",
+                chars_limpio = nchar(texto), lineas_maquetacion = 0L,
+                cabecera = character(0), texto = texto))
   }
 
   repetidos <- detectar_repetidos(paginas)
@@ -160,7 +193,8 @@ extraer_documento <- function(ruta_pdf) {
           origen = ORIGEN)
 
   list(slug = slug, paginas = info$pages, chars_alfabeticos = alfabeticos,
-       sin_capa_texto = FALSE, chars_limpio = nchar(texto),
+       sin_capa_texto = FALSE, origen_texto = "capa_texto_pdf",
+       chars_limpio = nchar(texto),
        lineas_maquetacion = length(repetidos), cabecera = cabecera, texto = texto)
 }
 
@@ -193,7 +227,9 @@ escribir_atomico(
   function(o, p) jsonlite::write_json(o, p, auto_unbox = TRUE, pretty = TRUE)
 )
 
-n_sin <- sum(vapply(resultados, function(r) r$sin_capa_texto, logical(1)))
-log_msg(sprintf("Extraccion terminada: %d documentos, %d con texto, %d sin capa de texto.",
-                length(resultados), length(resultados) - n_sin, n_sin),
+origenes <- table(vapply(resultados, function(r) r$origen_texto, character(1)))
+log_msg(sprintf("Extraccion terminada: %d documentos (%s).",
+                length(resultados),
+                paste(sprintf("%s: %d", names(origenes), as.integer(origenes)),
+                      collapse = "; ")),
         origen = ORIGEN)
