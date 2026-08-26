@@ -23,7 +23,9 @@
 #   remision     La norma A cita el numero de la norma B en el texto de uno de
 #                sus articulos. Se mide con un patron por norma que exige la
 #                PALABRA del tipo junto al numero ("ley 20.370", "dictamen N° 65"),
-#                nunca el numero suelto.
+#                nunca el numero suelto. Si la cita trae ANIO y no coincide con el
+#                de la norma de destino, se descarta: es otra norma homonima. Las
+#                citas sin anio se conservan, con su texto literal a la vista.
 #   tema         Comparten temas del diccionario. Es la mas debil y la que mas
 #                ruido produce, asi que se exige un minimo de temas en comun.
 # =============================================================================
@@ -100,7 +102,13 @@ patrones <- Filter(Negate(is.null), setNames(
   lapply(normas, function(n) patron_cita(n$tipo, n$numero)),
   names(normas)))
 
+# Ventana en la que se busca el anio que acompana a la cita. 60 caracteres cubren
+# la formula habitual (", de 2009, del Ministerio de Educacion") sin llegar a la
+# frase siguiente, donde un anio ya no pertenece a la cita.
+VENTANA_ANIO_CITA <- 60L
+
 rel_remision <- list()
+descartadas <- list()
 for (a in normas) {
   for (slug_b in names(patrones)) {
     # Control negativo estructural: una norma nunca se relaciona consigo misma.
@@ -109,10 +117,47 @@ for (a in normas) {
     literal <- NA_character_
     n_citas <- 0L
     for (seg in a$articulos) {
-      m <- regmatches(seg$texto, regexpr(patrones[[slug_b]], seg$texto, perl = TRUE))
-      if (length(m) == 0L) next
+      pos <- regexpr(patrones[[slug_b]], seg$texto, perl = TRUE)
+      if (pos == -1L) next
+      cita <- trimws(regmatches(seg$texto, pos)[[1]])
+      # Anio de la cita: se busca en la cola inmediata al numero ("..., de 2005,
+      # del Ministerio de Educacion"). El numero chileno NO identifica una norma
+      # por si solo -hay un "DFL N° 1" por ministerio y por anio-, asi que cuando
+      # la cita trae anio y no coincide con el de la norma de destino, la cita es
+      # de OTRA norma homonima y la relacion se descarta.
+      # Las citas SIN anio se conservan: no hay evidencia de que apunten a otra
+      # cosa, y la cita literal queda a la vista para que el lector juzgue.
+      cola <- substr(seg$texto, pos + attr(pos, "match.length"),
+                     pos + attr(pos, "match.length") + VENTANA_ANIO_CITA)
+      # La ventana se corta donde empieza OTRA cita. En una enumeracion como
+      # "Ley N° 21.430; D.F.L. N° 2, de 2009" el "de 2009" pertenece al segundo
+      # elemento, y sin este corte se le atribuia al primero: el filtro descartaba
+      # la remision a la ley 21.430 por un anio que no era suyo.
+      corte <- regexpr(paste0(";|(?i)\\b(?:", paste(PALABRAS_TIPO, collapse = "|"), ")\\b"),
+                       cola, perl = TRUE)
+      if (corte > 0L) cola <- substr(cola, 1, corte - 1L)
+      m_anio <- regmatches(cola, regexpr("\\bde\\s+((?:19|20)[0-9]{2})\\b", cola, perl = TRUE))
+      anio_cita <- if (length(m_anio) == 0L) NA_integer_ else
+        as.integer(sub("\\D+", "", m_anio[1]))
+      # Anios validos de la norma de destino: el suyo mas los que declare la
+      # curaduria. Un texto refundido tiene mas de una fecha legitima: el
+      # dictamen 52/77 refunde uno de 2020 y otro de 2025, y una cita al "Dictamen
+      # N° 52, de 2020" apunta a ese mismo documento aunque el catalogo lo ubique
+      # en 2025.
+      anios_destino <- c(normas[[slug_b]]$anio, normas[[slug_b]]$anios_alternativos)
+      anios_destino <- anios_destino[!vapply(anios_destino, is.null, logical(1))]
+
+      if (!is.na(anio_cita) && length(anios_destino) > 0L &&
+          !(anio_cita %in% unlist(anios_destino))) {
+        descartadas[[length(descartadas) + 1L]] <- list(
+          desde = a$slug, hacia = slug_b, cita = cita,
+          anio_cita = anio_cita, anios_norma = I(unlist(anios_destino)),
+          articulo = seg$id)
+        next
+      }
+
       n_citas <- n_citas + 1L
-      if (is.null(encontrado)) { encontrado <- seg; literal <- trimws(m[1]) }
+      if (is.null(encontrado)) { encontrado <- seg; literal <- cita }
     }
     if (is.null(encontrado)) next
     # La explicacion transcribe la CITA LITERAL que disparo la relacion, no solo
@@ -167,6 +212,17 @@ if (length(huerfanas) > 0L) {
              collapse = ", "))
 }
 
+if (length(descartadas) > 0L) {
+  log_msg(sprintf("Remisiones descartadas por anio discordante: %d.", length(descartadas)),
+          nivel = "WARN", origen = ORIGEN)
+  for (d in descartadas) {
+    log_msg(sprintf("  %s -> %s: cita «%s» con año %d; la norma del corpus es de %s.",
+                    d$desde, d$hacia, d$cita, d$anio_cita,
+                    paste(d$anios_norma, collapse = "/")),
+            origen = ORIGEN)
+  }
+}
+
 por_tipo <- table(factor(vapply(todas, function(r) r$tipo, character(1)),
                          levels = c("sustitucion", "remision", "tema")))
 log_msg(sprintf("Relaciones: %d en total — %d sustitucion, %d remision, %d tema.",
@@ -178,6 +234,11 @@ escribir_atomico(
   list(
     generado_por = "30_procesamiento/33_relaciones.R",
     min_temas_compartidos = MIN_TEMAS_COMPARTIDOS,
+    # Se registran las remisiones descartadas, no se borran en silencio: un filtro
+    # que reduce resultados sin dejar rastro es indistinguible de un derivador que
+    # no los encontro nunca.
+    remisiones_descartadas_por_anio = length(descartadas),
+    descartadas = unname(descartadas),
     n_relaciones = length(todas),
     por_tipo = as.list(setNames(as.integer(por_tipo), names(por_tipo))),
     relaciones = unname(todas)
