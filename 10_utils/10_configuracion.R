@@ -18,6 +18,15 @@
 source(here::here("10_utils", "10_locale.R"))
 asegurar_locale_utf8("10_configuracion.R")
 
+# ---- Coincidencia parcial de nombres, visible -------------------------------
+# `l$anio` resuelve a `anios_alternativos` cuando la clave exacta falta: asi el
+# anio del DFL 1 quedo en 1996 y el derivador empezo a descartar las citas
+# correctas, sin un solo error. 00_run_all.R convierte estos avisos en fallo de
+# la corrida (encargo v5, T2; Duda 4 del log de correcciones v4).
+options(warnPartialMatchDollar = TRUE,
+        warnPartialMatchArgs   = TRUE,
+        warnPartialMatchAttr   = TRUE)
+
 # ---- Rutas (raiz unificada) -------------------------------------------------
 ruta_insumos   <- function(...) here::here("20_insumos", ...)
 ruta_salidas   <- function(...) here::here("40_salidas", ...)
