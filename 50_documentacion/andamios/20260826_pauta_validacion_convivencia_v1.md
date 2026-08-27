@@ -40,7 +40,7 @@ Esta pauta tiene 4 bloques. Pueden repartirse los bloques entre distintas person
 3. [ ] Leer en paralelo, párrafo por párrafo. No confíen en la memoria del documento: el error típico es pequeño y verosímil.
 4. [ ] Anotar cada diferencia con los cuatro datos de la regla de oro.
 5. [ ] Prestar atención especial a: **cifras y números de artículo** (un "3" leído como "8" cambia la norma citada), **nombres propios**, **palabras que se ven bien pero no calzan con la frase** (la herramienta a veces pone una letra extranjera idéntica a simple vista a una nuestra; se descubre porque el buscador no encuentra la palabra), y **líneas que parecen cortadas o pegadas**.
-6. [ ] Al terminar un documento completo, escribir al final de su hoja de respuesta: "Revisado completo", nombre y fecha. **Esa firma es la que permite al sitio dejar de marcar el documento como pendiente.**
+6. [ ] Al terminar un documento completo, escribir al final de su hoja de respuesta: "Revisado completo", **nombre y apellido** y fecha. **Esa firma es la que permite al sitio dejar de marcar el documento como pendiente.**
 
 **Ayuda disponible:** la máquina preparó una lista de las líneas que le parecen sospechosas (108 líneas en total), para que sepan dónde mirar primero. Pídanla al Área de Monitoreo. Ojo: esa lista acelera, pero no reemplaza la lectura completa — la firma vale por el documento entero.
 
@@ -68,7 +68,7 @@ Esta pauta tiene 4 bloques. Pueden repartirse los bloques entre distintas person
 1. [ ] Leer la pieza completa.
 2. [ ] Verificar CADA afirmación contra los artículos que la pieza cita (todos traen enlace). La pregunta es siempre: ¿el artículo realmente dice esto?
 3. [ ] Corregir la redacción con libertad: el borrador es de ustedes, la máquina solo ahorró la primera escritura.
-4. [ ] Si la pieza es correcta (o quedó correcta tras sus ajustes), aprobarla con nombre y fecha.
+4. [ ] Si la pieza es correcta (o quedó correcta tras sus ajustes), aprobarla con **nombre y apellido** y fecha.
 
 **Advertencia puntual:** algunos borradores mencionan la "Resolución exenta 482", que tiene dos partes (la resolución y el reglamento que aprueba). En borradores antiguos ambas partes aparecen con el mismo nombre y puede ser confuso; el Área de Monitoreo les entregará la lista de cuáles borradores tienen ese problema, para que lo corrijan al validar.
 
@@ -95,7 +95,7 @@ Para cada bloque, una hoja (o correo, o planilla, como les acomode) con:
 | Documento o pieza | Dónde (página / artículo / título) | Qué dice hoy | Qué debería decir | Comentario |
 |---|---|---|---|---|
 
-Y al pie de cada documento o pieza terminada: **"Revisado completo" / "Aprobado", nombre y fecha.**
+Y al pie de cada documento o pieza terminada: **"Revisado completo" / "Aprobado", nombre y apellido, y fecha.**
 
 Todo se envía al Área de Monitoreo, que es quien registra las validaciones en el sistema. **Ustedes no necesitan tocar el sitio ni ningún archivo**: leen, anotan, firman.
 
@@ -104,4 +104,4 @@ Todo se envía al Área de Monitoreo, que es quien registra las validaciones en 
 - **¿Puedo corregir directamente en el sitio?** No: el sitio se regenera automáticamente y perdería el cambio. Toda corrección viaja por la hoja de respuesta.
 - **¿Tengo que revisarlo todo de una vez?** No. Cada documento firmado y cada pieza aprobada entra en vigencia por sí sola.
 - **¿Qué pasa si encuentro un error grave (una norma que no corresponde, un artículo faltante)?** Anótenlo igual, con los cuatro datos, y márquenlo como "grave". Es exactamente el tipo de hallazgo que más nos sirve.
-- **¿Quién ve nuestro trabajo?** Cada firma queda registrada con nombre y fecha en el sistema, asociada a lo que validó.
+- **¿Quién ve nuestro trabajo?** Cada firma queda registrada con nombre y fecha en el sistema, asociada a lo que validó. El sistema exige **nombre y apellido**: una sola palabra, o un "pendiente", lo rechaza.
