@@ -172,6 +172,13 @@ sustituir en el bloque de ejemplo la entrada de `fuentes` que apuntaba a
 turno de que su ancla resuelve. Alcance ejercido: **un hunk**, ningún otro cambio.
 Con esto son tres las escrituras en `20_insumos/` bajo delegación en la cartera.
 
+**Tercera delegación de la sesión.** Leído el residuo que la anterior dejó (el ejemplo
+citaba una norma que no correspondía a su propio `titulo`), el titular autorizó un
+cambio más en el mismo archivo: sustituir la entrada de `fuentes` por
+`dictamen_065_revision_mochilas` / `materia`, la alternativa que la adenda había medido
+y propuesto. Alcance ejercido: **un hunk**. Con esta son **cuatro** las escrituras en
+`20_insumos/` bajo delegación en la cartera.
+
 ## 7bis. Decisiones autónomas
 
 | # | Decisión | Alternativa descartada | Reversibilidad |
@@ -337,3 +344,37 @@ con el commit pusheado; la evidencia de esta sección es la del run correcto.
 `origin/main` = `9df5d64` más el commit de esta adenda. `ESTADO.md` intacto
 (`sesion_abierta: true`, `commit_cierre: 358e150`). Ninguna pieza publicada. La sesión
 sigue abierta.
+
+---
+
+# Adenda 2 — el ejemplo del README, coherente con su título
+
+Cierra el residuo que la Adenda 1 §A dejó declarado: el ejemplo había quedado
+formalmente correcto y semánticamente descolocado (título sobre revisión de mochilas,
+fuente sobre violencia por quien detenta autoridad). Tercera delegación del titular,
+registrada en §7.
+
+**Verificado en el turno, antes de escribir**, con la compuerta real
+(`ancla_resuelve()` extraída del árbol de parseo y alimentada con
+`anclas_disponibles()` sobre los 25 JSON):
+
+| Entrada | `ancla_resuelve` |
+|---|:-:|
+| `{dictamen_065_revision_mochilas, materia, "dictamen_065_revision_mochilas.html#materia"}` | **TRUE** |
+| `{ley_20536_violencia_escolar, art-16-d, …}` (la que había) | TRUE |
+
+Las dos resuelven: el cambio no corrige un defecto, corrige una **incoherencia**. La
+norma de destino es `capa_texto_pdf` (citable), tiene `materia` entre sus 4 `id`
+(`preambulo`, `materia`, `antecedentes`, `fuentes`), el `id` aparece en el HTML local,
+y su texto empieza literalmente: «MATERIA: Sobre la procedencia de implementar
+protocolos preventivos de revisión de mochilas y bolsos a estudiantes…», que es
+exactamente lo que pregunta el `titulo` del ejemplo.
+
+Cambio aplicado: **1 hunk**, una línea. Ninguna otra ruta de `20_insumos/` tocada. El
+front matter del ejemplo sigue parseando con sus 8 campos. `40_salidas/` no se tocó (no
+hubo regeneración: el README no alimenta ninguna salida): **28 de 28** byte a byte.
+Commit `f262c1f`.
+
+**CI del push.** Run **33094964762**, `head_sha` = `f262c1f` **comprobado contra el
+commit pusheado**, `completed / success`, 2 m 2 s, **0 pasos fallidos** en los dos jobs,
+autoprueba de la compuerta en **`success`**.
