@@ -353,19 +353,146 @@ pagina_norma <- function(n) {
 # Y la compuerta ABORTA, no filtra en silencio: una pieza marcada como validada
 # sin firma es un error de curaduria que alguien tiene que ver, no un archivo que
 # convenga saltarse calladamente.
+#
+# El front matter lo escribe A MANO el equipo de convivencia, asi que la compuerta
+# se defiende de lo que una PERSONA escribe, no de lo que un script emite. Tres
+# familias medidas en el encargo v4 y cerradas aqui (v5):
+#   - `as.character()` convierte en texto el booleano de YAML: quien escribiera
+#     `validado_por: no` (que en YAML 1.1 es el booleano falso) firmaba la pieza
+#     como «FALSE» y el sitio lo imprimia. Igual con `true`, `0`, `.nan` y una
+#     fecha suelta. Por eso ahora se valida el TIPO del valor y no solo que no
+#     este vacio.
+#   - `validado_por: []` hacia que la comprobacion valiera NA, y `Filter` descarta
+#     los NA de los DOS lados: la pieza ni abortaba ni se publicaba. Desaparecia,
+#     que es exactamente lo que 10.5 prohibe.
+#   - un front matter que declarara `archivo:` o `cuerpo:` dejaba el objeto con
+#     nombres duplicados, y `[[ ]]` devuelve el primero, que es el del YAML: el
+#     texto publicado dejaba de ser el cuerpo revisado. No pasa por `$`, asi que
+#     el acceso exacto no lo cerraba.
+# Todo aborto nombra el archivo y el campo: quien lee el error es una persona del
+# equipo de convivencia, no un programador.
+
+# Un escalar de texto, y nada mas. Es la comprobacion que faltaba: `as.character()`
+# sobre un booleano, un numero o una fecha de YAML tambien produce texto, y ahi es
+# por donde se colaban las firmas que no eran nombres.
+escalar_texto <- function(x) is.character(x) && length(x) == 1L && !is.na(x)
+
+# Campos que pone el generador y que el front matter no puede declarar.
+CLAVES_RESERVADAS <- c("archivo", "cuerpo")
+ESTADOS_PIEZA <- c("borrador", "validada")
+
 leer_pieza <- function(ruta) {
+  rel <- fs::path_rel(ruta, here::here())
   lineas <- readLines(ruta, warn = FALSE)
   cortes <- which(trimws(lineas) == "---")
   if (length(cortes) < 2L) {
-    stop(sprintf("Pieza sin front matter delimitado por '---': %s", ruta))
+    stop(sprintf(paste0("La pieza %s no tiene front matter delimitado por '---'.\n",
+                        "  El archivo tiene que empezar con una línea '---', los campos ",
+                        "(`tipo`, `estado`, `titulo`...)\n  y otra línea '---'."), rel),
+         call. = FALSE)
   }
-  fm <- yaml::yaml.load(paste(lineas[(cortes[1] + 1L):(cortes[2] - 1L)], collapse = "\n"))
+  # El lector de YAML avisa en ingles y sin decir de que archivo habla. El error
+  # mas probable al editar a mano es dejar un campo escrito dos veces
+  # («Duplicate map key»), y sin el nombre del archivo hay 22 donde buscar.
+  fm <- tryCatch(
+    yaml::yaml.load(paste(lineas[(cortes[1] + 1L):(cortes[2] - 1L)], collapse = "\n")),
+    error = function(e) {
+      stop(sprintf(paste0("No se pudo leer el front matter de %s.\n",
+                          "  El lector de YAML dice: %s\n",
+                          "  Suele ser un campo escrito dos veces, una comilla sin cerrar o una ",
+                          "tabulación.\n  Los números de línea que da el lector cuentan desde el ",
+                          "primer '---', no desde\n  el principio del archivo."),
+                  rel, conditionMessage(e)), call. = FALSE)
+    })
+  if (!is.list(fm) || is.null(names(fm)) || any(!nzchar(names(fm)))) {
+    stop(sprintf(paste0("El front matter de %s no es una lista de `campo: valor`.\n",
+                        "  Cada línea entre los '---' del principio tiene que tener la ",
+                        "forma `campo: valor`."), rel), call. = FALSE)
+  }
+  invadidas <- intersect(names(fm), CLAVES_RESERVADAS)
+  if (length(invadidas) > 0L) {
+    stop(sprintf(paste0("El front matter de %s declara %s.\n",
+                        "  Esos campos los pone el generador. Declararlos en el front matter ",
+                        "reemplaza el texto\n  revisado de la pieza por el del YAML, sin aviso. ",
+                        "Borra esa línea del front matter."),
+                 rel, paste0("`", invadidas, "`", collapse = " y ")), call. = FALSE)
+  }
   cuerpo <- if (cortes[2] < length(lineas)) lineas[(cortes[2] + 1L):length(lineas)] else character(0)
   c(fm, list(archivo = ruta, cuerpo = cuerpo))
 }
 
 TIPOS_PIEZA <- c(ficha = "Fichas por norma", faq = "Preguntas frecuentes",
                  glosario = "Glosario")
+
+# Revisa UNA pieza y DEVUELVE los reparos en vez de abortar, para poder juntarlos
+# todos: una sola corrida tiene que decir todo lo que hay que arreglar, no el
+# primer problema y a empezar de nuevo. El idioma es el de quien escribe el front
+# matter a mano.
+revisar_pieza <- function(p) {
+  r <- character(0)
+
+  tipo <- p[["tipo"]]
+  if (is.null(tipo)) {
+    r <- c(r, "falta el campo `tipo`. Tiene que ser uno de: ficha, faq, glosario.")
+  } else if (!escalar_texto(tipo)) {
+    r <- c(r, "el campo `tipo` no es una palabra suelta. Escríbelo así: `tipo: ficha`.")
+  } else if (!tipo %in% names(TIPOS_PIEZA)) {
+    r <- c(r, sprintf("el campo `tipo` dice `%s`, que no existe. Usa ficha, faq o glosario.", tipo))
+  }
+
+  estado <- p[["estado"]]
+  estado_valido <- FALSE
+  if (is.null(estado)) {
+    r <- c(r, "falta el campo `estado`. Tiene que decir `borrador` o `validada`.")
+  } else if (!escalar_texto(estado)) {
+    r <- c(r, "el campo `estado` no es una palabra suelta. Escríbelo así: `estado: borrador`.")
+  } else if (!tolower(trimws(estado)) %in% ESTADOS_PIEZA) {
+    r <- c(r, sprintf("el campo `estado` dice `%s`. Solo valen `borrador` y `validada`.", estado))
+  } else {
+    estado_valido <- TRUE
+  }
+
+  v <- p[["validado_por"]]
+  if (!is.null(v)) {
+    if (!escalar_texto(v)) {
+      r <- c(r, paste0("el campo `validado_por` no es un nombre escrito como texto. Si pusiste ",
+                       "`no`, `off`, `N` o `false`, YAML los lee como el valor falso y la pieza ",
+                       "quedaría firmada por «FALSE»; una lista de nombres tampoco vale. ",
+                       "Déjalo vacío o escribe UN nombre entre comillas."))
+    } else if (!nzchar(trimws(v)) || !grepl("[[:alpha:]]", v)) {
+      r <- c(r, sprintf(paste0("el campo `validado_por` dice `%s`, que no tiene ninguna letra: ",
+                               "no es un nombre. Déjalo vacío o escribe quién validó la pieza."), v))
+    }
+  }
+
+  # La firma se revisa AQUI, junto a los demas reparos, y no en un stop() aparte.
+  # En una lista separada, la pieza validada sin firma —que es el caso que 10.5
+  # considera grave— se quedaba para la segunda corrida, detras de cualquier
+  # erratita de `tipo` en otro archivo.
+  if (estado_valido && identical(tolower(trimws(estado)), "validada") && !firmada(p)) {
+    r <- c(r, paste0("dice `estado: validada` pero no trae un `validado_por` con un nombre. ",
+                     "Una pieza interpretativa sin firma no se publica: completa ",
+                     "`validado_por` y `fecha_validacion`, o vuelve a `estado: borrador`."))
+  }
+  r
+}
+
+# `estado` se normaliza DESPUES de revisarlo. `Validada` y ` validada ` son lo que
+# una persona quiso decir y se aceptan; lo que no esta en la lista aborta. Aceptar
+# lo bien intencionado y rechazar lo desconocido son la misma regla por los dos
+# lados: antes, `Validada` se omitia en silencio y quien la escribio creia haber
+# publicado la pieza.
+normalizar_pieza <- function(p) {
+  p[["estado"]] <- tolower(trimws(p[["estado"]]))
+  p
+}
+
+# isTRUE() ademas de la comprobacion de tipo: sin el, un `validado_por: []` hacia
+# que esto valiera NA y la pieza se caia de las dos listas a la vez.
+firmada <- function(p) {
+  v <- p[["validado_por"]]
+  isTRUE(escalar_texto(v) && nzchar(trimws(v)) && grepl("[[:alpha:]]", v))
+}
 
 cargar_piezas <- function() {
   raiz <- ruta_insumos("curaduria", "piezas")
@@ -376,20 +503,21 @@ cargar_piezas <- function() {
 
   piezas <- lapply(archivos, leer_pieza)
 
-  firmada <- function(p) !is.null(p[["validado_por"]]) && nzchar(trimws(as.character(p[["validado_por"]])))
-  incoherentes <- Filter(function(p) identical(p[["estado"]], "validada") && !firmada(p), piezas)
-  if (length(incoherentes) > 0L) {
-    stop("Piezas con `estado: validada` y sin `validado_por`:\n  ",
-         paste(vapply(incoherentes, function(p)
-           fs::path_rel(p[["archivo"]], here::here()), character(1)), collapse = "\n  "),
-         "\n  Una pieza interpretativa sin firma no se publica. Completar ",
-         "`validado_por` y `fecha_validacion`, o devolver `estado: borrador`.")
+  reparos <- unlist(lapply(piezas, function(p) {
+    r <- revisar_pieza(p)
+    if (length(r) == 0L) return(NULL)
+    paste0("  ", fs::path_rel(p[["archivo"]], here::here()), "\n",
+           paste0("    - ", r, collapse = "\n"))
+  }))
+  if (length(reparos) > 0L) {
+    stop(sprintf("Hay %d pieza(s) interpretativa(s) que el pipeline no puede aceptar:\n",
+                 length(reparos)),
+         paste(reparos, collapse = "\n"),
+         "\n  Todo esto se corrige en el front matter, que es lo que va entre los '---' del ",
+         "principio del archivo.", call. = FALSE)
   }
-  desconocidas <- Filter(function(p) !p[["tipo"]] %in% names(TIPOS_PIEZA), piezas)
-  if (length(desconocidas) > 0L) {
-    stop("Piezas con `tipo` fuera de {", paste(names(TIPOS_PIEZA), collapse = ", "), "}: ",
-         paste(vapply(desconocidas, function(p) basename(p[["archivo"]]), character(1)), collapse = ", "))
-  }
+
+  piezas <- lapply(piezas, normalizar_pieza)
 
   publicables <- Filter(function(p) identical(p[["estado"]], "validada") && firmada(p), piezas)
   log_msg(sprintf("Piezas interpretativas: %d en total, %d validadas y publicables.",
