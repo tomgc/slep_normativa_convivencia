@@ -766,12 +766,31 @@ pagina_pieza <- function(p) {
   fuentes <- if (is.null(p[["fuentes"]]) || length(p[["fuentes"]]) == 0L) character(0) else
     vapply(p[["fuentes"]], function(f)
       sprintf("- [%s, %s](%s)", f[["norma"]], f[["articulo"]], f[["ancla"]]), character(1))
+
+  # El cuerpo de la pieza SI se indexa (E-c del ensayo v6). Hasta v6 solo
+  # pagina_norma() emitia data-pagefind-body, asi que una pieza validada se
+  # publicaba y no se podia encontrar buscando: medido en el ensayo, 25 de 49
+  # paginas indexadas y 0 URLs de pieza en el indice. El equipo va a validar una
+  # FAQ sobre expulsion esperando encontrarla al buscar "expulsion".
+  #
+  # Los filtros van con el cuerpo y no son decorativos: Pagefind excluye de una
+  # faceta las paginas que no declaran su valor, asi que una pieza indexada SIN
+  # filtros aparece en la busqueda libre y DESAPARECE en cuanto alguien usa
+  # cualquier filtro. La faceta `fuente` tenia un unico valor (`normativa`); la
+  # pieza aporta el segundo, que es justo la distincion que importa al lector:
+  # texto legal frente a lectura del equipo.
+  filtros <- c(paste0("tipo:", unname(TIPOS_PIEZA[[p[["tipo"]]]])),
+               "fuente:interpretación institucional")
+  if (escalar_texto(p[["tema"]])) filtros <- c(filtros, paste0("tema:", p[["tema"]]))
+
   c("---",
     paste("title:", escalar_yaml(p[["titulo"]])),
     paste("subtitle:", escalar_yaml(unname(TIPOS_PIEZA[[p[["tipo"]]]]))),
     "toc: true",
     "---",
     "",
+    # La cabecera de firma queda FUERA del cuerpo indexado, igual que la ficha de
+    # la pagina de norma: es procedencia, no contenido.
     "```{=html}",
     '<div class="ficha-norma">',
     sprintf('<p><span class="badge-fuente badge-interpretacion">interpretación institucional</span></p>'),
@@ -781,8 +800,21 @@ pagina_pieza <- function(p) {
     "</div>",
     "```",
     "",
+    sprintf('::: {data-pagefind-body="true" data-pagefind-meta="pieza:%s"}',
+            gsub('"', "", as.character(p[["titulo"]]))),
+    "",
+    "```{=html}",
+    sprintf('<span data-pagefind-filter="%s"></span>', escapar_html(filtros)),
+    "```",
+    "",
     p[["cuerpo"]],
     "",
+    ":::",
+    "",
+    # La lista de fuentes queda FUERA del indice, por el mismo motivo por el que
+    # el bloque de relacionados de la pagina de norma tambien lo esta: son slugs y
+    # numeros de articulo, y buscar "ley_20536" empezaria a devolver piezas cuyo
+    # unico vinculo con el termino es su pie de fuentes.
     if (length(fuentes) > 0L) c("## Fuentes", "", fuentes, "") else NULL) |>
     paste(collapse = "\n")
 }
