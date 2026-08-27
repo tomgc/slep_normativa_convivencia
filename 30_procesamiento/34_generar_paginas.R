@@ -377,12 +377,49 @@ pagina_norma <- function(n) {
 # por donde se colaban las firmas que no eran nombres.
 escalar_texto <- function(x) is.character(x) && length(x) == 1L && !is.na(x)
 
+# Espacios que una persona pega sin verlos: el duro (U+00A0) que insertan Word y
+# el navegador, los de ancho fijo, el de ancho cero y la marca de orden de bytes.
+# `trimws()` no toca ninguno, y por eso `estado: "validada<U+00A0>"` abortaba con
+# un mensaje que decia que `validada` no vale y que `validada` si.
+# Se construyen por PUNTO DE CODIGO y no como literales: un espacio duro escrito
+# dentro de este mismo archivo fuente seria exactamente igual de invisible aqui
+# que en el front matter que intenta cazar, y nadie podria revisar esta linea.
+ESPACIOS_INVISIBLES <- paste0("[", intToUtf8(c(0x00a0, 0x1680, 0x2000:0x200b,
+                                               0x202f, 0x205f, 0x3000, 0xfeff)), "]")
+normalizar_espacios <- function(x)
+  trimws(gsub("\\s+", " ", gsub(ESPACIOS_INVISIBLES, " ", x)))
+# Para los campos de dominio cerrado (`tipo`, `estado`): aceptar lo bien
+# intencionado, abortar lo desconocido.
+normalizar_clave <- function(x) tolower(normalizar_espacios(x))
+
 # Campos que pone el generador y que el front matter no puede declarar.
 CLAVES_RESERVADAS <- c("archivo", "cuerpo")
 ESTADOS_PIEZA <- c("borrador", "validada")
 
+# Lo que una persona escribe cuando todavia no ha validado nada. Ninguno es un
+# nombre, y todos pasarian la regla de "dos palabras" o la de "tiene una letra".
+# Una lista por enumeracion NO cierra la familia (`sin asignar`, `no aplica` y
+# `por confirmar` siguen pasando): es un colador de lo mas frecuente, no una
+# garantia, y asi esta declarado en el log.
+NO_SON_FIRMA <- c("null", "na", "n/a", "s/i", "si", "no", "pendiente",
+                  "por definir", "x", "xx", "tbd")
+
 leer_pieza <- function(ruta) {
   rel <- fs::path_rel(ruta, here::here())
+  aviso_codificacion <- function() {
+    stop(sprintf(paste0("La pieza %s no está guardada en UTF-8.\n",
+                        "  Vuelve a guardarla con codificación UTF-8 desde tu editor. ",
+                        "Suele pasar al escribir\n  un nombre con tilde en un editor de Windows, ",
+                        "o al elegir «Unicode» en vez de «UTF-8»."), rel), call. = FALSE)
+  }
+  # La validez UTF-8 se comprueba ANTES de tocar el texto: un archivo en Latin-1
+  # hacia reventar `trimws()` con `input string N is invalid UTF-8` sin decir de
+  # que archivo hablaba. El tryCatch cubre ademas UTF-16, donde `rawToChar()`
+  # revienta antes por los bytes nulos y vuelca la cadena cruda a la consola.
+  ok_utf8 <- tryCatch(validUTF8(rawToChar(readBin(ruta, "raw", file.size(ruta)))),
+                      error = function(e) FALSE, warning = function(w) FALSE)
+  if (!isTRUE(ok_utf8)) aviso_codificacion()
+
   lineas <- readLines(ruta, warn = FALSE)
   cortes <- which(trimws(lineas) == "---")
   if (length(cortes) < 2L) {
@@ -400,8 +437,8 @@ leer_pieza <- function(ruta) {
       stop(sprintf(paste0("No se pudo leer el front matter de %s.\n",
                           "  El lector de YAML dice: %s\n",
                           "  Suele ser un campo escrito dos veces, una comilla sin cerrar o una ",
-                          "tabulación.\n  Los números de línea que da el lector cuentan desde el ",
-                          "primer '---', no desde\n  el principio del archivo."),
+                          "tabulación.\n  Si el lector da un número de línea, cuenta desde el ",
+                          "primer '---', no desde el\n  principio del archivo."),
                   rel, conditionMessage(e)), call. = FALSE)
     })
   if (!is.list(fm) || is.null(names(fm)) || any(!nzchar(names(fm)))) {
@@ -424,10 +461,87 @@ leer_pieza <- function(ruta) {
 TIPOS_PIEZA <- c(ficha = "Fichas por norma", faq = "Preguntas frecuentes",
                  glosario = "Glosario")
 
+# ---- Reglas de campo ---------------------------------------------------------
+# El destinatario de todo lo que sigue es una persona del equipo de convivencia.
+# Cada regla devuelve el reparo en su idioma, con un ejemplo VALIDO cuando hace
+# falta: un mensaje que ilustra con un valor que publicaria mal es un mensaje que
+# ensena a romper la compuerta.
+
+# Un nombre de persona: al menos dos palabras alfabeticas de dos letras o mas.
+# Una sola palabra no distingue "Perez" de "pendiente". Limite conocido y
+# declarado: rechaza `J. Perez` (inicial y apellido) y los nombres cuyos tokens
+# tienen una sola letra, como muchos nombres chinos.
+es_nombre_de_persona <- function(x) {
+  if (!escalar_texto(x)) return(FALSE)
+  v <- normalizar_espacios(x)
+  if (!nzchar(v) || normalizar_clave(v) %in% NO_SON_FIRMA) return(FALSE)
+  palabras <- strsplit(v, "[^[:alpha:]]+")[[1]]
+  sum(nchar(palabras) >= 2L) >= 2L
+}
+
+# Fecha ISO real, no una cadena con forma de fecha: `2026-13-45` tiene el formato
+# y no existe.
+es_fecha_plausible <- function(x) {
+  if (!escalar_texto(x)) return(FALSE)
+  v <- normalizar_espacios(x)
+  grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}$", v) &&
+    !is.na(suppressWarnings(as.Date(v, format = "%Y-%m-%d")))
+}
+
+# Las anclas que el sitio puede resolver de verdad: los `id` que 32 escribio en
+# los JSON de norma. Se construye desde los datos, nunca desde una lista aparte
+# que haya que acordarse de mantener.
+anclas_disponibles <- function(normas) {
+  z <- lapply(normas, function(n) vapply(n[["articulos"]], function(a) a[["id"]], character(1)))
+  names(z) <- vapply(normas, function(n) n[["slug"]], character(1))
+  z
+}
+
+# El ancla se valida con la forma EXACTA que se publica, no con una aproximacion.
+# `sub("[.]html", "", ancla)` aceptaba `norma#art-1` (sin extension),
+# `norma.html#a#b` (fragmento partido) y `norma#art-1.html`: las tres se emiten
+# TAL CUAL al HTML, donde son 404. Una compuerta que valida una cadena distinta de
+# la que publica no valida nada.
+#
+# Se cruza ademas contra `norma` y `articulo`, que son el TEXTO del enlace: sin
+# ese cruce, `{norma: dto_215, articulo: art-1, ancla: "ley_20536.html#art-16-d"}`
+# publica una cita que NOMBRA una norma y LLEVA a otra, que es lo contrario de la
+# fidelidad que el sitio promete. Medido antes de exigirlo: las 92 entradas de
+# `fuentes` del corpus real ya cumplen las tres condiciones.
+ancla_resuelve <- function(fuente, disponibles) {
+  if (!is.list(fuente)) return(FALSE)
+  a <- fuente[["ancla"]]
+  if (!escalar_texto(a)) return(FALSE)
+  a <- normalizar_espacios(a)
+  m <- regmatches(a, regexec("^([^#/]+)[.]html#([^#]+)$", a))[[1]]
+  if (length(m) != 3L) return(FALSE)
+  ids <- disponibles[[m[2]]]
+  if (is.null(ids) || !m[3] %in% ids) return(FALSE)
+  identical(m[2], normalizar_espacios(fuente[["norma"]])) &&
+    identical(m[3], normalizar_espacios(fuente[["articulo"]]))
+}
+
+# Entradas de `fuentes` en forma segura. Sobre un BORRADOR no se exige la forma de
+# `fuentes` (a medio llenar es su estado normal), asi que no se puede dar por
+# hecho que cada entrada sea una lista: `f[["ancla"]]` sobre un vector atomico
+# revienta con `subindice fuera de los limites`, y era el estado de trabajo diario
+# del equipo el que paraba el pipeline con un error de R sin nombre de archivo.
+fuentes_en_forma <- function(p) {
+  fu <- p[["fuentes"]]
+  if (!is.list(fu)) return(list())
+  Filter(is.list, fu)
+}
+# Un ancla ilegible se rotula, no se imprime vacia: `- ``` no le dice nada a nadie.
+rotulo_ancla <- function(f) {
+  a <- f[["ancla"]]
+  if (!escalar_texto(a)) return("(el campo `ancla` no es texto)")
+  if (!nzchar(trimws(a))) return("(el campo `ancla` está vacío)")
+  a
+}
+
 # Revisa UNA pieza y DEVUELVE los reparos en vez de abortar, para poder juntarlos
 # todos: una sola corrida tiene que decir todo lo que hay que arreglar, no el
-# primer problema y a empezar de nuevo. El idioma es el de quien escribe el front
-# matter a mano.
+# primer problema y a empezar de nuevo.
 revisar_pieza <- function(p) {
   r <- character(0)
 
@@ -436,78 +550,150 @@ revisar_pieza <- function(p) {
     r <- c(r, "falta el campo `tipo`. Tiene que ser uno de: ficha, faq, glosario.")
   } else if (!escalar_texto(tipo)) {
     r <- c(r, "el campo `tipo` no es una palabra suelta. Escríbelo así: `tipo: ficha`.")
-  } else if (!tipo %in% names(TIPOS_PIEZA)) {
-    r <- c(r, sprintf("el campo `tipo` dice `%s`, que no existe. Usa ficha, faq o glosario.", tipo))
+  } else if (!normalizar_clave(tipo) %in% names(TIPOS_PIEZA)) {
+    r <- c(r, sprintf("el campo `tipo` dice `%s`, que no existe. Usa ficha, faq o glosario.",
+                      normalizar_espacios(tipo)))
   }
 
   estado <- p[["estado"]]
-  estado_valido <- FALSE
+  validada <- FALSE
   if (is.null(estado)) {
     r <- c(r, "falta el campo `estado`. Tiene que decir `borrador` o `validada`.")
   } else if (!escalar_texto(estado)) {
     r <- c(r, "el campo `estado` no es una palabra suelta. Escríbelo así: `estado: borrador`.")
-  } else if (!tolower(trimws(estado)) %in% ESTADOS_PIEZA) {
-    r <- c(r, sprintf("el campo `estado` dice `%s`. Solo valen `borrador` y `validada`.", estado))
+  } else if (!normalizar_clave(estado) %in% ESTADOS_PIEZA) {
+    r <- c(r, sprintf("el campo `estado` dice `%s`. Solo valen `borrador` y `validada`.",
+                      normalizar_espacios(estado)))
   } else {
-    estado_valido <- TRUE
+    validada <- identical(normalizar_clave(estado), "validada")
+  }
+
+  # `titulo` lo lee el índice de piezas, no solo la página: sin él el pipeline
+  # moría lejos del archivo que lo causaba, con un error de longitud de R.
+  titulo <- p[["titulo"]]
+  if (is.null(titulo)) {
+    r <- c(r, "falta el campo `titulo`. Es el nombre con que la pieza aparece en el índice.")
+  } else if (!escalar_texto(titulo)) {
+    r <- c(r, paste0("el campo `titulo` no es texto. Si escribiste `no` o `si` sin comillas, ",
+                     "YAML los lee como verdadero/falso. Ponlo entre comillas: ",
+                     "`titulo: \"¿Qué exige la ley para expulsar?\"`."))
+  } else if (!nzchar(normalizar_espacios(titulo))) {
+    r <- c(r, "el campo `titulo` está vacío. Escribe el nombre con que la pieza aparecerá en el índice.")
   }
 
   v <- p[["validado_por"]]
   if (!is.null(v)) {
     if (!escalar_texto(v)) {
-      r <- c(r, paste0("el campo `validado_por` no es un nombre escrito como texto. Si pusiste ",
-                       "`no`, `off`, `N` o `false`, YAML los lee como el valor falso y la pieza ",
-                       "quedaría firmada por «FALSE»; una lista de nombres tampoco vale. ",
-                       "Déjalo vacío o escribe UN nombre entre comillas."))
-    } else if (!nzchar(trimws(v)) || !grepl("[[:alpha:]]", v)) {
-      r <- c(r, sprintf(paste0("el campo `validado_por` dice `%s`, que no tiene ninguna letra: ",
-                               "no es un nombre. Déjalo vacío o escribe quién validó la pieza."), v))
+      r <- c(r, paste0("el campo `validado_por` no trae UN nombre escrito como texto. Una lista ",
+                       "de nombres no vale, y si\n      pusiste `no`, `off`, `N` o `false`, YAML ",
+                       "los lee como el valor falso. Déjalo en `null` mientras\n      la pieza sea ",
+                       "un borrador, o escribe una sola firma: `validado_por: \"María Pérez\"`."))
+    } else if (!es_nombre_de_persona(v)) {
+      r <- c(r, sprintf(paste0("el campo `validado_por` dice `%s`, que no es el nombre de una ",
+                               "persona. Tiene que traer\n      nombre y apellido. Déjalo en `null` ",
+                               "mientras la pieza sea un borrador, o firma así:\n      ",
+                               "`validado_por: \"María Pérez\"`."), normalizar_espacios(v)))
     }
   }
 
-  # La firma se revisa AQUI, junto a los demas reparos, y no en un stop() aparte.
-  # En una lista separada, la pieza validada sin firma —que es el caso que 10.5
-  # considera grave— se quedaba para la segunda corrida, detras de cualquier
-  # erratita de `tipo` en otro archivo.
-  if (estado_valido && identical(tolower(trimws(estado)), "validada") && !firmada(p)) {
-    r <- c(r, paste0("dice `estado: validada` pero no trae un `validado_por` con un nombre. ",
-                     "Una pieza interpretativa sin firma no se publica: completa ",
-                     "`validado_por` y `fecha_validacion`, o vuelve a `estado: borrador`."))
+  # Lo que sigue solo se le exige a una pieza que dice estar validada: un borrador
+  # a medio llenar es lo normal, y abortar por eso pararia el pipeline cada dia.
+  if (validada) {
+    # Solo si el campo NO esta: si esta y es invalido, el reparo de arriba ya lo
+    # dijo, y anadir "no trae validado_por" sobre un campo que si esta escrito es
+    # mandar a la persona a buscar algo que tiene delante.
+    if (is.null(v)) {
+      r <- c(r, paste0("dice `estado: validada` pero no trae `validado_por`. Una pieza ",
+                       "interpretativa sin firma no se\n      publica: completa `validado_por` y ",
+                       "`fecha_validacion`, o vuelve a `estado: borrador`."))
+    }
+    f <- p[["fecha_validacion"]]
+    if (is.null(f)) {
+      r <- c(r, "dice `estado: validada` pero no trae `fecha_validacion`. Escríbela así: `fecha_validacion: \"2026-09-01\"`.")
+    } else if (!es_fecha_plausible(f)) {
+      r <- c(r, sprintf(paste0("el campo `fecha_validacion` dice `%s`, que no es una fecha. ",
+                               "Escríbela como año-mes-día\n      entre comillas: ",
+                               "`fecha_validacion: \"2026-09-01\"`."),
+                        paste(as.character(f), collapse = ", ")))
+    }
+    fu <- p[["fuentes"]]
+    if (is.null(fu)) {
+      r <- c(r, paste0("dice `estado: validada` pero no trae `fuentes`. Cada afirmación de una ",
+                       "pieza tiene que\n      poder anclarse a un artículo; una pieza sin ",
+                       "fuentes es una opinión, no una lectura de la normativa."))
+    } else if (!is.list(fu) || length(fu) == 0L) {
+      r <- c(r, paste0("el campo `fuentes` no es una lista de entradas. Se escribe una por línea, ",
+                       "empezando por `-`:\n      `fuentes:`\n      `  - {norma: ",
+                       "ley_20536_violencia_escolar, articulo: art-16-d, ancla: ",
+                       "\"ley_20536_violencia_escolar.html#art-16-d\"}`."))
+    } else {
+      for (i in seq_along(fu)) {
+        e <- fu[[i]]
+        if (!is.list(e)) {
+          r <- c(r, sprintf(paste0("en `fuentes`, la entrada %d no es un `{norma: ..., articulo: ",
+                                   "..., ancla: \"...\"}`."), i))
+          next
+        }
+        faltan <- Filter(function(k) !escalar_texto(e[[k]]) || !nzchar(normalizar_espacios(e[[k]])),
+                         c("norma", "articulo", "ancla"))
+        if (length(faltan) > 0L) {
+          r <- c(r, sprintf("en `fuentes`, a la entrada %d le falta %s (o está en blanco).",
+                            i, paste0("`", unlist(faltan), "`", collapse = " y ")))
+        }
+      }
+    }
   }
   r
 }
 
-# `estado` se normaliza DESPUES de revisarlo. `Validada` y ` validada ` son lo que
-# una persona quiso decir y se aceptan; lo que no esta en la lista aborta. Aceptar
-# lo bien intencionado y rechazar lo desconocido son la misma regla por los dos
-# lados: antes, `Validada` se omitia en silencio y quien la escribio creia haber
-# publicado la pieza.
+# `tipo` y `estado` se normalizan DESPUES de revisarlos, y el valor normalizado es
+# el que usa todo lo de abajo. Las anclas se normalizan aqui tambien, y no solo al
+# validarlas: se copian y pegan del navegador y llegan con espacios que nadie ve,
+# y si se normalizaran solo en la comprobacion, un ancla con un espacio final
+# pasaria la compuerta y se publicaria rota. Lo que se valida tiene que ser
+# exactamente lo que se publica.
 normalizar_pieza <- function(p) {
-  p[["estado"]] <- tolower(trimws(p[["estado"]]))
+  p[["estado"]] <- normalizar_clave(p[["estado"]])
+  p[["tipo"]]   <- normalizar_clave(p[["tipo"]])
+  if (is.list(p[["fuentes"]])) {
+    p[["fuentes"]] <- lapply(p[["fuentes"]], function(f) {
+      if (!is.list(f)) return(f)
+      for (k in c("norma", "articulo", "ancla"))
+        if (escalar_texto(f[[k]])) f[[k]] <- normalizar_espacios(f[[k]])
+      f
+    })
+  }
   p
 }
 
 # isTRUE() ademas de la comprobacion de tipo: sin el, un `validado_por: []` hacia
 # que esto valiera NA y la pieza se caia de las dos listas a la vez.
-firmada <- function(p) {
-  v <- p[["validado_por"]]
-  isTRUE(escalar_texto(v) && nzchar(trimws(v)) && grepl("[[:alpha:]]", v))
-}
+firmada <- function(p) isTRUE(es_nombre_de_persona(p[["validado_por"]]))
 
-cargar_piezas <- function() {
+slug_pieza <- function(p) paste0("pieza-", slugificar(tools::file_path_sans_ext(basename(p[["archivo"]]))))
+
+cargar_piezas <- function(anclas) {
+  # force() explicito: sin el, `anclas` es perezoso y solo se evalua dentro de
+  # ancla_resuelve(), que solo se alcanza si alguna pieza llega validada y bien
+  # formada. Un llamador que olvidara el argumento no fallaria hoy (0 piezas
+  # validadas) y fallaria el dia de la primera firma, que es justo cuando nadie
+  # quiere descubrirlo. El argumento obligatorio solo garantiza algo si se fuerza.
+  force(anclas)
   raiz <- ruta_insumos("curaduria", "piezas")
   if (!fs::dir_exists(raiz)) return(list())
   archivos <- fs::dir_ls(raiz, glob = "*.md", recurse = TRUE)
-  archivos <- archivos[basename(archivos) != "README.md"]
+  # Insensible a mayusculas: en Linux `Readme.md` y `LEEME.md` no son el mismo
+  # archivo que `README.md`, y se parseaban como si fueran una pieza.
+  archivos <- archivos[!tolower(basename(archivos)) %in% c("readme.md", "leeme.md")]
   if (length(archivos) == 0L) return(list())
 
   piezas <- lapply(archivos, leer_pieza)
+  rel <- function(p) fs::path_rel(p[["archivo"]], here::here())
 
   reparos <- unlist(lapply(piezas, function(p) {
     r <- revisar_pieza(p)
     if (length(r) == 0L) return(NULL)
-    paste0("  ", fs::path_rel(p[["archivo"]], here::here()), "\n",
-           paste0("    - ", r, collapse = "\n"))
+    paste0("  ", rel(p), "\n", paste0("    - ", r, collapse = "\n"))
   }))
   if (length(reparos) > 0L) {
     stop(sprintf("Hay %d pieza(s) interpretativa(s) que el pipeline no puede aceptar:\n",
@@ -519,13 +705,62 @@ cargar_piezas <- function() {
 
   piezas <- lapply(piezas, normalizar_pieza)
 
+  # Dos piezas con el mismo nombre de archivo en carpetas distintas producen el
+  # mismo slug: la segunda pagina sobreescribe a la primera y una pieza firmada
+  # desaparece del sitio sin que nadie lo note. El README dice que una pieza
+  # validada "puede quedarse donde esta o moverse", asi que copiar en vez de mover
+  # produce exactamente este par.
+  slugs <- vapply(piezas, slug_pieza, character(1))
+  if (anyDuplicated(slugs) > 0L) {
+    choques <- unique(slugs[duplicated(slugs)])
+    detalle <- vapply(choques, function(s) paste0(
+      "  todas estas piezas se llamarían `", s, "`:\n",
+      paste0("    - ", vapply(piezas[slugs == s], rel, character(1)), collapse = "\n")),
+      character(1))
+    stop("Hay piezas distintas que producirían la misma página:\n",
+         paste(detalle, collapse = "\n"),
+         "\n  La página se nombra por el nombre del archivo, sin la carpeta. Renombra una de ",
+         "ellas.", call. = FALSE)
+  }
+
   publicables <- Filter(function(p) identical(p[["estado"]], "validada") && firmada(p), piezas)
+
+  # Compuerta de anclas. Solo sobre lo PUBLICABLE: abortar el pipeline entero por
+  # un borrador que nadie ha firmado pararia el trabajo diario del equipo. Sobre
+  # los borradores se avisa, que es lo que convierte el aviso en tarea.
+  malas_de <- function(p) Filter(function(f) !ancla_resuelve(f, anclas), fuentes_en_forma(p))
+  rotas_pub <- unlist(lapply(publicables, function(p) {
+    malas <- malas_de(p)
+    if (length(malas) == 0L) return(NULL)
+    paste0("  ", rel(p), "\n",
+           paste0("    - `", vapply(malas, rotulo_ancla, character(1)), "`", collapse = "\n"))
+  }))
+  if (length(rotas_pub) > 0L) {
+    stop("Hay piezas validadas cuyas `fuentes` no apuntan a un artículo que exista:\n",
+         paste(rotas_pub, collapse = "\n"),
+         "\n  El ancla se escribe `<norma>.html#<id del artículo>`, y `norma` y `articulo` de ",
+         "esa misma\n  entrada tienen que decir lo mismo que el ancla. Ábrela en la página de la ",
+         "norma para\n  comprobar el id, o quita la fuente.", call. = FALSE)
+  }
+  borradores <- Filter(function(p) !identical(p[["estado"]], "validada"), piezas)
+  rotas_bor <- unlist(lapply(borradores, function(p) {
+    malas <- malas_de(p)
+    if (length(malas) == 0L) return(NULL)
+    sprintf("%s -> %s", rel(p),
+            paste(vapply(malas, rotulo_ancla, character(1)), collapse = ", "))
+  }))
+  if (length(rotas_bor) > 0L) {
+    n_anclas <- sum(vapply(borradores, function(p) length(malas_de(p)), integer(1)))
+    log_msg(sprintf(paste0("Anclas que no resuelven en %d borrador(es), %d ancla(s) en total: %s. ",
+                           "Hay que corregirlas ANTES de validarlos."),
+                    length(rotas_bor), n_anclas, paste(rotas_bor, collapse = "; ")),
+            nivel = "WARN", origen = ORIGEN)
+  }
+
   log_msg(sprintf("Piezas interpretativas: %d en total, %d validadas y publicables.",
                   length(piezas), length(publicables)), origen = ORIGEN)
   publicables
 }
-
-slug_pieza <- function(p) paste0("pieza-", slugificar(tools::file_path_sans_ext(basename(p[["archivo"]]))))
 
 pagina_pieza <- function(p) {
   fuentes <- if (is.null(p[["fuentes"]]) || length(p[["fuentes"]]) == 0L) character(0) else
@@ -943,7 +1178,7 @@ writeLines(
 )
 
 # ---- Piezas interpretativas: solo las validadas ------------------------------
-piezas <- cargar_piezas()
+piezas <- cargar_piezas(anclas_disponibles(normas))
 for (p in piezas) {
   writeLines(pagina_pieza(p), file.path(destino, paste0(slug_pieza(p), ".qmd")))
 }
@@ -993,5 +1228,28 @@ log_msg(sprintf("Generadas %d páginas .qmd (%d normas + %d temas + %d piezas + 
                 n_qmd, length(normas), length(temas), n_piezas, destino),
         origen = ORIGEN)
 if (n_qmd != esperadas) {
-  stop(sprintf("Se esperaban %d páginas .qmd y hay %d.", esperadas, n_qmd))
+  # El candado decia cuantas paginas faltaban y no CUALES, que es aritmetica de
+  # programador. Los nombres esperados se derivan con las MISMAS funciones que los
+  # escriben (slug_tema, slug_pieza), no con una copia del patron: una copia se
+  # desalinea el dia que cambie el generador y el diagnostico pasa a mentir.
+  hay <- basename(fs::dir_ls(destino, glob = "*.qmd"))
+  quiere <- c(paste0(vapply(normas, function(n) n[["slug"]], character(1)), ".qmd"),
+              paste0(vapply(temas, slug_tema, character(1)), ".qmd"),
+              "index.qmd", "acerca.qmd", "indice-tipo.qmd", "indice-tema.qmd", "indice-anio.qmd",
+              if (n_piezas > 0L) c(paste0(vapply(piezas, slug_pieza, character(1)), ".qmd"), "piezas.qmd"))
+  falta <- setdiff(quiere, hay); sobra <- setdiff(hay, quiere)
+  # `setdiff` pierde la MULTIPLICIDAD, y es la que explica el caso mas probable:
+  # dos temas curados (o dos normas) cuyo slug coincide hacen que el bucle escriba
+  # el mismo archivo dos veces, `hay` queda uno por debajo de `esperadas` y los dos
+  # setdiff salen vacios. Un candado que dispara diciendo "faltan: ninguna, sobran:
+  # ninguna" es exactamente el diagnostico que miente que esta ronda vino a quitar.
+  # (Nota de alcance: `quiere` no incluye lo que se copia de 34_plantillas_sitio/,
+  # que hoy no trae ningun .qmd; el dia que traiga uno saldra como "sobra".)
+  repetidos <- unique(quiere[duplicated(quiere)])
+  stop(sprintf(paste0("Se esperaban %d páginas .qmd y hay %d.\n",
+                      "  Faltan: %s\n  Sobran: %s\n  Nombres repetidos: %s"),
+               esperadas, n_qmd,
+               if (length(falta)) paste(falta, collapse = ", ") else "ninguna",
+               if (length(sobra)) paste(sobra, collapse = ", ") else "ninguna",
+               if (length(repetidos)) paste(repetidos, collapse = ", ") else "ninguno"))
 }
