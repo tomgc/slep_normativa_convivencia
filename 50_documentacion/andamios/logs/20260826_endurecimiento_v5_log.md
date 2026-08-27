@@ -559,3 +559,185 @@ persona escribe a mano en los casos que el equipo va a escribir, y el proyecto a
 falla— cuando un `$` adivina un nombre. Con eso, la vía A puede empezar: lo que falta antes
 de entregar la pauta es decidir D-a, D-b y D-d, que son las tres preguntas sobre qué más
 tiene que rechazar la compuerta.
+
+---
+
+# Adenda — verificación en el runner (segundo push, solo documentación)
+
+Las dos comprobaciones que ningún panel pudo medir (§5.4: nadie corrió el pipeline completo,
+nadie corrió en Linux) se hicieron aquí, sobre el runner real. **Las cinco pasan.** No se
+tocó nada del código para conseguirlo.
+
+## A. Push y run
+
+`git push origin main` → `3c3ea0d..e95093e  main -> main`.
+
+| | |
+|---|---|
+| Run | **33076947015** |
+| Estado | **completed / success**, 1 m 57 s, disparado por push a `main` el 2026-08-27T13:27:50Z |
+| Jobs | `construir` (98533507335) ✓ 1 m 41 s · `desplegar` (98534033046) ✓ 9 s |
+| Pasos fallidos | **0** en ambos jobs |
+| Anotaciones | **0** en ambos jobs (`gh api .../check-runs/<job>/annotations` → `0`) |
+
+## B. Las cinco comprobaciones, con evidencia literal del log del runner
+
+### a. El pipeline corrió UNA sola vez — **PASA**
+
+```
+grep -c 'RESUMEN:' (paso «Correr el pipeline completo») = 1
+grep -c 'RESUMEN:' (log entero del run)                 = 1
+grep -c 'PASO 30:' (paso)                               = 1
+```
+
+Evidencia literal:
+
+```
+RESUMEN: 7 pasos ejecutados, 0 saltados, 30.0s en total.
+```
+
+La lección de v4 sobrevive al idioma del CI (`Rscript -e 'source("00_run_all.R"); run_all()'`)
+en Linux, no solo en macOS.
+
+### b. Cero advertencias de coincidencia parcial, en cualquier idioma — **PASA**
+
+```
+grep -icE 'encuentros parciales|partial match'          = 0
+grep -icE 'parcialmente correctos|coincidencia parcial' = 0
+```
+
+El segundo grep es propio y amplía el pedido: cubre la forma española del aviso de
+argumento/atributo y el texto que emitiría la propia compuerta al promover.
+
+### c. La compuerta estuvo ACTIVA — **PASA**, por un método que no es el pedido
+
+**No existe la línea de arranque que la comprobación suponía, y se declara antes de buscarla.**
+Localizado en el código primero: el bloque de la compuerta (`00_run_all.R:28-94`) **no imprime
+nada** al armarse (barrido de `cat|print|message|log_msg|writeLines` en esas líneas: ninguna
+coincidencia). `derivar_prefijos_parciales()` solo `stop()` si no puede derivar. Buscar en el
+log una línea que el código no emite habría dado un falso negativo.
+
+El método que el código sí permite es el **contrapositivo**, y tiene cuatro eslabones, los
+cuatro verificados:
+
+1. `PREFIJOS_PARCIAL <- derivar_prefijos_parciales()` está en el **nivel superior** de
+   `00_run_all.R:73`, así que se evalúa al hacer `source("00_run_all.R")`, antes de `run_all()`.
+   El comando del workflow es exactamente `Rscript -e 'source("00_run_all.R"); run_all()'`.
+2. **Control negativo, medido en este turno** (no argumentado): se extrajo la función real del
+   árbol de parseo del archivo y se corrió con las opciones **apagadas**. Aborta:
+   ```
+   No se pudo derivar el aviso de coincidencia parcial: R no avisó ante una provocada a propósito.
+     Revisa que 10_utils/10_configuracion.R fije options(warnPartialMatchDollar = TRUE).
+     Sin ese aviso esta compuerta no vigila nada.
+   ```
+   Con las opciones encendidas deriva `<encuentros parciales de >` y
+   `<argumentos parcialmente correctos de >`. El detector de compuerta desarmada **dispara de
+   verdad**; sin este control, «no salió el mensaje, luego estaba armada» sería una inferencia
+   sin probar.
+3. En el log del runner ese mensaje aparece **0 veces**
+   (`grep -ic 'No se pudo derivar el aviso'` = 0; `grep -ic 'compuerta no vigila'` = 0) **y el
+   paso concluyó `success`**. Si las opciones no hubieran estado activas en el runner, el paso
+   habría fallado ahí mismo.
+4. `ejecutar_paso()` es la **única** vía por la que corren los pasos: 1 sitio de llamada
+   (`00_run_all.R:170`) y **0** `source(fs::path(ROOT` directos restantes.
+
+De 1–4 se sigue que en el runner las opciones estaban puestas, los prefijos se derivaron y los
+7 pasos corrieron bajo el manejador.
+
+**Lo que este método NO prueba, y conviene decirlo:** que el manejador *dispararía* en el
+runner, porque allí no ocurrió ninguna coincidencia parcial que promover. La demostración
+positiva (el paso de juguete que falla señalando `curado$anio`) sigue existiendo solo en macOS.
+Cerrar ese hueco exigiría introducir una coincidencia parcial deliberada en el pipeline, que es
+tocar el código, y esta verificación tenía prohibido tocar nada. Queda como hueco residual
+declarado.
+
+### d. Conteo de piezas en el runner — **PASA**
+
+Evidencia literal:
+
+```
+[2026-08-27 13:29:04] [34_generar_paginas] [INFO] Piezas interpretativas: 22 en total, 0 validadas y publicables.
+```
+
+Idéntico a las tres corridas de macOS. El endurecimiento no cambia el veredicto de ninguna
+pieza real tampoco en Linux.
+
+### e. El sitio desplegado — **PASA**
+
+**Método, declarado.** Las dos páginas se capturaron con `curl` **antes** de que aterrizara el
+deployment nuevo (13:28:32Z, cuando el sitio servía todavía el artefacto del día anterior) y
+otra vez **después** (13:31:23Z). Se comparan por `sha256` del cuerpo completo. La ventana se
+consiguió capturando inmediatamente después del push, mientras el job `construir` seguía en
+curso.
+
+| Página | HTTP | Bytes | sha256 antes | sha256 después | |
+|---|:-:|---:|---|---|:-:|
+| `index.html` | **200** | 25 342 | `22470bd101c848ea…` | `22470bd101c848ea…` | **idéntico** |
+| `ley_20536_violencia_escolar.html` | **200** | 36 479 | `6a15f70fe59af0da…` | `6a15f70fe59af0da…` | **idéntico** |
+
+Y **sí hubo despliegue nuevo**, que es lo que hace significativa la identidad: la cabecera
+`last-modified` pasó de `Wed, 26 Aug 2026 18:03:41 GMT` a `Thu, 27 Aug 2026 13:29:41 GMT`, y el
+`etag` de `"6a8f2a7d-62fe"` a `"6a903bc5-62fe"`. Contenido igual, artefacto nuevo. El runner
+declaró además **47 páginas HTML**, el mismo número que la corrida local.
+
+*Límite del método:* son 2 páginas de 47, las que se pidieron. Una diferencia en una página no
+muestreada no la habría visto esta comprobación.
+
+## C. Lo que apareció de paso, y no estaba en el encargo
+
+### C.1 El runner ya no corre el entorno declarado
+
+| Componente | Declarado (`ENTORNO` del encargo v5 / `CLAUDE.md` §10.3) | Runner (medido) |
+|---|---|---|
+| R | 4.5.2 | **4.6.1** (`/opt/R/4.6.1/bin/R`) |
+| Quarto | 1.9.38 / «Quarto 1.9» | **1.10.18** |
+
+El workflow no fija ninguna de las dos: `r-lib/actions/setup-r@v2` con `r-version: 'release'` y
+`quarto-dev/quarto-actions/setup@v2` sin `version`. Ambos toman lo último publicado.
+
+La consecuencia se puede ver: **mi HTML local y el desplegado difieren**, con el corpus y los
+datos byte a byte idénticos. Las 15 líneas que cambian son todas andamiaje de Quarto
+(`<meta name="generator" content="quarto-1.9.38">` frente a `quarto-1.10.18`, los hash de los
+CSS empaquetados, una regla `@media screen` nueva). **El contenido normativo no cambia.** El
+`generator` de las dos capturas del sitio dice `quarto-1.10.18`, y el run del día anterior
+(`32997403718`) también usó R 4.6.1 y Quarto 1.10.18: por eso los dos despliegues salen
+idénticos byte a byte.
+
+Eso acota lo que prueba la comprobación (e): prueba que **este cambio** no alteró el sitio
+publicado, bajo una cadena de herramientas idéntica en los dos despliegues. **No** prueba que el
+sitio sea reproducible entre cadenas distintas, y de hecho no lo es. El encabezado del propio
+workflow dice que «lo que se ve en línea siempre proviene de una corrida reproducible»; hoy es
+reproducible respecto de los PDF, no respecto de la versión de Quarto.
+
+**Pregunta cerrada (D-j).** ¿Se fija la versión de Quarto (y la de R) en `publicar.yml`, y se
+actualiza a la vez el stack declarado en `CLAUDE.md` §10.3, o la deriva se acepta declarándola?
+
+### C.2 El runner habla dos idiomas a la vez, y eso valida el diseño de T2
+
+En el **mismo paso** del mismo job, con `LANG: es_ES.UTF-8` declarado:
+
+```
+also installing the dependencies ‘rappdirs’, ‘sys’, ‘cachem’, …     <- inglés
+probando la URL 'https://packagemanager.posit.co/cran/…'            <- español
+```
+
+Recuento: 40 líneas con la forma inglesa (`downloaded source packages` /
+`installing *binary* package`), 0 con su equivalente español. El catálogo de traducciones de R
+en ese runner está **incompleto**, así que el idioma de un mensaje concreto no se deduce de
+`LANG`: depende de si ese `msgid` en particular está traducido en esa versión de R, que además
+ya no es la del entorno declarado (4.6.1, no 4.5.2).
+
+Es exactamente el escenario contra el que se tomó la decisión D7. Un patrón de texto escrito a
+mano en español habría tenido una probabilidad real de no coincidir en este runner, y la
+compuerta se habría apagado **sin decirlo**. El prefijo derivado en tiempo de ejecución no
+depende de esa lotería.
+
+**Honestidad sobre el alcance:** no se observó ninguna advertencia de coincidencia parcial en el
+runner, así que **no** se sabe en qué idioma la habría emitido allí. Lo medido es que el runner
+mezcla los dos, no que ese aviso en concreto salga en uno u otro.
+
+## D. Estado al cierre de la adenda
+
+`origin/main` = `e95093e` más el commit de esta adenda. Sitio publicado y respondiendo 200.
+`ESTADO.md` sigue sin tocarse: `sesion_abierta: true`, `commit_cierre: 358e150`. La sesión
+sigue abierta.
