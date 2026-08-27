@@ -488,3 +488,103 @@ evidencia (§6), el camino de la vía A está ejercitado de punta a punta con su
 en lenguaje llano, y la pauta dice la verdad sobre lo que el pipeline exige. Lo que
 falta antes de entregar: decidir E-c (si las piezas se buscan) y E-d (las dos anclas
 rancias), que son lo único que el equipo va a tropezar el primer día.
+
+---
+
+# Adenda — verificación en el runner (segundo push, solo documentación)
+
+## A. Run
+
+`git push origin main` → `7bbb452..66a99d5`.
+
+| | |
+|---|---|
+| Run | **33092847417** |
+| Estado | **completed / success**, 2 m 11 s, push a `main` el 2026-08-27T16:22:07Z |
+| Jobs | `construir` (98589996796) ✓ 1 m 52 s · `desplegar` (98590564322) ✓ 11 s |
+| Pasos fallidos | **0** en ambos |
+| Versiones que instaló el runner | **R 4.5.2** (`/opt/R/4.5.2`) y **Quarto 1.9.38** — las fijadas, sin caer a una cercana |
+
+## B. La autoprueba de la compuerta, en verde y visible
+
+Paso «Autoprueba de la compuerta de coincidencia parcial»: **`success`**. Log literal
+del runner:
+
+```
+Prefijos de aviso derivados en este entorno:
+  <encuentros parciales de >
+  <argumentos parcialmente correctos de >
+
+[1/2] Control positivo OK: la compuerta disparo y nombro el acceso.
+      coincidencia parcial de nombres.
+        Aviso de R: encuentros parciales de 'anio' to 'anios_alternativos'
+        Llamada:    curado$anio
+        La clave exacta no estaba y R devolvió otra que la tiene por comienzo.
+        Cambia ese acceso a [[ ]], que no adivina.
+el paso ajeno termino bien
+[2/2] Control negativo OK: las advertencias ajenas no tumban la corrida.
+
+Autoprueba de la compuerta de coincidencia parcial: SUPERADA.
+```
+
+**La tercera duda residual queda cerrada.** El control positivo ya no vive solo en
+macOS: corre en cada despliegue, en Linux, y se ve disparar.
+
+Detalle que confirma la decisión D7 del encargo v5: en este runner, con R **4.5.2**,
+el aviso salió en **español** (`encuentros parciales de`). En el runner anterior, con
+R 4.6.1, el catálogo de traducciones estaba incompleto y R mezclaba los dos idiomas.
+El prefijo derivado en tiempo de ejecución acertó en los dos; un patrón escrito a
+mano habría tenido que acertar el idioma **y** la versión de R.
+
+## C. Las páginas desplegadas vs el HTML local: de 15 líneas a 2, no a 0
+
+**Resultado: la comprobación NO pasa del todo, y se reporta sin arreglar nada**, como
+manda la instrucción.
+
+| Página | HTTP | Bytes local / desplegado | `generator` | Diff antes → ahora |
+|---|:-:|---|---|---|
+| `index.html` | **200** | 25 315 / 25 315 | `quarto-1.9.38` en ambos | 15 → **2** |
+| `ley_20536_violencia_escolar.html` | **200** | 36 452 / 36 452 | `quarto-1.9.38` en ambos | 15 → **2** |
+
+Fijar las versiones cerró **13 de las 15 líneas**: desaparecen la diferencia de
+`<meta name="generator">`, las reglas `@media screen` que cambiaron entre 1.9 y 1.10,
+y el hash del CSS de resaltado de sintaxis. Las 2 que quedan son **una sola línea**,
+la misma en las dos páginas:
+
+```
+< <link href="site_libs/bootstrap/bootstrap-8c38fd85d21bfe44b50360969156fb14.min.css" ...>   (local)
+> <link href="site_libs/bootstrap/bootstrap-b1376423af881990cfd602ae2f353e6b.min.css" ...>   (desplegado)
+```
+
+**Y no es solo el nombre: el contenido del CSS difiere de verdad.** Medido
+descargando el bundle desplegado y comparándolo con el local:
+
+| | Local | Desplegado |
+|---|---|---|
+| Tamaño | 498 675 bytes | **498 675 bytes** |
+| sha256 | `e75e401cd6c091a4…` | `75bbe0d81f9f1b25…` |
+| Líneas distintas (plegado a 120 col) | — | **684** |
+
+Mismo tamaño exacto y contenido distinto. Es el bundle de Bootstrap/bslib que Quarto
+compila desde SASS para el tema `cosmo`, y con la **misma** versión de Quarto sale
+distinto en Linux y en macOS. El nombre del archivo es un hash de su contenido, así
+que la única línea que difiere en el HTML es consecuencia de eso, no una causa
+aparte.
+
+**Conclusión honesta sobre la segunda duda residual.** Fijar las versiones hizo lo
+que se le pidió: el HTML **generado por el pipeline** es ya idéntico entre las dos
+cadenas. Lo que no es reproducible entre plataformas es el **tema compilado**, que no
+lo produce este proyecto. La reproducibilidad del sitio quedó acotada, y ahora con
+número: **1 línea de 25 315 bytes**, y esa línea es un nombre de archivo derivado.
+
+*Hipótesis no verificada, con su comando:* existe una caché local de Quarto en
+`40_salidas/sitio_src/.quarto` que podría estar sirviendo un tema compilado antiguo.
+Se comprueba con `rm -rf 40_salidas/sitio_src/.quarto && Rscript 00_run_all.R` y
+volviendo a comparar el hash del bundle. No se hizo: la instrucción era reportar sin
+tocar nada. Queda como duda **E-i**.
+
+## D. Estado al cierre de la adenda
+
+`origin/main` = `66a99d5` más el commit de esta adenda. Sitio en 200. `ESTADO.md`
+sigue intacto (`sesion_abierta: true`, `commit_cierre: 358e150`). La sesión sigue
+abierta.
