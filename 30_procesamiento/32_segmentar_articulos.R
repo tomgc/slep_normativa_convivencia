@@ -433,10 +433,9 @@ construir_norma <- function(meta) {
   # la entrada del DFL 1 puso el anio de la norma en 1996 en vez de 1997 y el
   # derivador empezo a descartar las citas correctas. Lo mismo con `fuente_anio`,
   # prefijo de `fuente_anios_alternativos`. Por eso TODA lectura de la curaduria usa
-  # [[ ]] en 30, 31, 32 y 33. Queda una fuera del alcance: `estado_curado()` en
-  # 00_ocr_documentos.R, que es la misma funcion clonada y gobierna la compuerta que
-  # protege el OCR corregido a mano. Hoy no falla (`origen_texto` no es prefijo de nada),
-  # pero es el mismo codigo y conviene alinearlo.
+  # [[ ]] en 30, 31, 32 y 33, y tambien en 00_ocr_documentos.R: `estado_curado()`
+  # quedo alineado en 851f021 y las lecturas de su manifiesto de OCR en 81179e3.
+  # Ninguna lectura del archivo de curaduria queda hoy por `$`.
   if (!is.null(curado[["anio"]]))   anio   <- curado[["anio"]]
   if (!is.null(curado[["titulo"]])) titulo <- curado[["titulo"]]
 
