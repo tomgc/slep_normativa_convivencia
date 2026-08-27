@@ -64,7 +64,13 @@ jobs:
       - name: Instalar R
         uses: r-lib/actions/setup-r@v2
         with:
-          r-version: 'release'
+          # Version FIJA, no 'release'. Medido el 2026-08-27: el runner corria R 4.6.1
+          # y Quarto 1.10.18 mientras el stack declarado y las salidas commiteadas se
+          # produjeron con 4.5.2 y 1.9.38. El HTML publicado difiere del local en 15
+          # lineas de andamiaje de Quarto por esa deriva. El workflow dice que el sitio
+          # proviene de una corrida reproducible: sin fijar version, lo es respecto de
+          # los PDF pero no respecto de la cadena de herramientas.
+          r-version: '4.5.2'
           # Paquetes binarios precompilados para Ubuntu: sin esto, compilar
           # stringi y pdftools desde fuente agrega varios minutos a cada corrida.
           use-public-rspm: true
@@ -75,8 +81,21 @@ jobs:
                              "rprojroot", "quarto"))
         shell: Rscript {0}
 
+      - name: Autoprueba de la compuerta de coincidencia parcial
+        # Control POSITIVO, y va ANTES del pipeline a proposito: si la compuerta
+        # no caza, es mejor saberlo en 10 segundos que despues de construir el
+        # sitio entero. Provoca una coincidencia parcial de nombres y exige que la
+        # corrida falle por ella; comprueba ademas que una advertencia AJENA no la
+        # tumba. Una compuerta apagada y una compuerta que nunca tuvo nada que
+        # cazar dejan el mismo log verde, y eso es lo que este paso distingue.
+        run: Rscript 10_utils/10_autoprueba_coincidencia_parcial.R
+
       - name: Instalar Quarto
         uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          # Misma razon que la version de R. 1.9.38 es la que declara CLAUDE.md 10.3 y
+          # la que produjo el HTML del arbol local (release estable, 2026-05-25).
+          version: '1.9.38'
 
       - name: Instalar Node
         uses: actions/setup-node@v7
