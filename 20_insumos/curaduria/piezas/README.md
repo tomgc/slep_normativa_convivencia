@@ -47,7 +47,7 @@ estado: borrador           # borrador | validada
 validado_por: null
 fecha_validacion: null
 fuentes:
-  - {norma: dictamen_078_detectores_revision_mochilas, articulo: materia, ancla: "dictamen_078_detectores_revision_mochilas.html#materia"}
+  - {norma: ley_20536_violencia_escolar, articulo: art-16-d, ancla: "ley_20536_violencia_escolar.html#art-16-d"}
 generado_por: 00_generar_borradores.R
 generado_el: 2026-08-25
 ---
