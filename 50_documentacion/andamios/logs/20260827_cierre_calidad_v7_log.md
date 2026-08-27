@@ -163,8 +163,14 @@ diff propuesto de `20260827_diff_propuesto_readme_piezas.md`. Es la segunda vez 
 cartera que se escribe en `20_insumos/` bajo delegación (la primera fue la entrada de
 curaduría de la Duda 2). Alcance ejercido: un archivo, dos hunks, ningún otro cambio.
 
-**Decisión aprobada de E-c**: el material de apoyo publicado debe ser encontrable.
-Ejecutada en T2.
+**Decisión aprobada de E-c**: el material de apoyo publicado debe ser encontrable. Ejecutada en T2.
+
+**Segunda delegación de la sesión, para V-a.** Tras leer el reporte de v7, el titular
+autorizó explícitamente un cambio más en `20_insumos/curaduria/piezas/README.md`:
+sustituir en el bloque de ejemplo la entrada de `fuentes` que apuntaba a
+`dictamen_078_...#materia` por una fuente verificada, previa comprobación en el mismo
+turno de que su ancla resuelve. Alcance ejercido: **un hunk**, ningún otro cambio.
+Con esto son tres las escrituras en `20_insumos/` bajo delegación en la cartera.
 
 ## 7bis. Decisiones autónomas
 
@@ -240,3 +246,94 @@ dudas del log v6 (E-e a E-i) siguen abiertas donde estaban.
 el README dice lo que el pipeline exige; el runner corre las versiones fijadas y ve
 dispararse la compuerta en cada despliegue. Antes de entregar la pauta queda una
 decisión de una línea: V-a.
+
+---
+
+# Adenda — cierre de v7: V-a, V-b y evidencia de CI
+
+## A. V-a — el ejemplo del README ya apunta a un ancla que resuelve
+
+Delegación registrada en §7. **Verificado ANTES de escribir**, en este turno, con la
+compuerta real (`ancla_resuelve()` extraída del árbol de parseo del generador y
+alimentada con `anclas_disponibles()` sobre los 25 JSON):
+
+| Entrada | `ancla_resuelve` |
+|---|:-:|
+| `{ley_20536_violencia_escolar, art-16-d, "ley_20536_violencia_escolar.html#art-16-d"}` | **TRUE** |
+| `{dictamen_078_detectores_revision_mochilas, materia, "…#materia"}` (la que había) | **FALSE** |
+
+Comprobaciones de respaldo: `ley_20536_violencia_escolar` tiene 8 artículos, uno de
+ellos `art-16-d` (etiqueta «Artículo 16 D»), y su `origen_texto` es `capa_texto_pdf`,
+así que **es citable**; el `id` aparece además en el HTML publicado. El dictamen 078
+solo tiene `ocr-pagina-001`…`009`.
+
+Cambio aplicado: **1 hunk**, una línea, ninguna otra ruta de `20_insumos/` tocada. El
+front matter del ejemplo sigue parseando con sus 8 campos y su ancla ahora resuelve.
+Commit `9df5d64`.
+
+**Un residuo que conviene decir.** El ejemplo tiene por `titulo` «¿Se puede revisar la
+mochila de un estudiante?» y su fuente pasa a ser un artículo sobre violencia ejercida
+por quien detenta autoridad: el ejemplo ya no es semánticamente coherente consigo
+mismo, aunque sí formalmente correcto (que es lo que un ejemplo de front matter
+ilustra). Existe una alternativa que habría mantenido las dos cosas y que se midió en
+este turno: **`dictamen_065_revision_mochilas` / `materia`**, que es `capa_texto_pdf`,
+tiene `materia` entre sus 4 `id` reales y trata justamente de revisión de mochilas. No
+se usó porque la delegación nombraba la otra fuente. Queda como cambio de una línea si
+el titular lo prefiere.
+
+## B. V-b — la hipótesis de la caché: REFUTADA
+
+Procedimiento pedido: `rm -rf 40_salidas/sitio_src/.quarto && Rscript 00_run_all.R`, y
+comparar.
+
+| Medición | Antes | Después |
+|---|---|---|
+| `40_salidas/sitio_src/.quarto` | existe, 4,3 MB | borrado, y **regenerado por el render** |
+| Bundle de Bootstrap (nombre) | `bootstrap-8c38fd85d21bfe44b50360969156fb14.min.css` | **el mismo** |
+| Bundle, `sha256` | `e75e401cd6c091a4136db2d85022373b864ceda318f726e7d316e013883f6447` | **idéntico** |
+| Los 28 archivos versionados | línea base | **28 de 28 byte a byte** |
+| `git status --porcelain` | vacío | **vacío** |
+
+**Ningún archivo versionado cambió**, así que no hubo que restaurar ni congelar nada.
+Y el bundle no cambió de hash: **la hipótesis queda refutada**.
+
+Hay además un argumento estructural que la refuta por construcción y que apareció al
+mirar el código para montar la prueba: `34_generar_paginas.R:1107` hace
+`if (fs::dir_exists(destino)) fs::dir_delete(destino)` sobre `40_salidas/sitio_src/`,
+de modo que **esa caché se destruye en cada corrida de todos modos**. Nunca pudo estar
+sirviendo un tema antiguo.
+
+**Conclusión sobre V-b.** La diferencia de una línea entre el HTML local y el
+desplegado no viene de una caché local: el tema `cosmo` que Quarto compila desde SASS
+sale distinto en Linux y en macOS con la **misma** versión de Quarto (498 675 bytes en
+ambos, 684 líneas plegadas distintas). No es reproducible entre plataformas y no lo
+produce este proyecto. La mitad congelada de T1 se cierra con esa explicación, no con
+un arreglo.
+
+## C. Evidencia de CI del push de cierre
+
+`git push origin main` → `a38489a..9df5d64`.
+
+| | |
+|---|---|
+| Run | **33094362295**, `head_sha` = `9df5d64` (comprobado, no supuesto) |
+| Estado | **completed / success**, 2 m 31 s |
+| Jobs | `construir` ✓ · `desplegar` ✓, **0 pasos fallidos** en ambos |
+| Autoprueba de la compuerta | **`success`**, con su línea de cierre en el log: `Autoprueba de la compuerta de coincidencia parcial: SUPERADA.` |
+| Versiones del runner | `/opt/R/4.5.2` y `quarto-1.9.38` |
+| Piezas en el runner | `Piezas interpretativas: 22 en total, 0 validadas y publicables.` |
+
+**El sitio no cambió, que es lo correcto**: con 0 piezas validadas, el cambio de T2 no
+toca ninguna salida. Las dos páginas muestreadas responden **200** y siguen a **2
+líneas** del HTML local (la línea del bundle de §B, sin cambio). `piezas.html` devuelve
+**404**, como debe: no hay ninguna pieza publicada.
+
+*Nota de método:* el primer intento de leer el run tomó el id **antes** de que el push
+registrara el suyo, y leyó el run anterior. Se detectó comparando el `head_sha` del run
+con el commit pusheado; la evidencia de esta sección es la del run correcto.
+
+## D. Estado al cierre
+
+`origin/main` = `9df5d64` más el commit de esta adenda. `ESTADO.md` intacto
+(`sesion_abierta: true`, `commit_cierre: 358e150`). Ninguna pieza publicada. La sesión
+sigue abierta.
