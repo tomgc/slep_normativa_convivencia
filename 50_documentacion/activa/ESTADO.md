@@ -4,10 +4,10 @@ nombre_real: Biblioteca de normativa de convivencia escolar (SLEP Costa Central)
 categoria: activo
 semaforo: activo
 sesion_actual: v02
-ultima_actividad: 2026-08-27
+ultima_actividad: 2026-09-01
 maneja_sensibles: false
 tipo_pendiente: bloqueante
-sesion_abierta: false
+sesion_abierta: true
 maquina: MacBook-Pro-de-Tomas
 commit_cierre: 358e150
 traspaso_vigente: traspaso_cierre_v02.md
