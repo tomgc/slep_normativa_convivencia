@@ -132,6 +132,50 @@ $ ls -d 50_documentacion/andamios/logs
   documento pega literalmente; los scripts de A1 y A2 en `andamios/` sí se versionan.
   Si el titular quiere versionar el laboratorio, es una decisión suya: crear el archivo
   de autorización y volver a agregar la carpeta. No se usa `--no-verify`.
+- **D8 (2026-09-05 20:30). Cambio de modelo y reasignación de los dos agentes muertos.**
+  A3 (corrección G-1) y A5 (contraste de fase 2) terminaron con
+  `HTTP 429: "You've reached your Fable limit"`, distinto de los cortes anteriores: la
+  cuota del modelo se agotó, no la ventana de sesión, así que reanudarlos habría vuelto
+  a fallar. El titular cambió el modelo de la sesión a Opus 5 (1M de contexto) con
+  esfuerzo `ultracode`. Los roles A3 y A5 se reasignan a **instancias nuevas del mismo
+  rol** sobre Opus 5, con el estado en disco como contexto (los documentos y el
+  laboratorio están completos y son la fuente). Se declara porque cambia quién escribió
+  qué: las secciones de fase 1 de A3 y A5 son de las instancias originales; el cierre de
+  G-1 y el contraste de fase 2 son de las nuevas. Ningún archivo cambia de autor: el
+  rol es el mismo y cada archivo lo sigue escribiendo su rol.
+- **D9 (2026-09-05 20:31). La auditoría se ejecuta en abanico, con un solo autor.**
+  El encargo pide un agente AUD secuencial que re-derive desde los artefactos. Se
+  implementa como **doce verificadores independientes** (cifras de A1, A2, A3, A4 y A5;
+  anclas; universales; ceros; citas externas; autorizaciones contra escrituras;
+  contradicciones; y el control positivo de la auditoría misma), más una **verificación
+  adversarial**: cada hallazgo clasificado bloqueante o mayor pasa por un escéptico que
+  intenta refutarlo con el comando del auditor reproducido, y el refutado no entra como
+  hallazgo sino a una tabla de descartados con su razón. Un único agente consolida y
+  escribe `20260904_auditoria_alcance_motor_v1.md`. Por qué respeta el encargo: la
+  independencia exigida sale reforzada (doce re-derivaciones separadas en vez de una), la
+  regla "ningún archivo tiene dos autores" se mantiene (los verificadores no escriben
+  archivos; el único que escribe en el laboratorio es el del control positivo, con
+  prefijo `aud_`), y la regla "la auditoría no corrige lo que audita" se declara en el
+  prompt de los trece. El costo en tokens no es criterio en esta sesión (modo
+  `ultracode`); la precisión sí.
+- **D10 (2026-09-06 08:05). La fusión se reparte por destinatario.** El primer intento de
+  fusionar los 125 hallazgos en una lista canónica única murió con
+  `API Error: Claude's response exceeded the 64000 output token maximum`. No es un
+  problema de contenido sino de forma: la salida estructurada de 125 objetos no cabe en
+  una respuesta. Se reparte en seis fusionadores, uno por destinatario (A1, A2, A3, A4,
+  A5 y ORQ con ENCARGO), cada uno con su porción del expediente. Efecto colateral
+  favorable: cada fusionador conoce a fondo un solo documento.
+- **D11 (2026-09-06 08:05). El documento de auditoría se escribe por secciones.** Por el
+  mismo tope de salida, el redactor recibe la instrucción explícita de crear el archivo
+  con el encabezado y la tabla maestra y **anexar una sección por llamada**, verificando
+  con `wc -l` después de cada anexado. Un documento de 1 193 líneas no cabe en una sola
+  respuesta y el intento habría fallado en silencio a mitad de camino.
+- **D12 (2026-09-06 13:35). El paquete se pasa por archivo, no por prompt.** El
+  expediente de la auditoría (547 KB, 1 773 líneas) y los veredictos (96 KB) viven en el
+  directorio temporal de la sesión y los agentes los leen de ahí. Ni el expediente ni los
+  paquetes intermedios se versionan: lo que queda en el repositorio es el documento de
+  auditoría, que cita su evidencia literal. La reconstrucción, si hiciera falta, sale del
+  diario de los workflows, cuya ruta queda anotada en §10 de este log.
 
 ## 2. Por agente
 
@@ -498,6 +542,56 @@ Ningún agente leyó el archivo de otro (declarado en los cinco informes; AUD lo
 verifica por contradicciones e independencia de cifras). Ningún agente escribió fuera
 de su lista (verificación del orquestador en §6, bloque de la fase 1).
 
+### 2.7 Fase 2a — cierre de G-1 (rol A3, instancia nueva)
+
+Estado: **terminado** (2026-09-05 20:36, agente del workflow sobre Opus 5). La instancia
+anterior había dejado el documento y dos archivos del laboratorio sin cadenas con forma
+de RUT, pero no había regenerado la salida del arnés, así que el documento citaba una
+salida que aún no existía. La instancia nueva reejecutó
+`Rscript 50_documentacion/andamios/lab_motor_v9/a3_arnes_citas.R`, con evidencia de
+ejecución real y no de código 0: mtime 08:21 → 20:36, 2 576 → 2 719 bytes, 28 → 29
+líneas. Veredicto del arnés: `OK`. Encontró **una discrepancia** entre el documento y la
+salida real (el documento citaba una etiqueta que la salida no imprime) y corrigió el
+documento, nunca el instrumento. Control del par cero/positivo en el mismo bloque: el
+patrón da 0 en los cuatro archivos de A3 y 1 sobre una cadena construida en el momento
+con `printf`, y 2 sobre la salida vieja respaldada, que es exactamente lo que el
+orquestador había medido antes.
+
+### 2.8 Fase 2b — contraste adversarial de A5 (instancia nueva)
+
+Estado: **terminado** (699 líneas, `wc -l`). Con los cuatro documentos de A1 a A4 ya
+escritos y legibles, A5 contrastó sus once hallazgos a ciegas: **5 sostenidos, 2
+atenuados, 4 retirados**, y **9 nuevos** (H-12 a H-20) que solo se podían formular
+leyendo los documentos. De los nuevos, tres obligan a cambiar el diseño (H-12: la
+variante `canonico` de A2 es una cota no alcanzable hoy sin la tabla de alias de A1;
+H-13: el arnés de A3 verifica procedencia y no suficiencia, y no puede presentarse como
+garantía antialucinación; H-14: el filtro del Worker de A4 debe pasar de `es_articulo`
+a `origen_texto`, porque si no el nivel 2 de A3 no existe y dos de las diez consultas de
+A2 quedan sin respuesta), cinco obligan a acotar y uno corrige una atribución. A5 declaró
+además **seis afirmaciones propias de fase 1 que resultaron falsas**, con su corrección.
+El criterio de éxito del encargo ("al menos un hallazgo que obligue a cambiar el diseño,
+o la declaración argumentada de que no lo hay") queda cumplido con margen.
+
+### 2.9 Fase 2c — auditoría independiente (AUD)
+
+Estado: **terminado** (`20260904_auditoria_alcance_motor_v1.md`, 1 193 líneas, 13
+secciones, las 13 que exige el encargo). Método declarado en D9: doce verificadores
+independientes, verificación adversarial de los graves, fusión por destinatario y
+consolidación por un solo autor. Resultado: **125 hallazgos crudos → 91 defectos
+canónicos** (2 bloqueantes, 5 mayores, 58 menores, 26 mejorables) y **7 descartados**
+por los escépticos, cinco de los cuales dejaron un defecto real más angosto que sí entra.
+
+Veredicto de AUD, literal: los cinco documentos **son utilizables tal como están**; los
+dos bloqueantes no son contra A1 a A5 sino contra el instrumento de la propia auditoría
+(la versión 1 de su procedimiento, ya corregida y re-verificada), y su valor vivo es
+invalidar esa pasada como evidencia. La reserva es nominal y acotada: la síntesis no
+puede tomar sin corregir el residuo "4 de 38" de A5, el filtro `es_articulo === true`
+de A4, el "3,4 %" de Vectorize de A4 y la regla de puntaje de §4.3 de A1.
+
+Reparto de la fase 3, recuento programático de AUD sobre su propia tabla maestra: A1 19,
+A2 19, A3 10, A4 17, A5 12, ORQ 11, más 3 filas de agente compuesto. ENCARGO 0 (su único
+candidato fue descartado).
+
 ## 3. Controles positivos
 
 ### C0 — orquestador: el índice Pagefind existente responde en modo lectura
@@ -627,6 +721,32 @@ Ontología: control positivo D1 sintético «Derógase la ley N° 20.370» encue
 en D.O. encuentra solo `ley_20370`. Consulta informada: control negativo «receta de pan
 amasado» → sin entrada; las tres consultas en lenguaje del equipo llegan a su entrada.
 
+### C6 — AUD: control positivo de la auditoría sobre sí misma
+
+AUD plantó en el laboratorio tres archivos con defectos conocidos
+(`aud_control_cifra_falsa.md`, `aud_control_ancla_falsa.md`,
+`aud_control_cero_sin_control.md`), escribió su procedimiento de auditoría en
+`aud_procedimiento.R` y lo corrió sobre ellos, con control negativo sobre fragmentos
+reales y correctos de los documentos de fase 1 (`aud_fragmento_negativo_a1.md`,
+`aud_fragmento_negativo_a2.md`). La primera versión del procedimiento **falló** en tres
+de los defectos plantados, y ese fallo es el origen de los dos únicos hallazgos
+bloqueantes del paquete: no apuntan a ningún autor, apuntan al instrumento de la propia
+auditoría. La versión 2 los detecta. Salida literal en §9 del documento de auditoría.
+Consecuencia de método, ya asumida: `aud_procedimiento_salida_v1.txt` queda **invalidado
+como evidencia** y no se cita en ningún documento del paquete.
+
+### C7 — AUD: la contrabarra que se come el intérprete (regla 5 del estándar)
+
+AUD descubrió, con su propio control positivo, que en esta sesión un patrón con `\b`
+dentro de `Rscript -e '...'` llega a R con la contrabarra colapsada, de modo que `\b`
+deja de ser frontera de palabra, el patrón no coincide y **devuelve 0 en silencio**. Lo
+delató que el control positivo `LGE` diera 0 cuando debía dar 15. Zanjado moviendo el
+comando a un archivo (`Rscript archivo.R`), donde el patrón llega intacto: `SEP` 7,
+`LGE` 15, `ZQX` 0. Es la regla 5 del estándar en estado puro (ningún patrón dependiente
+del entorno se escribe a mano: se deriva provocando el caso) y obliga a una regla
+operativa para todo el paquete: **todo comando con `\b` se ejecuta desde archivo, no con
+`-e`, y lleva su prueba de instrumento al lado.**
+
 ## 4. Hallazgos de auditoría
 
 (pendiente: se completa al cerrar la fase 2)
@@ -730,6 +850,27 @@ Ninguna esperada. (pendiente de confirmar al cierre)
   primero de los cinco: la enmienda es local). En la misma ventana, **cuarto corte por
   límite de sesión** (`resets 6:50pm`) sobre A5 al iniciar el contraste de fase 2;
   reanudado a las 20:26.
+- **2026-09-05 20:26 → 20:30. Quinto corte, esta vez por agotamiento de la cuota del
+  modelo** (`HTTP 429: "You've reached your Fable limit. Run /usage-credits to continue
+  or switch models"`), sobre A3 (a mitad de la corrección G-1) y A5 (al iniciar el
+  contraste). Estado medido a las 20:30: A3 alcanzó a dejar su documento en 0 cadenas
+  con forma de RUT (`grep -cE` del patrón, control positivo 1 sobre cadena construida) y
+  a corregir `a3_arnes_citas.R` y `a3_casos_adversariales.yml` (0 cada uno, mtime
+  20:27), pero **no regeneró `a3_arnes_citas_salida.txt`** (mtime 08:21, 2 líneas con el
+  literal viejo): el documento quedó citando una salida que todavía no se producía, que
+  es la regla 3 del estándar al revés. A5 no escribió nada de fase 2 (su documento sigue
+  en 316 líneas, sin sección de contraste). Ambos roles se reasignan por D8.
+- **2026-09-05 20:35 → 2026-09-06 13:33. Tres cortes más y un desbordamiento, todos
+  absorbidos por la reanudación desde caché.** El workflow de la fase 2 corrió en tres
+  invocaciones: la primera completó 9 de 19 agentes (corte a las 02:20), la segunda 22 de
+  30 (corte a las 08:00), y las dos últimas cerraron la fusión y la escritura. La
+  reanudación desde caché replica los agentes ya completados y solo reejecuta los que
+  fallaron. **Efecto no buscado y valioso:** como la reanudación rehace todo lo que sigue
+  al primer fallo, siete de las doce dimensiones se re-derivaron **dos veces por agentes
+  distintos**, lo que convirtió la interrupción en una segunda pasada independiente. Dos
+  pasadas que encuentran el mismo defecto son evidencia más fuerte, y las discrepancias
+  entre pasadas tienen su propia sección (§11) en el documento de auditoría. El
+  desbordamiento de salida de la fusión está en D10.
 - **O-5 (orquestador, 20:30, misma regla que O-4).** Al redactar O-4 escribí dos veces
   el literal con forma de RUT que estaba describiendo, y el recuento posterior a la
   enmienda dio 2 en vez de 0. Corregido con `perl -pi` (dígito verificador entre
