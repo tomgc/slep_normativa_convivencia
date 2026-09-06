@@ -503,6 +503,20 @@ if (!nzchar(node)) {
   while (!curl_ok(paste0(BASE, "index.html")) && intentos < 120L) { Sys.sleep(0.5); intentos <- intentos + 1L }
   linea("servidor local (PID ", pid, ") listo tras ", intentos, " esperas de 0,5 s")
 
+  # CER-A2-01 (auditoria del encargo v9). El patron de la primera version,
+  # "port = <PUERTO>", NO PUEDE coincidir nunca: R sustituye los espacios de la
+  # expresion de -e por "~+~" en la linea de comandos del proceso, de modo que
+  # devolvia 0 con el servidor VIVO y el cero del cierre no medía nada. El patron
+  # va sin espacios y se imprime CALIBRADO: el recuento antes de matar el proceso
+  # (debe ser >= 1) y el de despues (debe ser 0). Un cero sin ese par no es cero.
+  contar_servidor <- function() {
+    length(suppressWarnings(system2("pgrep", c("-f", shQuote("servr::httd")), stdout = TRUE)))
+  }
+  vivos_antes <- contar_servidor()
+  linea("CONTROL POSITIVO del verificador de apagado: pgrep -f 'servr::httd' con el ",
+        "servidor vivo: ", vivos_antes, " procesos (ps -p ", pid, ": ",
+        system2("ps", c("-p", pid), stdout = FALSE, stderr = FALSE) == 0L, ")")
+
   # Variantes: que texto se envia (la consulta tal cual, sus terminos de
   # contenido, o el termino canonico) y con que filtros de faceta del indice.
   variantes <- list(
@@ -537,9 +551,17 @@ if (!nzchar(node)) {
         fs::file_exists(ruta_salida), " (", if (fs::file_exists(ruta_salida)) fs::file_size(ruta_salida) else 0, " bytes)")
 
   tools::pskill(pid)
-  Sys.sleep(0.5)
-  vivos <- suppressWarnings(system2("pgrep", c("-f", shQuote(sprintf("port = %d", PUERTO))), stdout = TRUE))
-  linea("servidor detenido: procesos servr en el puerto ", PUERTO, " tras pskill: ", length(vivos))
+  Sys.sleep(1)
+  vivos_despues <- contar_servidor()
+  linea("servidor detenido: pgrep -f 'servr::httd' antes de pskill: ", vivos_antes,
+        " | despues: ", vivos_despues,
+        " | ps -p ", pid, " (el proceso concreto vive): ",
+        system2("ps", c("-p", pid), stdout = FALSE, stderr = FALSE) == 0L,
+        " | el puerto ", PUERTO, " responde: ", curl_ok(paste0(BASE, "index.html")))
+  if (vivos_antes < 1L) {
+    linea("ATENCION: el control positivo del verificador de apagado fallo (0 con el ",
+          "servidor vivo). El cero de abajo NO es evidencia de nada: revisar el patron.")
+  }
 
   if (!fs::file_exists(ruta_salida)) {
     linea("NO MEDIDA: el arnes no escribio resultados.")

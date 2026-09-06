@@ -749,11 +749,102 @@ operativa para todo el paquete: **todo comando con `\b` se ejecuta desde archivo
 
 ## 4. Hallazgos de auditoría
 
-(pendiente: se completa al cerrar la fase 2)
+El documento completo es `50_documentacion/andamios/20260904_auditoria_alcance_motor_v1.md`
+(1 193 líneas, 13 secciones más la adenda de la segunda pasada). Aquí va el recuento y el
+enrutamiento; el detalle, con el comando de cada cifra, vive allá y no se duplica.
+
+| Clasificación | n | Qué significa (rúbrica del encargo, línea 266) |
+|---|---|---|
+| bloqueante | 2 | impide usar el documento |
+| mayor | 5 | cambia una conclusión |
+| menor | 58 | precisión |
+| mejorable | 26 | calidad sin error |
+| **total canónico** | **91** | de 125 hallazgos crudos, tras deduplicar las dos pasadas |
+| descartados | 7 | refutados por los escépticos; 5 dejaron un defecto más angosto que sí entra |
+
+Reparto por agente que corrige (recuento de AUD sobre su propia tabla): **A1 19, A2 19,
+A3 10, A4 17, A5 12, ORQ 11**, más 3 filas de agente compuesto. ENCARGO 0: su único
+candidato fue descartado.
+
+**Los dos bloqueantes no son contra ningún autor.** Apuntan al instrumento de la propia
+auditoría: su primera versión no detectó tres de los defectos que ella misma había
+plantado. El código quedó corregido en la versión 2 y las reglas de método que la falla
+enseñó están en §12. Veredicto de AUD sobre los cinco documentos: **son utilizables tal
+como están**, con la reserva nominal de cuatro cifras que la síntesis no puede tomar sin
+corregir.
+
+El estado de cada hallazgo tras la fase 3 está en la sección 14 del documento de
+auditoría (segunda pasada, acotada a bloqueantes y mayores) y resumido en §5 de este log.
 
 ## 5. Correcciones
 
-(pendiente: se completa al cerrar la fase 3)
+La fase 3 corrió en dos rondas, porque la primera introdujo defectos nuevos y el encargo
+exige que la corrección se verifique, no que se declare.
+
+**Ronda 1 (2026-09-06, cinco autores en paralelo más cinco verificadores independientes).**
+Cada autor corrigió su propio archivo contra las filas de la tabla maestra dirigidas a él;
+ningún autor tocó el archivo de otro (verificado por los verificadores con
+`git status --porcelain` y `git diff --name-only`).
+
+| Autor | Corregidos | No corregidos (declarados) | Líneas | Veredicto del verificador | Defectos nuevos |
+|---|---|---|---|---|---|
+| A1 | 20 | 1 | 463 → 495 | introdujo defecto | 3 |
+| A2 | 27 | 0 | 479 → 611 | quedan abiertas | 5 |
+| A3 | 14 | 1 | 848 → 1 035 | introdujo defecto | 7 |
+| A4 | 18 | 1 | 496 → 542 | introdujo defecto | 9 |
+| A5 | 12 | 0 | 699 → 731 | introdujo defecto | 5 |
+
+**Segunda pasada de AUD (acotada a bloqueantes y mayores, como manda el encargo).** De los
+7 graves: **4 cerrados** (`CTRL-AUD-02`, `AUT-A-01`, `CON-A4-04`, `CIF-A5-01`) y **3
+cerrados con reserva** (`CTRL-AUD-01`, `CTRL-AUD-03`, `PRO-A1-01`). Ninguno abierto en su
+sustancia. Las cuatro cifras que la síntesis tenía prohibido tomar sin corregir quedaron
+corregidas y re-derivadas por AUD. La pasada dejó **15 puntos abiertos**, entre reservas,
+defectos nuevos y tres decisiones que ningún autor puede tomar solo.
+
+**Ronda 2, de cierre.** Los 29 defectos nuevos y los 15 puntos abiertos se enrutaron de
+vuelta a su autor con una regla explícita: **reparación quirúrgica**, sin reescribir ni
+mejorar nada que el defecto no nombre, porque la ronda 1 demostró que corregir de más es
+lo que introduce defectos. Con verificación independiente por documento y tercera pasada
+de AUD. Su resultado y el estado final de cada hallazgo están en las secciones 14 y 15 del
+documento de auditoría.
+
+
+**Resultado de la ronda 2 y tercera pasada de AUD.** Los defectos nuevos cayeron de 29 a
+9, y AUD volvió a re-verificar con comando propio, sin apoyarse en ningún reporte.
+
+| Autor | Reparados | No reparados | Líneas | Veredicto del verificador | Defectos nuevos |
+|---|---|---|---|---|---|
+| A1 | 5 | 2 | 495 → 496 | convergió | 0 |
+| A2 | 3 | 4 | 611 → 615 | convergió | 4 (dos del reporte, no del documento) |
+| A3 | 6 | 2 | 1 035 → 1 078 | introdujo defecto | 2 (menores) |
+| A4 | 9 | 2 | 647 → 670 | introdujo defecto | 3 (menores) |
+| A5 | 8 | 2 | 731 → 772 | introdujo defecto | 2 (menores) |
+
+**Veredicto de la tercera pasada:** los cinco documentos **convergieron**. Los 7
+bloqueantes y mayores quedan **cerrados sin reserva** (las tres reservas de la segunda
+pasada se levantaron por hecho verificado). De los 29 defectos nuevos de la ronda 1: 23
+cerrados, 3 cerrados con reserva y 3 que no correspondían al archivo (suma verificada
+programáticamente: 29 = 23 + 3 + 3). AUD anexó la sección 15 a su documento y actualizó
+21 celdas de estado de su tabla maestra.
+
+**Por qué la corrección se detiene aquí y no en una tercera ronda.** Los residuos que
+quedan son de una especie particular: **cuentas que el propio documento altera al
+mencionarse**. Un ejemplo medido por AUD: la fila de trazabilidad de A4 publica
+`grep -c 'UNI-A4-02'` → 2, y hoy son 3 porque la fila se cuenta a sí misma. Otro: un
+artefacto de A3 guarda 750 como número de línea y hoy es 751 porque el documento se editó
+después. Corregirlos vuelve a moverlos. El encargo prevé exactamente este caso ("si un
+hallazgo sigue abierto después de la corrección, se declara abierto en la síntesis; no se
+cierra por cansancio") y esa es la vía tomada: los siete residuos y las cinco decisiones
+de paquete se declaran en la fase 4, y la síntesis recibe la instrucción de citar por
+sección y nunca por número de línea, que es lo que los volvería a romper.
+
+**Lo que la fase 3 mandó a la síntesis y no a un autor.** Tres decisiones cruzan documentos
+y por eso no se corrigen: (a) si el texto OCR sin revisar entra o no al contexto del
+modelo, que toca a A2, A3 y al filtro del Worker de A4 a la vez; (b) una sola fórmula y una
+sola unidad para el peso del índice, hoy publicado con tres cifras porque hay dos fórmulas
+(con y sin metadatos) y tres universos (682 artículos, 722 unidades firmadas, 1 160
+fragmentos firmados); (c) un solo nombre para las 806 unidades con ancla, que hoy se llaman
+"artículo" en el JSON y significan otra cosa en cinco documentos.
 
 ## 6. Invariantes verificados al cierre
 
@@ -808,7 +899,38 @@ Ninguna esperada. (pendiente de confirmar al cierre)
 
 ## 10. Commits
 
-(pendiente)
+| # | Hash | Mensaje | Estado |
+|---|---|---|---|
+| 1 | `e71f1e0` | `docs(andamios): encargo v9, fase 1 del alcance del motor de busqueda (A1 a A5)` | pusheado dentro del rango del commit 2 |
+| 2 | `80d291e` | `docs(andamios): fase 2 del encargo v9, auditoria independiente y contraste adversarial` | pusheado 2026-09-06 13:35 |
+
+El commit 1 se enmendó dos veces **en local** antes de pushear (para sacar el laboratorio
+del índice por la regla R1 del hook y para enmascarar una línea del log por la R3), y su
+mensaje conserva una afirmación falsa que ya no es corregible (`AUT-A-05`, ver §11.3).
+
+```
+$ git push origin main
+   a07dd1a..80d291e  main -> main
+$ git rev-parse HEAD origin/main
+80d291e93ad3b80f20ca616839c8ee69717ceecc
+80d291e93ad3b80f20ca616839c8ee69717ceecc
+```
+
+**Guarda de estacionamiento aplicada (`AUT-A-04`).** En los dos commits se estacionó por
+ruta explícita, nunca con `git add -A` ni `git add .`, y antes de cada uno se verificó
+que `git diff --cached --name-only` no trajera nada fuera de `50_documentacion/andamios/`
+ni ningún archivo con extensión vetada por R1 (0 en ambos casos). El laboratorio queda
+**sin trackear pero no ignorado**: 87 archivos en disco, 33 con extensión vetada, y
+`.gitignore` sin regla que lo cubra (`git check-ignore` → no). Cualquier `git add -A`
+futuro lo volvería a meter y el push volvería a ser rechazado.
+
+**CI del último push, verificado por `head_sha`:**
+
+```
+$ gh run view 34045955413 --json headSha,conclusion,status,displayTitle
+{"conclusion":"success","displayTitle":"docs(andamios): fase 2 del encargo v9…",
+ "headSha":"80d291e93ad3b80f20ca616839c8ee69717ceecc","status":"completed"}
+```
 
 ## Anexo A. Incidencias de ejecución (se anota en el momento)
 
@@ -877,3 +999,173 @@ Ninguna esperada. (pendiente de confirmar al cierre)
   corchetes) y recontado: 0 en el log, 1 en la cadena de control construida con
   `echo`. Regla operativa desde ahora: todo texto que cite ese ejemplo lo escribe
   enmascarado, incluida la descripción del error.
+- **2026-09-06 14:00 → 18:04. Sexto y séptimo corte, y un desbordamiento de salida.** La
+  fase 3 corrió entera en la ventana de la tarde; la ronda de cierre cayó completa al
+  lanzarse (los seis agentes con `HTTP 429: "You've hit your session limit · resets 6pm"`,
+  sin escribir nada, verificado por `git status --porcelain`, que solo mostraba las
+  ediciones de la ronda 1) y se relanzó a las 18:04. Antes, el intento de fusionar los 125
+  hallazgos en una sola lista había muerto por el tope de 64 000 tokens de salida (D10).
+  **Ninguna de las tres interrupciones costó trabajo**: la reanudación desde caché replica
+  lo completado, y lo que se pierde es tiempo de reloj, no evidencia. El costo real de los
+  siete cortes de esta sesión fue de unas veinte horas de reloj repartidas en dos días.
+
+- **O-6 (orquestador, 2026-09-06 13:35, regla 7 de la sesión 2).** Pusheé la fase 2 sin
+  leer antes los hallazgos que la auditoría dirigía al orquestador, y uno de ellos
+  (`AUT-A-05`) exigía enmendar el mensaje del commit de la fase 1 **antes** de que fuera
+  inmutable. Al pushear cerré esa ventana. Consecuencia registrada en §11.3: el hallazgo
+  queda abierto, con su afirmación falsa fija en el historial y esta constancia como
+  única reparación. La regla que violé es la que la sesión 2 ya había aprendido en otra
+  forma: leer lo que el instrumento devuelve antes de ejecutar la acción irreversible que
+  ese instrumento evalúa. El resto del push era correcto y necesario (`AUT-A-01` pedía
+  justamente commitear encima), así que el error es de orden, no de acción.
+- **O-7 (orquestador, fase 3, prohibición literal del encargo §3).** Tres subagentes de
+  la fase 3 ejecutaron `python3 --version 2>/dev/null` como sondeo, encadenado delante de
+  un comando real. Lo detectó el verificador independiente de A3 y lo confirmé contra las
+  transcripciones: `grep -o '"command":"python3 --version[^"]*"'` sobre los once
+  transcritos de la fase 3 devuelve 3 ocurrencias, en los agentes que trabajaron sobre los
+  documentos de A2, A3 y A4 (control positivo del instrumento: el mismo grep de
+  `"command":"` sobre los mismos archivos devuelve 702). **Ningún análisis se hizo en
+  Python, ningún archivo `.py` se creó ni se ejecutó, y ninguna cifra del paquete depende
+  de Python**: los tres comandos son sondeos de versión cuya salida se descartó a
+  `/dev/null`. Aun así es una violación literal de la prohibición, que el encargo manda
+  reproducir en el prompt de cada subagente y que sí estaba reproducida, palabra por
+  palabra, en los once prompts. La responsabilidad es mía por omisión de un detalle: el
+  texto prohíbe usar Python como herramienta y los agentes lo respetaron en eso, pero no
+  prohibía explícitamente el sondeo de disponibilidad. **Corrección aplicada a la ronda de
+  cierre:** el prompt agrega "ni siquiera `python3 --version` ni ningún sondeo de
+  disponibilidad, encadenado o no", y la regla queda en §12 como M-8 para el kit.
+## 11. Correcciones del orquestador (fase 3)
+
+La auditoría dirigió **once hallazgos al orquestador** (2 bloqueantes, 2 mayores, 4
+menores, 3 mejorables). El orquestador corrige su propio archivo, que es este log, con
+la misma regla que los demás autores. Los dos bloqueantes y dos de los mayores
+(`CTRL-AUD-01` a `CTRL-AUD-04`) no piden cambiar contenido sino **fijar reglas de
+método**, y están en §12.
+
+| Hallazgo | Qué exigía | Qué se hizo |
+|---|---|---|
+| `AUT-A-01` (mayor) | Commitear encima el arreglo de A3 en vez de enmendar, correr el contador de R3 hasta 0 y corregir D7, O-4 y el Anexo A, que daban por cerrada una incidencia que seguía viva | Hecho y verificado abajo. D7, O-4 y el Anexo A quedan corregidos con la nota de que el cero se había medido sobre el árbol y no sobre el commit |
+| `AUT-A-03` (menor) | Anotar quién escribió el encargo a las 02:37:47 del 2026-09-05 y si los agentes relanzados leyeron el texto anterior o el posterior | Hecho abajo, con lo verificable y con lo que no es recuperable dicho como tal |
+| `AUT-A-04` (menor) | Dejar constancia de que el laboratorio queda sin trackear pero **no ignorado**, con el riesgo medido y la guarda de procedimiento | Hecho: anotado en D7 y aplicado en los dos commits siguientes |
+| `AUT-A-05` (menor) | Enmendar el mensaje de `e71f1e0`, que afirma traer el laboratorio cuando no trae ningún archivo suyo | **No corregible: la ventana se cerró.** Ver el error O-6 |
+| `AUT-A-06` (mejorable) | Declarar cuál es el artefacto canónico de la fase 2 y anotar que G-1 corrió en su ventana | Hecho abajo |
+| `CTRL-AUD-05` (mejorable) | Acotar los enunciados universales de las tareas 1 y 2 de la auditoría | Hecho en §12, regla M-5 |
+| `CTRL-AUD-06` (mejorable) | Exigir caso plantado por dimensión; la dimensión de contradicciones quedó sin él | Hecho en §12, regla M-6, con el residuo declarado |
+
+### 11.1 `AUT-A-01`, con su verificación
+
+El arreglo de A3 se commiteó **encima**, no por enmienda, en el commit de la fase 2.
+Salida literal de este turno:
+
+```
+$ git log --oneline -3
+80d291e docs(andamios): fase 2 del encargo v9, auditoria independiente y contraste adversarial
+e71f1e0 docs(andamios): encargo v9, fase 1 del alcance del motor de busqueda (A1 a A5)
+a07dd1a chore(estado): abrir sesion 3
+
+$ git diff -U0 a07dd1a HEAD | grep -E '^\+' | grep -v '^+++' | grep -cE '<patron R3>'
+0
+$ printf '%s-%s\n' "$(printf '11.111.%s' '111')" '1' | grep -cE '<patron R3>'   # CONTROL POSITIVO
+1
+$ git push origin main
+   a07dd1a..80d291e  main -> main
+$ git rev-parse HEAD origin/main
+80d291e93ad3b80f20ca616839c8ee69717ceecc
+80d291e93ad3b80f20ca616839c8ee69717ceecc
+```
+
+El push pasó el hook, que es la prueba real: el escéptico que confirmó `AUT-A-01` lo
+había ejecutado a mano contra el rango anterior y obtenía rechazo. **Corrección
+explícita de D7, O-4 y el Anexo A:** donde esos bloques dicen que la incidencia del
+push quedó corregida, hay que leer que el árbol de trabajo quedó limpio (medición
+correcta) pero el **commit** `e71f1e0` seguía trayendo dos líneas con forma de RUT, de
+modo que la incidencia siguió viva hasta este commit. La medición de 0 fue sobre el
+árbol, no sobre el commit, y la diferencia importaba.
+
+### 11.2 `AUT-A-03`, el encargo cambió de inodo a mitad de ejecución
+
+Medido en este turno: `stat` sobre el encargo devuelve `mtime = 2026-09-05 02:37:47` y
+`birth = 2026-09-05 02:37:47` iguales, es decir, **el archivo que hoy está en disco se
+creó a las 02:37:47**, seis minutos después del relanzamiento de los cinco agentes
+(02:31) y cinco horas después de que el orquestador leyera el encargo en la FASE 0
+(2026-09-04 21:16). Lo verificable: el orquestador no lo escribió (no tiene
+autorización sobre ese archivo y no hay ninguna escritura suya registrada); su primera
+versión **no es recuperable**, porque el archivo no estaba versionado hasta el commit
+`e71f1e0` de la fase 1; y los cinco agentes relanzados leyeron el archivo en su primer
+turno, todos después de las 02:38, así que trabajaron sobre el texto actual. Lo que no
+se puede afirmar: qué decía la versión anterior ni quién la reemplazó. Contra la duda
+de si lo ejecutado sigue estando en el encargo, se verificó en este turno que el texto
+en disco sostiene lo que se ejecutó (341 líneas; la tabla de §2 nombra los diez
+archivos autorizados; "hasta cinco commits" aparece una vez; la prohibición de Python
+aparece una vez; las 84 páginas OCR, dos).
+
+### 11.3 `AUT-A-05`, la ventana que se cerró
+
+El mensaje de `e71f1e0` dice que el commit trae "la carpeta desechable `lab_motor_v9`
+con los artefactos medidos", y no trae ningún archivo suyo (`git diff --name-only
+a07dd1a e71f1e0 | grep -c lab_motor_v9` → 0). La corrección exigida era enmendar el
+mensaje **antes de pushear**. No se hizo, porque el orquestador pusheó antes de leer los
+hallazgos dirigidos a sí mismo (error O-6). Enmendar ahora exigiría reescribir historia
+ya publicada, que este encargo no autoriza y que la política del proyecto trata como
+acción destructiva. **El hallazgo queda abierto y su afirmación falsa queda inmutable en
+el historial**, con esta constancia al lado como única reparación disponible. La
+síntesis lo declara como hallazgo abierto.
+
+### 11.4 `AUT-A-06`, artefacto canónico y ventana de G-1
+
+Se declara: **el artefacto canónico de la fase 2 es el árbol de trabajo**, que es lo que
+los autores editan y lo que los verificadores miden; ninguna cifra de auditoría se midió
+sobre un commit salvo las de la dimensión de autorizaciones, que por su objeto miden
+commits y lo dicen. La corrección G-1 de A3 se ejecutó **dentro de la ventana de la fase
+2** y no en la fase 3, porque era un hallazgo de gobernanza (una regla del hook que
+bloqueaba el push), no un hallazgo de auditoría; eso significa que el documento de A3 que
+la auditoría leyó ya incluía esa corrección, y que las dos pasadas de la dimensión de
+cifras de A3 lo leyeron en el mismo estado. Para la segunda pasada, el hash de
+referencia queda fijado aquí: `80d291e93ad3b80f20ca616839c8ee69717ceecc`.
+
+## 12. Reglas de método fijadas por la auditoría
+
+Los dos hallazgos bloqueantes del paquete no apuntan a ningún autor: apuntan al
+**instrumento de la propia auditoría**, cuya primera versión no detectó tres de los
+defectos que ella misma había plantado. El código ya está corregido en
+`aud_procedimiento.R` (versión 2, que sí los detecta). Lo que queda es fijar por escrito
+lo que esa falla enseñó, que es exactamente lo que un log de encargo debe dejar para la
+sesión siguiente.
+
+- **M-1 (`CTRL-AUD-01`).** `lab_motor_v9/aud_procedimiento_salida_v1.txt` queda
+  **invalidado como evidencia** y no se cita en ningún documento del paquete. Ningún
+  chequeo puede aceptar como prueba de control un token presente en el texto auditado sin
+  discriminar su rol: "control" escrito por el autor no es un control.
+- **M-2 (`CTRL-AUD-02`).** Toda ancla que no resuelve se reporta como hallazgo aunque el
+  autor la declare caso de control; la autodeclaración viaja como nota, nunca degrada el
+  estado. Ninguna exclusión automática puede depender de palabras presentes en el texto
+  auditado.
+- **M-3 (`CTRL-AUD-03`).** Todo hallazgo de cifra cita la línea completa del autor y
+  nombra la magnitud exacta re-derivada con su comando, para que se vea de inmediato si el
+  auditor confundió dos magnitudes de nombre parecido (la v1 refutó una afirmación
+  verdadera sobre 17 páginas temáticas re-derivando 47, que son las páginas totales).
+- **M-4 (`CTRL-AUD-04`).** Todo instrumento de auditoría se prueba con **control negativo
+  sobre texto real y correcto**, no solo con control positivo sobre texto plantado: la v1
+  marcaba dos falsos defectos sobre un fragmento real de A2.
+- **M-5 (`CTRL-AUD-05`).** Los enunciados universales de la propia auditoría se acotan:
+  no se escribe "toda cifra fue re-derivada", sino cuántas se re-derivaron
+  programáticamente y cuántas a mano, con el alcance del cedazo declarado.
+- **M-6 (`CTRL-AUD-06`).** Cada dimensión exhibe su propio caso plantado antes de aceptar
+  un cero suyo. **Residuo declarado:** en esta pasada la dimensión de contradicciones
+  quedó sin caso plantado, y ninguna dimensión reportó cero hallazgos, de modo que el
+  riesgo no se materializó; queda como deuda de método para la sesión siguiente.
+- **M-7 (de C7, no de un hallazgo).** Todo comando con `\b` se ejecuta desde archivo
+  (`Rscript archivo.R`), nunca con `-e`, y lleva su prueba de instrumento al lado.
+- **M-8 (de O-7).** La prohibicion de Python del kit se lee literal y sin borde: no se
+  ejecuta `python`, `python3`, `pip`, un archivo `.py` **ni un sondeo de disponibilidad**
+  del tipo `python3 --version`, encadenado o no, con salida descartada o no. Tres
+  subagentes de la fase 3 lo hicieron sin usar Python para nada, lo que muestra que la
+  prohibicion tal como estaba escrita dejaba ese borde abierto.
+- **M-9 (de CTRL-AUD-01, tercio (c), que la segunda pasada declaro abierto).** Todo caso
+  plantado en un control es **adversarial contra el instrumento**, nunca benevolo: se
+  planta el caso que el instrumento tenderia a dejar pasar, no el que obviamente detecta.
+  Un control positivo que el instrumento aprueba por la razon equivocada (por un token
+  presente en el texto, por una coincidencia parcial, por un archivo distinto del que se
+  cree) es indistinguible de un instrumento roto, y esa es exactamente la falla que la
+  version 1 del procedimiento de auditoria exhibio en tres de sus cuatro chequeos.
+

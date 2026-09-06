@@ -143,6 +143,12 @@ cat(sprintf("segmentos con id (JSON): %d | es_articulo=TRUE: %d (== catalogo) | 
 dist_por_norma <- segmentos |> summarise(segmentos = n(), articulos = sum(es_articulo), .by = c(slug, tipo, origen_texto)) |>
   arrange(desc(segmentos))
 imprimir(dist_por_norma)
+otros_segmentos <- segmentos |> filter(!es_articulo, !str_starts(id, "ocr-pagina-")) |>
+  mutate(familia = str_replace(id, "-[0-9]+$", ""))
+cat(sprintf("otros segmentos (no articulo, no pagina OCR): %d = %d - %d - %d; por familia de id:\n",
+            nrow(otros_segmentos), n_segmentos, n_articulos, n_ocr_paginas))
+imprimir(otros_segmentos |> count(familia, sort = TRUE))
+stopifnot(nrow(otros_segmentos) == n_segmentos - n_articulos - n_ocr_paginas)
 
 # 3b. Encabezados <h2 id="..."> del sitio generado, por archivo, y equivalencia
 #     con los id del JSON (mismo codigo: slugificar). Quarto va con
@@ -503,7 +509,7 @@ sugerir <- function(consulta, k = REGLA_PREFIJO[["k"]], incluir_no_citable_artic
   puntaje <- vapply(ids, function(id) {
     exactos <- sum(tq %in% claves[[id]])
     peso_de[[id]] + 30 * startsWith(primer_token[[id]], tq[1]) + 10 * exactos -
-      25 * sustituida_de[[id]] - 10 * !citable_de[[id]] - 0.05 * largo_de[[id]]
+      25 * sustituida_de[[id]] - 10 * (!citable_de[[id]]) - 0.05 * largo_de[[id]]
   }, numeric(1))
   res <- map(ids, function(id) { e <- entradas[[id]]
     tibble(termino = e[["termino"]], tipo = e[["tipo"]], contexto = e[["contexto"]],
@@ -553,6 +559,9 @@ STOP_CORPUS <- c("a","al","algo","alguna","algunas","alguno","algunos","ante","a
   "letra","articulo","articulos","ley","decreto","presente","siguiente","siguientes","anterior","texto","dia","dias","tres",
   "solo","demas","ademas","conforme","establece","establecidos","establecidas","establecido","establecida","dispone","senala",
   "senalado","senalada","senalados","senaladas","mismo","cuyo","aquel","sera","seran","este","esta","vez","asi","bien","ser")
+cat(sprintf("STOP_CORPUS: %d formas (%d distintas); STOP_CONSULTA: %d formas (%d distintas); 'dispuesto' en STOP_CORPUS: %s; 'dispone': %s\n",
+            length(STOP_CORPUS), length(unique(STOP_CORPUS)), length(STOP_CONSULTA), length(unique(STOP_CONSULTA)),
+            "dispuesto" %in% STOP_CORPUS, "dispone" %in% STOP_CORPUS))
 tokens_corpus <- imap(texto_norma, function(tx, s) tibble(slug = s, token = tokenizar(tx))) |> bind_rows() |>
   filter(nchar(token) >= 4, !grepl("^[0-9]+$", token), !token %in% STOP_CORPUS)
 unigramas <- tokens_corpus |> summarise(frecuencia = n(), n_normas = n_distinct(slug), .by = token) |>
@@ -627,6 +636,90 @@ cobertura_alias <- tibble(consulta = alias_prueba,
 imprimir(cobertura_alias)
 readr::write_csv(cobertura_alias, file.path(LAB, "a1_alias_prueba.csv"))
 
+
+# ---- 9bis. Sondeos de trazabilidad (sustentan 1.4 y 7 del documento) --------
+titulo("9bis. Sondeos de trazabilidad: siglas, rotulo circular 482, catalogo, relaciones y compuerta OCR")
+
+# (a) Siglas con sentido de norma o institucion. Prueba de instrumento primero:
+#     el patron con frontera de palabra debe encontrar el caso plantado y no el pegado.
+stopifnot(str_count("una cita a la LGE de 2009", "\\bLGE\\b") == 1L,
+          str_count("nada de LGEX aqui", "\\bLGE\\b") == 0L)
+contar_sigla <- function(s) sum(vapply(texto_norma, function(tx) str_count(tx, paste0("\\b", s, "\\b")), integer(1)))
+SIGLAS <- c("LGE", "CPR", "DTO", "DFL", "LSAC", "SEP", "SAE", "RO")
+siglas_tbl <- tibble(sigla = SIGLAS, apariciones = map_int(SIGLAS, contar_sigla))
+imprimir(siglas_tbl)
+cat(sprintf("CONTROL POSITIVO del mismo contador: LGE = %d; CONTROL NEGATIVO: sigla inventada ZQX = %d\n",
+            contar_sigla("LGE"), contar_sigla("ZQX")))
+ctx_sep <- unlist(map(names(texto_norma), function(s) {
+  m <- str_extract_all(texto_norma[[s]], ".{0,10}\\bSEP\\b.{0,6}")[[1]]
+  if (length(m)) paste0("[", s, "] ", str_squish(m)) else character(0)
+}))
+cat(sprintf("contextos de SEP (%d, uno por aparicion):\n  %s\n", length(ctx_sep), paste(ctx_sep, collapse = "\n  ")))
+
+# (b) Como nombra el corpus a la Circular / REX 482. El signo de grado se deriva
+#     de su punto de codigo (regla 5: ningun patron dependiente de locale a mano).
+grados <- intToUtf8(c(0xB0, 0xBA))
+PAT_482_ESTRICTO <- paste0("(?i)circular n[", grados, "] 482")
+PAT_482_TOLERANTE <- "(?i)circular[^0-9]{0,6}482"
+c482 <- tibble(slug = names(texto_norma),
+               estricto = map_int(names(texto_norma), function(s) str_count(texto_norma[[s]], PAT_482_ESTRICTO)),
+               tolerante = map_int(names(texto_norma), function(s) str_count(texto_norma[[s]], PAT_482_TOLERANTE))) |>
+  filter(estricto + tolerante > 0)
+imprimir(c482)
+cat(sprintf("circular 482 en el corpus: patron estricto %d apariciones; patron tolerante al espacio %d en %d documentos (%s)\n",
+            sum(c482[["estricto"]]), sum(c482[["tolerante"]]), nrow(c482), paste(c482[["slug"]], collapse = ", ")))
+cita_482 <- unlist(map(names(texto_norma), function(s) {
+  m <- str_extract_all(texto_norma[[s]], paste0(".{0,30}", PAT_482_TOLERANTE, ".{0,30}"))[[1]]
+  if (length(m)) paste0("[", s, "] ", str_squish(m)) else character(0)
+}))
+cat(sprintf("  %s\n", paste(cita_482, collapse = "\n  ")))
+cat(sprintf("CONTROL NEGATIVO del mismo patron con un numero inexistente (circular 999): %d\n",
+            sum(vapply(texto_norma, function(tx) str_count(tx, "(?i)circular[^0-9]{0,6}999"), integer(1)))))
+
+# (c) Campos del catalogo que el documento reporta como vacios, con su control
+#     positivo sobre un campo hermano del mismo objeto y el mismo acceso [[ ]].
+n_aviso <- sum(vapply(normas_cat, function(n) !is.null(n[["aviso_vigencia"]]), logical(1)))
+n_notas <- sum(vapply(normas_cat, function(n) !is.null(n[["notas_ficha"]]), logical(1)))
+cat(sprintf("catalogo: aviso_vigencia no nulo en %d de %d; CONTROL POSITIVO campo hermano notas_ficha no nulo en %d de %d\n",
+            n_aviso, length(normas_cat), n_notas, length(normas_cat)))
+
+# (d) Campos por relacion en relaciones.json (el documento afirmaba un universal).
+rr <- relaciones[["relaciones"]]
+tipos_rel <- vapply(rr, function(r) r[["tipo"]], character(1))
+tiene <- function(campo) sum(vapply(rr, function(r) campo %in% names(r), logical(1)))
+cat(sprintf("relaciones: %d en total (%s)\n", length(rr),
+            paste(sprintf("%s %d", names(table(tipos_rel)), as.integer(table(tipos_rel))), collapse = ", ")))
+cat(sprintf("campo fuente presente en %d de %d relaciones (%s) y en %d de las %d remisiones\n",
+            tiene("fuente"), length(rr),
+            paste(unique(tipos_rel[vapply(rr, function(r) "fuente" %in% names(r), logical(1))]), collapse = " y "),
+            sum(vapply(rr, function(r) identical(r[["tipo"]], "remision") && "fuente" %in% names(r), logical(1))),
+            sum(tipos_rel == "remision")))
+cat(sprintf("campos por relacion: cita_literal %d, temas %d, nota %d; CONTROL POSITIVO tipo %d de %d; CONTROL NEGATIVO campo inventado zzz_no_existe %d\n",
+            tiene("cita_literal"), tiene("temas"), tiene("nota"), tiene("tipo"), length(rr), tiene("zzz_no_existe")))
+cat(sprintf("campos de una remision: %s\n",
+            paste(names(rr[[which(tipos_rel == "remision")[1]]]), collapse = ", ")))
+
+# (e) Compuerta OCR de la regla 6: barrido exhaustivo sobre TODAS las claves del
+#     indice, con parametros por defecto y con la bandera activada (control positivo).
+destino_de <- vapply(entradas, function(e) if (is.null(e[["destino"]])) NA_character_ else e[["destino"]], character(1))
+n_ocr_entradas <- sum(!is.na(destino_de) & str_detect(destino_de, fixed("#ocr-pagina-")))
+barrido_def <- map(todas_claves, function(k) sugerir(k)) |> bind_rows()
+barrido_abierto <- map(todas_claves, function(k) sugerir(k, incluir_no_citable_articulos = TRUE)) |> bind_rows()
+ocr_def <- barrido_def |> filter(!is.na(destino), str_detect(destino, fixed("#ocr-pagina-")))
+ocr_abierto <- barrido_abierto |> filter(!is.na(destino), str_detect(destino, fixed("#ocr-pagina-")))
+cat(sprintf("entradas con destino #ocr-pagina-: %d (%s)\n", n_ocr_entradas,
+            paste(sprintf("%s %d", names(table(tipo_de[!is.na(destino_de) & str_detect(destino_de, fixed("#ocr-pagina-"))])),
+                          as.integer(table(tipo_de[!is.na(destino_de) & str_detect(destino_de, fixed("#ocr-pagina-"))]))), collapse = ", ")))
+cat(sprintf("barrido por defecto sobre las %d claves: %d filas con destino OCR (%s); destinos OCR distintos alcanzados: %d\n",
+            length(todas_claves), nrow(ocr_def),
+            paste(sprintf("%s %d", names(table(ocr_def[["tipo"]])), as.integer(table(ocr_def[["tipo"]]))), collapse = ", "),
+            n_distinct(ocr_def[["destino"]])))
+cat(sprintf("CONTROL POSITIVO con incluir_no_citable_articulos = TRUE: %d filas con destino OCR (%s), %d destinos distintos\n",
+            nrow(ocr_abierto),
+            paste(sprintf("%s %d", names(table(ocr_abierto[["tipo"]])), as.integer(table(ocr_abierto[["tipo"]]))), collapse = ", "),
+            n_distinct(ocr_abierto[["destino"]])))
+stopifnot(!any(ocr_def[["tipo"]] == "articulo"))
+cat("OK compuerta: ningun encabezado de pagina OCR (tipo articulo) se sugiere por defecto; las entradas de glosario ancladas en OCR si, con su rotulo (regla 6 del documento)\n")
 # ---- 10. Presupuesto de latencia en el navegador (calculo, no medicion) -----
 titulo("10. Presupuesto de descarga a 3 Mbps (calculo declarado)")
 MBPS <- 3

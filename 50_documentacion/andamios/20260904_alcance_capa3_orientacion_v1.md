@@ -28,7 +28,10 @@
 borradores de piezas (`faq_celulares`, `faq_expulsion`, `faq_revision_de_mochilas`,
 `ficha_ley_21801_celulares`, y la cabecera de `glosario.md`), y los textos de los
 artículos que fundan la ruta y las entradas (listados en §2 y §6), leídos desde
-`40_salidas/datos/normas/<slug>.json`. No se abrió ningún archivo de A1, A2, A4 ni A5.
+`40_salidas/datos/normas/<slug>.json`. No se abrió ningún archivo de A1, A2, A4 ni A5:
+**declaración de método, no verificable ni refutable con ningún comando**, porque el
+repositorio no guarda trazas de lectura. Va aquí junto a los enunciados medidos, pero
+no es uno de ellos, y así debe leerse.
 
 **Código de la compuerta evaluado, no sourceado.** `34_generar_paginas.R` borra y
 reescribe `40_salidas/sitio_src/` al ser sourced (líneas 1106-1108) y
@@ -69,10 +72,55 @@ este documento):
 | `a3_construir_capa_experta.R` + `_salida.txt`, `a3_capa_experta.json`, `a3_rutas.json` | constructor de la capa experta y de las rutas como datos; demostración de consulta informada |
 | `a3_ontologia_relaciones.R` + `_salida.txt` | evaluación tipo por tipo de la ontología (tarea 8) |
 | `a3_presupuesto_tokens.R` + `_salida.txt` | fórmula y magnitudes de costo de la descomposición (tarea 9) |
+| `a3_sondeo_deroga.R` + `_salida.txt` | sondeo de "derog" / "no derogad" que motivó partir la regla `deroga` en D1 y D2 (§8.2) |
+| `a3_orden_prioritarios.R` + `_salida.txt` | orden real de la lista `prioritarios` de §6.4, parseado del propio documento y resuelto contra los JSON de norma |
+| `a3_corpus_vigencia.R` + `_salida.txt` | reparto del corpus por `origen_texto` y por `vigencia.estado`, con sus controles (§2.1 y §12) |
 
 Todo se ejecuta desde la raíz con `Rscript 50_documentacion/andamios/lab_motor_v9/<script>.R`
 y su salida está guardada en `<script>_salida.txt` con `tee`. Ningún script escribe
-fuera del laboratorio; ninguno llama a una API de modelo.
+fuera del laboratorio; ninguno llama a una API de modelo. Los dos son enunciados de
+cumplimiento de las prohibiciones (§3 del encargo), así que van con el comando que los
+sostiene y con su control, no con la palabra de A3:
+
+```
+$ grep -nE 'write_json|writeLines|write\.|sink\(|saveRDS|file_move|file_copy|file_delete|dir_create|unlink' \
+        50_documentacion/andamios/lab_motor_v9/a3_*.R
+50_documentacion/andamios/lab_motor_v9/a3_cargar_defs.R:13:# demas (lecturas de JSON, bucles, writeLines, dir_delete) se omite y se cuenta.
+50_documentacion/andamios/lab_motor_v9/a3_cargar_defs.R:55:#   grep -n -E "writeLines|write\.|write_json|file_move|file_copy|dir_create|dir_delete|sink\(|saveRDS" \
+50_documentacion/andamios/lab_motor_v9/a3_cargar_defs.R:57:# cuya unica coincidencia ejecutable es `fs::file_move` DENTRO de la definicion
+50_documentacion/andamios/lab_motor_v9/a3_construir_capa_experta.R:110:jsonlite::write_json(salida_capa, file.path(LAB, "a3_capa_experta.json"), auto_unbox = TRUE, pretty = TRUE, null = "null")
+50_documentacion/andamios/lab_motor_v9/a3_construir_capa_experta.R:111:jsonlite::write_json(salida_rutas, file.path(LAB, "a3_rutas.json"), auto_unbox = TRUE, pretty = TRUE, null = "null")
+50_documentacion/andamios/lab_motor_v9/a3_probar_compuerta.R:82:  writeLines(x, ruta)
+50_documentacion/andamios/lab_motor_v9/a3_probar_compuerta.R:92:  ruta <- file.path(LAB, paste0("a3_tmp_caso_", nombre, ".md")); writeLines(x, ruta); ruta
+50_documentacion/andamios/lab_motor_v9/a3_probar_compuerta.R:133:fs::file_delete(tmp)
+
+$ grep -niE 'httr|curl|anthropic|openai|api[._]|request\(|POST|fetch\(' \
+        50_documentacion/andamios/lab_motor_v9/a3_*.R
+50_documentacion/andamios/lab_motor_v9/a3_ontologia_relaciones.R:47:# Regla generica: verbo + cita de B dentro de una ventana posterior, con el mismo
+50_documentacion/andamios/lab_motor_v9/a3_orden_prioritarios.R:63:cat(sprintf("  unidades citables que el 078 precede:           %d de %d posteriores\n",
+50_documentacion/andamios/lab_motor_v9/a3_presupuesto_tokens.R:13:# No se consume cuota de ninguna API.
+50_documentacion/andamios/lab_motor_v9/a3_verificar_anclas.R:45:cat(sprintf("    Frescura: HTML mas antiguo %s | JSON mas reciente %s (el HTML debe ser posterior).\n",
+
+$ cp 50_documentacion/andamios/lab_motor_v9/a3_arnes_citas.R /tmp/a3_control_copia.R
+$ grep -cE 'write_json|writeLines|write\.|sink\(|saveRDS|file_move|file_copy|file_delete|dir_create|unlink' /tmp/a3_control_copia.R
+0
+$ printf 'writeLines("x", "/Users/usuario/fuera_del_lab.txt")\n' >> /tmp/a3_control_copia.R
+$ grep -cE 'write_json|writeLines|write\.|sink\(|saveRDS|file_move|file_copy|file_delete|dir_create|unlink' /tmp/a3_control_copia.R
+1
+```
+
+Los dos bloques son la salida sin editar de los comandos, no una glosa. En el primero,
+**8 líneas**: las 3 de `a3_cargar_defs.R` son comentarios (ninguna es código
+ejecutable) y las 5 restantes escriben con `file.path(LAB, ...)`, incluidas la 82 y la
+92 de `a3_probar_compuerta.R`, que escriben sobre la `ruta` que la propia 92 define en
+el laboratorio. En el segundo, **4 líneas** y ninguna es una llamada: dos comentarios
+(uno con la subcadena "posterior", otro declarando que no se consume cuota) y dos
+cadenas de `cat()` con "posterior" y "posteriores". Que el segundo grep devuelva 4 y
+no 0 es lo que prueba que el detector dispara; el control positivo del primero (las dos
+últimas invocaciones) pasa de 0 a 1 al plantar una escritura fuera del laboratorio.
+
+Toda escritura tiene por destino `file.path(LAB, ...)`: no hay ruta absoluta ni ruta
+fuera del laboratorio en ninguno de los scripts `a3_*`.
 
 ---
 
@@ -90,8 +138,13 @@ mismo archivo, así que no pueden divergir.
 
 ### 1.2 Qué exige la compuerta de verdad (leído del código, no del README)
 
-`cargar_piezas()` (`34_generar_paginas.R` 675-763) lee **todos** los `.md` bajo
-`20_insumos/curaduria/piezas/` (684-687), los pasa por `leer_pieza()` (407-459) y
+`cargar_piezas()` (`34_generar_paginas.R` 675-763) lee recursivamente los `.md` bajo
+`20_insumos/curaduria/piezas/` **salvo `README.md` y `LEEME.md`**, que la línea 687
+descarta comparando el nombre en minúsculas (684-687): **23 archivos `.md` en disco,
+22 piezas leídas** (`find 20_insumos/curaduria/piezas -name '*.md' | wc -l` → 23; la
+misma regla con la lista de exclusión vacía lee 23, que es el control positivo de que
+la diferencia la produce la exclusión y no el `find`). Los pasa por `leer_pieza()`
+(407-459) y
 `revisar_pieza()` (545-647), aborta si hay cualquier reparo (698-704), normaliza
 (655-667), decide `publicables <- estado == "validada" && firmada(p)` (726), y sobre
 lo publicable exige que **cada** entrada de `fuentes` pase `ancla_resuelve()`
@@ -253,11 +306,23 @@ F es el control de que el código real corre en este entorno y reproduce lo cono
 **Uso de dispositivos móviles** (`a3_ruta_uso_dispositivos_moviles.md`). Es rica: cinco
 segmentos de la ley 21.801 (`art-unico`, `art-10-bis`, `art-10-ter`, `art-10-quater`,
 `art-12`), la Resolución exenta 181 que aprueba las instrucciones, el artículo 16 E de
-la ley 21.809 sobre reglamentos internos, y el artículo 10 de la LGE; y no es
-ambigua: todas las normas están vigentes (`vigencia.estado = vigente` en las 25 salvo
-`dictamen_065`), todas tienen capa de texto salvo el cuerpo de la REX 482, que se
-declara como no citable, y la prohibición, sus excepciones y su vigencia están en
-un solo artículo cada una.
+la ley 21.809 sobre reglamentos internos, el artículo 10 de la LGE y el cuerpo de la
+REX 482; y no es ambigua: **de las cinco normas que la fundan, ninguna está sustituida
+y todas tienen capa de texto salvo el cuerpo de la REX 482**, que se declara como no
+citable, y la prohibición, sus excepciones y su vigencia están en un solo artículo
+cada una. El sujeto de ese "todas" son las cinco normas del tema; no es una
+afirmación sobre el corpus.
+
+Medido este turno sobre el front matter de `a3_ruta_uso_dispositivos_moviles.md`:
+**9 fuentes sobre 5 normas distintas**; `origen_texto != capa_texto_pdf` en **1**
+(`rex_482_reglamentos_b`); `vigencia.estado != vigente` en **0**. **Control positivo
+del mismo instrumento sobre el corpus completo**, que prueba que sabe separar las dos
+clases y no devuelve una sola: `capa_texto_pdf` 20 / `ocr_pendiente_revision` 5, y
+`vigente` 24 / `sustituido` 1. Cuál es la norma sustituida del corpus
+(`dictamen_065_revision_mochilas`, sustituida por
+`dictamen_078_detectores_revision_mochilas`) es una cifra de corpus y tiene su propia
+fila en §12, no lugar dentro de esta oración: mezclarla aquí fue lo que hizo leer el
+"todas" como corpus-amplio.
 
 Se descartó **expulsión y cancelación de matrícula**, que es la consulta más frecuente
 del equipo, por una razón medida al leer los textos: el procedimiento vigente vive en
@@ -326,7 +391,12 @@ derivado, y así lo declara la ruta).
    derivados del JSON: `nivel`, `vigencia` (+`sustituido_por`), `citable`, `texto`.
    Los fragmentos con `citable: false` entran **solo** si la entrada experta los lista
    como prioritarios, para que el modelo pueda señalarlos como ubicación; nunca como
-   evidencia (regla 4 del prompt).
+   evidencia (regla 4 del prompt). **Que el modelo obedezca esa regla dentro de su
+   prosa no lo verifica ningún instrumento** (§4.1): el arnés actúa sobre las citas
+   declaradas, no sobre el contenido de las frases, de modo que la regla 4 es una
+   instrucción y no una verificación. La única mitigación estructural es no enviar
+   texto no citable al contexto, y esa decisión no la puede tomar A3 solo: choca con
+   A2 §4quater.2 y va a la síntesis (H-7 y H-13 de A5).
 3. Envía al Worker (diseño de A4) el objeto `{consulta, fecha_consulta,
    entrada_experta, fragmentos}`; el Worker antepone el prompt del sistema y llama al
    modelo.
@@ -382,20 +452,28 @@ Medido: 5.022 caracteres (`nchar` en `a3_presupuesto_tokens_salida.txt`).
 | Qué debe citar | cada afirmación; con `texto_citado` literal y contiguo del fragmento (regla 3) |
 | Cómo se rotula la salida | `rotulo: inferencia_del_modelo_no_validada` siempre, y el render lo imprime como texto (§7) |
 | Consulta que la normativa no resuelve | `modo: sin_respaldo`, `no_resuelto` con el motivo, sin inferencia (regla 10) |
-| OCR sin revisar | prohibido como fundamento (regla 4); el arnés lo degrada aunque el modelo desobedezca (§4) |
+| OCR sin revisar | prohibido como fundamento (regla 4). Si el modelo lo **cita**, el arnés degrada la cita aunque desobedezca (§4, c4). Si el modelo **transcribe** ese texto en una frase apoyada en otra cita válida, el arnés **no lo detecta**: no compara la frase con su `texto_citado` (§4.1, fuga medida) |
 | Norma sustituida | admitida solo con advertencia (regla 5); el arnés la agrega desde el dato aunque el modelo la omita |
 | Orientación experta sin firma | se usa rotulada como "sin firma" (insumo `estado`), nunca como validada |
 | Formato exacto | el JSON `a3-salida-v1` de arriba; cualquier otra cosa es `salida_ilegible` o `esquema_invalido` en el arnés |
 
 Lo que el prompt **no** puede garantizar por sí mismo (que el modelo obedezca las
-reglas 2-5) es exactamente lo que el arnés verifica del lado del cliente. Lo que ni
-el prompt ni el arnés pueden verificar (que una frase sea consejo individual, regla
-7) es semántico: lo declara el modelo en `modo` y la interfaz lo rotula; A5 debería
-atacarlo.
+reglas 2, 3 y 5) es lo que el arnés verifica del lado del cliente, **y solo en el eje
+de la procedencia de la cita**. La regla 4 la verifica únicamente cuando el texto no
+citable viene como cita declarada; su cumplimiento dentro de la prosa queda fuera de
+alcance (§4.1). Lo que ni el prompt ni el arnés pueden verificar (que una frase sea
+consejo individual, regla 7; que la frase esté implicada por el artículo que cita,
+reglas 2 y 3 en su sentido fuerte) es semántico: lo declara el modelo en `modo`, la
+interfaz lo rotula, y A5 lo atacó con éxito (§4.1).
 
 ---
 
 ## 4. Tarea 4: arnés antialucinación (del lado del cliente)
+
+> **El nombre es el de la tarea en el encargo, no una descripción de la garantía.**
+> Lo que este instrumento asegura es la **procedencia** de las citas; no asegura la
+> **suficiencia** de las afirmaciones. El alcance exacto, con los tres caminos que
+> quedan fuera y quién los midió, está inmediatamente abajo y en §11.
 
 ### 4.1 Qué verifica y qué hace cuando falla
 
@@ -411,6 +489,39 @@ atacarlo.
 
 Ninguno de esos pasos consulta al modelo: usan los JSON de norma y las funciones de
 la compuerta.
+
+**Alcance declarado: el arnés verifica procedencia, no suficiencia.** Es una garantía
+contra la **cita inventada** (ancla que no existe, texto que no es copia literal del
+artículo, frase apoyada en una cita rechazada), y eso no es lo mismo que una garantía
+contra la alucinación: este documento no lo presenta como tal. Tres caminos quedan
+fuera, y los tres se construyeron y midieron con **este mismo arnés** (A5, H-13 de
+`20260904_panel_adversarial_motor_v1.md` §12):
+
+| Camino que pasa | Por qué pasa | Qué publica |
+|---|---|---|
+| (a) la frase afirma una facultad que el artículo citado no contiene | el paso 6 solo exige que los `cita_id` de `apoya_en` estén aceptados; nunca compara la afirmación con el `texto_citado` | una potestad que la ley no da, con cita válida al lado |
+| (b) la frase cita literal y contiguo un recorte que corta justo antes de la excepción del propio artículo | el paso 3 comprueba que la subcadena exista, no que sea representativa | una prohibición sin su excepción |
+| (c) la frase **transcribe** texto OCR sin revisar y declara como apoyo una cita firmada distinta | el paso 4 mira el `origen_texto` de la **norma citada**, no el contenido de la frase | texto no citable dentro de una frase con cita firmada |
+
+**Control del mismo instrumento**, que es lo que separa esta declaración de una
+sospecha: la cita **directa** al ancla OCR sí se degrada y su frase se retira (c4 de
+§4.3: `degradada_a_ubicacion`; la única frase que se apoyaba en c4 es 1 de las 5 y se
+retira, contada dentro de las **3 retiradas** que ese ejercicio publica, junto a 2
+citas aceptadas de 5 y 2 frases conservadas de 5). El arnés funciona; lo que
+no hace es lo que aquí se declara que no hace.
+
+**Qué se sigue, y es diseño y no matiz.** (1) El único control estructural del camino
+(c) es no enviar texto no citable al contexto del modelo: la regla 4 del prompt es una
+instrucción, y una instrucción no se verifica. Mientras la entrada experta pueda
+listar unidades no citables como prioritarias (§6.4), ese camino sigue abierto y
+**hoy ningún instrumento lo cierra**. Decirlo es la mitad del arreglo; la otra mitad
+es una regla común con A2 §4quater.2, que este documento no puede fijar solo y que va
+a la síntesis. (2) Los caminos (a) y (b) no tienen verificación programática a la
+vista, y por eso se declaran aquí en vez de prometerse: la mitigación es de interfaz,
+que muestra el **`texto_citado` completo junto a la frase**, no el extracto de 90
+caracteres con que el render de §4.3 abrevia para el laboratorio. (3) El paso 6 se
+rotula en la interfaz por lo que hace: "frase con todas sus citas verificadas", nunca
+"frase verificada".
 
 ### 4.2 Núcleo del arnés (R; el archivo completo es `a3_arnes_citas.R`)
 
@@ -495,6 +606,13 @@ La frase "La ley define dispositivo móvil como cualquier teléfono con internet
 prohíbe su uso" se retira aunque una de sus dos citas (c1) sea válida: una frase con
 una cita rota es una frase sin respaldo entero. La advertencia de sustitución
 aparece aunque el JSON del modelo traía `"advertencias": []`.
+
+**El render de arriba es anterior al cambio de especificación de §7.2 y se conserva
+así.** Transcribe literal la línea 10 de `a3_arnes_citas_salida.txt`, donde la marca
+del nivel 1 es `[fuente primaria]` a secas; §7.2 (fila del nivel 1) la fija después
+como `[fuente primaria: <tipo_etiqueta>]`. No se reescribe el bloque porque sería
+falsear una salida de consola, y re-correr el arnés queda fuera de esta ronda: donde
+las dos formas difieran manda §7.2.
 
 ---
 
@@ -642,6 +760,43 @@ con sus marcas de vigencia y de OCR ya puestas antes de recuperar nada. El
 emparejador es deliberadamente tonto (contención de tokens); la capa 1 de A1 es
 quien debería alimentarlo y este documento no la reemplaza.
 
+**El orden de `prioritarios`: la regla, su razón, y la contradicción que queda en
+pie.** En la tercera consulta la lista **abre con la unidad firmada**
+`ley_21809_convivencia_educativa.html#art-16-e` (posición 1), y la unidad **no
+citable** `dictamen_078_detectores_revision_mochilas.html#ocr-pagina-001` va en la
+**posición 2**, por delante de dos unidades que sí son citables:
+`dictamen_065_revision_mochilas.html#materia` (posición 3, sustituida) y
+`ley_21430_garantias_ninez.html#art-28` (posición 4). Medido este turno sobre esa
+misma línea de salida con `Rscript 50_documentacion/andamios/lab_motor_v9/a3_orden_prioritarios.R`,
+que la parsea del propio documento y resuelve el `origen_texto` de cada slug contra
+los JSON de norma: posición del 078 = 2, posición de la firmada = 1, "¿el 078 va por
+delante de la firmada?" **FALSE**, "¿por delante del 065?" **TRUE**, "¿por delante
+del 21.430?" **TRUE**, unidades citables que el 078 precede **2 de 2** posteriores;
+controles del mismo instrumento en esa salida (comparación de posiciones 1 < 2 TRUE y
+2 < 1 FALSE, slug inexistente → `NA`, `dictamen_065` → `sustituido`). La regla de A3,
+que antes viajaba implícita y aquí se declara: **`prioritarios` es un orden de
+recuperación (qué mirar primero), no un orden de presentación ni de evidencia**; el
+078 precede al 065 porque es el pronunciamiento vigente sobre la materia y el 065, que
+sí tiene texto citable, está sustituido por él, de modo que empezar por el 065
+llevaría al equipo a la respuesta derogada; y viaja con el rótulo `[no citable]`
+**en la misma línea**, para que la marca no dependa de la CSS ni del orden.
+
+A2 §4quater.2 restricción (2) fija la regla contraria para las unidades de la capa 2
+ordenadas por `rrf` ("las unidades OCR se ordenan después de toda unidad firmada,
+cualquiera sea su `rrf`"). Los dos objetos no son el mismo (una lista de recuperación
+de la capa 3 contra un ranking de la capa 2), pero el ancla `#ocr-pagina-` es la
+misma clase de cosa y la tensión es real: **A3 no la resuelve aquí y no puede
+hacerlo**, porque fijar una regla común exige tocar el documento de A2. Lo que sí
+corresponde declarar es el estado del control: **hoy ningún instrumento controla este
+orden.** El arnés corre sobre la salida, no sobre la entrada; el constructor copia el
+orden del archivo de la entrada experta sin mirarlo. Lo único controlado es el rótulo,
+que es lo que exige la restricción (1) de A2. Si la síntesis adopta la regla de A2,
+el cambio en A3 es una línea en `informar_consulta()` (ordenar por `citable` antes que
+por prioridad) y el instrumento que lo verificaría es un chequeo en
+`a3_construir_capa_experta.R` que falle si una unidad no citable precede a una
+firmada; si adopta la de A3, la restricción (2) de A2 debe decir que no alcanza a las
+listas de la capa 3. Una de las dos, no las dos.
+
 ---
 
 ## 7. Tarea 7: los cuatro niveles y su marca visual
@@ -672,7 +827,7 @@ CSS tenga colores de sobra.
 
 | Nivel | Qué es | De dónde sale | Marca visual | Marca textual (viaja al copiar) |
 |---|---|---|---|---|
-| 1 fuente primaria | lo que dice la norma | `tipo` ∈ {ley, dfl, dto, circular, rex} | `.badge-normativa` (existe, en uso) | `[fuente primaria]` + cita `<norma>.html#<id>` |
+| 1 fuente primaria | lo que dice la norma o el acto | `tipo` ∈ {ley, dfl, dto, circular, rex} | `.badge-normativa` (existe, en uso) | `[fuente primaria: <tipo_etiqueta>]` + cita `<norma>.html#<id>`, con la etiqueta del tipo dentro del corchete para que "ley" y "resolución exenta" no se lean igual |
 | 2 pronunciamiento oficial | cómo la interpreta una autoridad | `tipo = dictamen` | `.badge-orientacion` (existe, sin uso; se reasigna a este nivel, rótulo "pronunciamiento oficial") | `[pronunciamiento oficial]` + cita |
 | 3 orientación experta | cómo el equipo recomienda abordarlo | entrada de capa experta / ruta; `estado` y `validado_por` | `.badge-interpretacion` (existe) + "validada por N el F" o "borrador sin firma" | `[orientación del equipo: validada por N / sin firma]` |
 | 4 inferencia del modelo | la conclusión generada | salida del arnés | **no existe**: se especifica `.badge-inferencia` (fondo `#8a6d3b`, texto blanco, rótulo "inferencia del modelo, no validada") y el contenedor `.bloque-inferencia` con borde discontinuo | `[inferencia del modelo, no validada]` |
@@ -687,6 +842,41 @@ sitio la CSS no viaja y el texto sí (ataque 6 de A5 en §0bis del encargo: se
 responde con marca en el texto); (d) la vigencia y el OCR son marcas transversales
 (`.badge-sustituida`, `.badge-ocr`, ya existentes) que acompañan al nivel 1 o 2 sin
 sustituirlo.
+
+**Por qué `circular` y `rex` caen en el nivel 1, y qué metadato falta para no
+decidirlo a mano.** La regla `nivel = f(tipo)` decide sobre el único eje que el dato
+tiene, y ese eje **no es el órgano que dicta el acto**. Las claves de una norma en
+`catalogo.json` son `slug, tipo, tipo_etiqueta, tipo_fuente, numero, titulo, anio,
+tema, fuente_anio, anios_alternativos, fuente_anios_alternativos, vigencia,
+grupo_acto, paginas, pdf, sin_capa_texto, origen_texto, fuente_origen_texto,
+notas_ficha, aviso_vigencia, marca_revisar, n_articulos, n_segmentos`: ninguna nombra
+al emisor (medido este turno sobre la unión de claves de las 25: 0 coincidencias de
+`organ|emisor|dicta|autoridad|servicio`; **control positivo** del mismo grep con
+`tipo`: 3 coincidencias, `tipo`, `tipo_etiqueta` y `tipo_fuente`). Y una mención al
+órgano dentro del cuerpo del texto no prueba autoría, así que tampoco es derivable
+del texto extraído.
+
+Con eso a la vista, la asignación es una **decisión declarada**, no una derivación, y
+la razón es esta: lo que el nivel 1 le promete al lector no es "esto es una ley", sino
+**"esto es el texto del acto, citado literal"**, y las 3 circulares y las 3 REX
+(`circular_193`, `circular_586`, `circular_812`, `rex_181`,
+`rex_482_instrucciones_reglamentos_internos`, `rex_482_reglamentos_b`) lo cumplen:
+tienen texto propio, ancla estable y son la fuente directa de la obligación que el
+establecimiento debe aplicar. El nivel 2 promete otra cosa, **"así interpreta una
+autoridad un texto ajeno"**, que es lo que hace un dictamen y no lo que hace una
+circular. Por eso la tabla no abre un quinto nivel: el eje de los cuatro niveles es la
+**naturaleza del enunciado** (texto del acto / interpretación / recomendación del
+equipo / inferencia del modelo), no la jerarquía de la fuente.
+
+Lo que sí falta, y se nombra: un campo `organo_emisor`, o mejor un `naturaleza_acto` ∈
+{legal, reglamentario, administrativo, interpretativo}, en
+`20_insumos/curaduria/metadatos_curados.json` y con su `fuente_*`, que sólo puede
+poner una persona leyendo el encabezado del PDF. Mientras no exista, dos consecuencias
+que este documento asume: (1) el corchete del nivel 1 lleva la etiqueta del tipo
+(`[fuente primaria: resolución exenta]`), para que nadie confunda una instrucción de
+un servicio fiscalizador con una ley de la República al copiar el texto fuera del
+sitio; y (2) la fila del nivel 1 de la tabla de arriba es revisable por el equipo sin
+tocar código, porque es juicio y no dato.
 
 Nada de esto toca `estilo.css` ahora (prohibido). El cambio para el sitio, cuando se
 implemente, es: una clase nueva (`.badge-inferencia`), un valor nuevo de
@@ -711,15 +901,30 @@ fuera de este encargo, y ninguno exige juicio jurídico.
 | Tipo | Regla de derivación probada | Recuento (medido) | Veredicto |
 |---|---|---|---|
 | **modifica** | verbo de modificación ("Introdúcense las siguientes modificaciones", "Modifícase") + cita de B (`patron_cita()` de 33) en los 400 caracteres siguientes, con el mismo filtro de año discordante de 33 | **8 pares**: 19979→dfl_1; 20536→20370; 20845→20370; 20845→19979; 21801→20370; 21809→20370; 21809→19979; 21809→dfl_1 | **entra**, con una advertencia obligatoria en la plantilla: el texto de B en el corpus **no está consolidado** (medido: la frase de 21.801 no está en `ley_20370 art-10`, la de 21.809 no está en `art-4`; controles TRUE en las modificatorias) |
-| **deroga** | primera regla (un verbo `derog*` + cita en 300 caracteres) dio **4 pares y los 4 eran falsos** (2 por la fórmula "con las normas no derogadas del DFL 1, de 2005", 2 por notas marginales de la BCN con la dirección invertida). Sondeo: 71 ocurrencias de "derog", 19 en "no derogad". Se partió en **D1** (prosa dispositiva "derógase" + cita; excluye "no" y los participios) y **D2** (nota marginal "Artículo N: DEROGADO <norma> ... D.O. fecha", cortada en la fecha; la norma citada deroga ese artículo) | D1: **0** (control positivo sintético "Derógase la ley N° 20.370" → encuentra ley_20370; control negativo "normas no derogadas ... ley N° 20.370" → 0). D2: **37 segmentos** con nota, **1** cita una norma del corpus: `ley_19979 deroga dfl_1#art-23-transitorio`; control sintético con corte en D.O. encuentra solo ley_20370 y sin corte encontraría además 19979 | **entra solo D2, como relación a nivel de artículo** (`deroga_articulo`, n = 1 hoy); D1 se deja implementada con sus controles y 0 casos. Una regla que da 4 falsos con control positivo pasado es la lección: el control positivo prueba sensibilidad, no precisión |
+| **deroga** | primera regla (un verbo `derog*` + cita en 300 caracteres) dio **4 pares y los 4 eran falsos** (2 por la fórmula "con las normas no derogadas del DFL 1, de 2005", 2 por notas marginales de la BCN con la dirección invertida). Sondeo (`a3_sondeo_deroga.R`): 71 ocurrencias de "derog" en los 806 segmentos, 19 de ellas en "no derogad" con el patrón `no\s+derogad` (con un espacio **literal** son 18, no 19: una ocurrencia trae un salto de línea entre las dos palabras; formas medidas `no[ ]derogad` 18 y `no[\n]derogad` 1). Se partió en **D1** (prosa dispositiva "derógase" + cita; excluye "no" y los participios) y **D2** (nota marginal "Artículo N: DEROGADO <norma> ... D.O. fecha", cortada en la fecha; la norma citada deroga ese artículo) | D1: **0** (control positivo sintético "Derógase la ley N° 20.370" → encuentra ley_20370; control negativo "normas no derogadas ... ley N° 20.370" → 0). D2: **37 segmentos** con nota, **1** cita una norma del corpus: `ley_19979 deroga dfl_1#art-23-transitorio`; control sintético con corte en D.O. encuentra solo ley_20370 y sin corte encontraría además 19979 | **entra solo D2, como relación a nivel de artículo** (`deroga_articulo`, n = 1 hoy); D1 se deja implementada con sus controles y 0 casos. Una regla que da 4 falsos con control positivo pasado es la lección: el control positivo prueba sensibilidad, no precisión |
 | **reglamenta** | desde un decreto o DFL, "reglamento/reglamenta" + cita de la ley en los 250 caracteres siguientes, en el título y el preámbulo | **2 pares**: dto_24→ley_19979 ("reglamentar ... Ley Nº 19.979"); dto_453→dfl_1 (preámbulo). Control sintético "APRUEBA REGLAMENTO DE LA LEY N° 20.370" → ley_20370 | **entra**. Nota: dto_453 dice "REGLAMENTO DE LA LEY N° 19.070" y la regla lo une a dfl_1 solo porque el preámbulo cita el DFL 1; saber que el DFL 1/1997 refunde la 19.070 es curaduría, no derivación |
 | **interpreta** | subconjunto de las 46 remisiones cuyo origen es un dictamen | **11** (listadas en la salida); las 12 de origen circular/rex serían "instruye sobre", que el diseño externo no pide | **entra como rótulo** de una remisión existente por `tipo` del origen: no crea aristas ni infiere nada |
 | **complementa** | no hay marcador textual ni metadato: decir que A complementa a B es juicio jurídico | no derivable | **rechazado** por escrito |
 | **desarrolla** | ídem: exige leer que B "desarrolla" un principio de A | no derivable | **rechazado** por escrito |
 | **contradice** | la única huella textual de un cambio de criterio en el corpus es la que describe `dictamen_52_77 num-1` ("sustituyendo la expresión 'y, además', por la voz 'o'"), y la produce una ley **modificatoria** (21.128, fuera del corpus): es `modifica`, no contradicción. No existe regla determinística que produzca "A contradice B" desde metadatos o texto | no derivable | **rechazado**: sin regla exhibida, no entra |
 
-Recuento estimado si se implementan los derivables sobre el corpus actual: 8 + 1 + 2
-nuevas aristas y 11 remisiones rotuladas. La explicación de cada una se compone por
+Recuento si se implementan los derivables sobre el corpus actual: **once relaciones
+tipadas nuevas** (8 `modifica`, 1 `deroga_articulo`, 2 `reglamenta`) sobre **diez
+pares de normas distintos**, más 11 remisiones rotuladas. **Ninguna es una arista
+nueva:** los diez pares ya están unidos hoy, y cada uno con tipo `remision` **y** tipo
+`tema` a la vez. Medido (`a3_ontologia_relaciones_salida.txt`, bloque (6), que cruza
+cada par derivado contra `relaciones.json`): `pares NUEVOS (hoy desconectados): 0 de
+11`, sobre un grafo de **505 pares dirigidos distintos de los 600 posibles** con 25
+normas; **control positivo** del cruce con un par que no puede existir
+(`ley_21801_celulares -> circular_586_tea`) → FALSE, **control negativo** con uno que
+sí existe (`ley_21801_celulares -> ley_20370_general_educacion`) → TRUE. Once
+relaciones tocan diez pares porque `ley_19979 → dfl_1` aparece dos veces, en
+`modifica` y en la `deroga` D2. Lo que la ontología aporta, entonces, no es
+conectividad sino **tipo**: hoy el grafo dice "estas dos normas se citan y comparten
+tema" y no dice cuál modifica a cuál, que es exactamente la pregunta del equipo. La
+`deroga` D2 sí aporta granularidad nueva, porque apunta a un artículo
+(`dfl_1#art-23-transitorio`) y ninguna relación de hoy lo hace. La explicación de cada
+una se compone por
 plantilla desde el tipo, como en 33 (`Cita «...» en ...`), con la cita literal a la
 vista; para `modifica` la plantilla lleva además "el texto de <B> publicado aquí no
 incorpora esta modificación". Ninguna la genera un modelo.
@@ -738,7 +943,7 @@ sin descomposición; con descomposición en `s` subpreguntas se suma una llamada
 **Magnitudes (medido / calculado, `a3_presupuesto_tokens_salida.txt`):**
 
 ```
-MEDIDO: prompt del sistema 5022 caracteres; entrada de capa experta 1383-2611 caracteres (n=3); articulos citables n=682, mediana 888, p90 3117 caracteres.
+MEDIDO: prompt del sistema 5022 caracteres; entrada de capa experta 1383-2611 caracteres (n=3); articulos citables n=682, mediana 888.5, p90 3117.9 caracteres (valores exactos, sin truncar: la aritmetica de tokens usa estos).
 
 CALCULADO con 1 token = 4 caracteres, k = 8 fragmentos, salida = 600 tokens, s = 3 subpreguntas:
                                       escenario llamadas tokens_entrada tokens_salida
@@ -748,6 +953,13 @@ CALCULADO con 1 token = 4 caracteres, k = 8 fragmentos, salida = 600 tokens, s =
             con descomposicion (s=3), largo p90        2          22045           720
 SOBRECOSTO de la descomposicion (largo mediano): +4904 tokens de entrada y +120 de salida por consulta, es decir, +1 llamada y x2.30 el contexto de sintesis.
 ```
+
+La mediana y el p90 van **exactos** (888,5 y 3.117,9 caracteres). La versión anterior
+de este bloque los publicaba truncados a entero (888 y 3.117) por un `as.integer()`
+del script que no estaba declarado; el script se corrigió y se volvió a correr. La
+aritmética de tokens **no cambia**, porque siempre usó los valores exactos:
+`tok(888,5) = ceiling(888,5/4) = 223` y `tok(3.117,9) = 780`, de donde
+`base_med = 1256 + 653 + 80 + 8 × 223 = 3773` y `base_p90 = 1989 + 8 × 780 = 8229`.
 
 La regla "1 token ≈ 4 caracteres" es una convención declarada, no una medición; `k`,
 `s` y los tokens de salida son parámetros de diseño. El script acepta `A3_P_IN` y
@@ -788,9 +1000,19 @@ escenario de uso de A4.
    buscador; el código actual sí las indexa (`pagina_pieza()` emite
    `data-pagefind-body`, línea 803, comentario "E-c del ensayo v6"). El documento del
    ensayo quedó desactualizado en ese punto; no es un error de código.
-6. Dos borradores reales siguen con anclas rotas (`faq_revision_de_mochilas`,
-   `faq_seguridad_y_deteccion`, ambas a `dictamen_078...html#materia|#concordancias`),
-   confirmado por `cargar_piezas()` real en el caso F. Ya conocido; sigue pendiente.
+6. Dos borradores reales siguen con anclas rotas: `faq_revision_de_mochilas.md`
+   apunta a `dictamen_078_detectores_revision_mochilas.html#materia` y
+   `faq_seguridad_y_deteccion.md` a
+   `dictamen_078_detectores_revision_mochilas.html#concordancias`; el dictamen 078 es
+   OCR y sus únicos `id` son `ocr-pagina-001` a `ocr-pagina-009`. Confirmado por
+   `cargar_piezas()` real en el caso F. Ya conocido, sigue pendiente, y corregirlo
+   exigiría escribir en `20_insumos/`, prohibido en este encargo. **Regla de escritura
+   que este documento adopta:** dentro de comillas invertidas un ancla se escribe
+   completa o no se escribe, para que un barrido automático pueda distinguir una cita
+   de una abreviación de prosa. Antes esta línea abreviaba las dos anclas con puntos
+   suspensivos dentro de comillas invertidas, una forma que cualquier barrido lee
+   como cita y que no resuelve: por eso aquí van completas y por eso la abreviación
+   ya no se transcribe.
 7. `TIPOS_PIEZA` es un dominio cerrado (medido, caso C): cualquier tipo nuevo de pieza
    exige tocar 34, o usar `subtipo` como aquí.
 
@@ -803,6 +1025,9 @@ escenario de uso de A4.
 | Ganancia de la descomposición | no evaluada, no recomendada | sin acceso a las consultas de A2 ni a una recuperación implementada |
 | Costo en USD | calculado en tokens; precio como parámetro | los precios los mide A4 |
 | Que el modelo obedezca el prompt | no medido | prohibido consumir cuota; por eso el arnés no confía en el prompt |
+| **Suficiencia de la afirmación respecto de la cita que la apoya** | **fuera del alcance del arnés, sin instrumento** | el arnés verifica **procedencia** (§4.1): que el ancla exista, que el `texto_citado` sea copia literal y que la frase se apoye solo en citas aceptadas. Que la frase esté *implicada* por ese texto no lo comprueba ningún paso; A5 lo probó con tres ataques que pasan (H-13). No se conoce verificación programática; la mitigación es de interfaz (cita completa junto a la frase) |
+| **Texto no citable transcrito dentro de una frase con cita firmada** | **fuga abierta, sin instrumento** | el paso 4 mira el `origen_texto` de la norma **citada**, no el contenido de la frase. La única mitigación estructural es no enviar texto no citable al contexto del modelo, y eso choca con §6.4 y con A2 §4quater.2: es decisión de síntesis (H-7) |
+| **Orden de `prioritarios` con una unidad no citable por delante de unidades citables** | **declarado, sin instrumento** | §6.4: A3 lo trata como orden de recuperación y A2 §4quater.2 (2) fija lo contrario para el ranking de la capa 2. La regla común la fija la síntesis; A3 no edita el documento de A2 |
 | Detección de nombres propios en el cliente | fuera de alcance | no determinística; mitigación: advertencia permanente y regla 8 del prompt |
 | "1 token ≈ 4 caracteres" | convención declarada | no se midió con un tokenizador |
 | `reglamenta` en dfl_315 → ley_20370 | no detectado por la regla | la cita no está en los 250 caracteres tras "reglamenta" en título o preámbulo; ampliar la ventana sube el ruido y no se midió |
@@ -820,6 +1045,7 @@ escenario de uso de A4.
 | Cifra | Valor | Comando / archivo de salida |
 |---|---:|---|
 | Normas en el corpus | 25 | `ls 40_salidas/datos/normas/ \| wc -l` |
+| Corpus por `origen_texto` / por `vigencia.estado` | `capa_texto_pdf` 20, `ocr_pendiente_revision` 5 / `vigente` 24, `sustituido` 1 (`dictamen_065_revision_mochilas`, sustituida por `dictamen_078_detectores_revision_mochilas`) | `a3_corpus_vigencia.R` + `_salida.txt` (`table()` de `origen_texto` y de `vigencia.estado` sobre los 25 JSON, leídos con `[[ ]]` exacto). Control positivo: 2 categorías distintas en cada tabla (una sola delataría un filtro que devuelve una sola clase). Control negativo: estado inventado `zzz` → 0. Control de suma: 25 y 25 |
 | Ids (anclas) en los JSON / presentes en HTML | 806 / 806 | `a3_verificar_anclas_salida.txt` (a) |
 | Artículos (`es_articulo = TRUE`) | 682 | ídem; `catalogo.json` `n_articulos` |
 | Páginas OCR sin revisar / documentos | 84 / 5 | `Rscript -e` de inventario (§0 de la sesión): suma de ids `ocr-pagina-*` por norma con `origen_texto = ocr_pendiente_revision` |
@@ -837,12 +1063,16 @@ escenario de uso de A4.
 | Ocurrencias de `badge-normativa` | 192 | `grep -o 'badge-[a-z_-]*' 40_salidas/sitio/*.html \| ... \| uniq -c` |
 | `tipo_fuente = normativa` | 25 de 25 | `grep -h '"tipo_fuente"' 40_salidas/datos/normas/*.json \| sort \| uniq -c` |
 | `modifica` / `deroga` D1 / D2 segmentos / D2 pares / `reglamenta` / `interpreta` | 8 / 0 / 37 / 1 / 2 / 11 | `a3_ontologia_relaciones_salida.txt` |
-| Ocurrencias de "derog": total / "no derogad" / otras | 71 / 19 / 52 | sondeo en scratchpad (`a3_sondeo_deroga.R`), salida pegada en §8.2 |
+| Pares derivables que hoy están **desconectados** en `relaciones.json` | 0 de 11 (11 relaciones tipadas sobre 10 pares distintos; grafo actual 505 pares dirigidos de 600 posibles) | `a3_ontologia_relaciones_salida.txt` (6), con control positivo (par inexistente → FALSE) y negativo (par existente → TRUE) |
+| Archivos `.md` bajo `20_insumos/curaduria/piezas/` / piezas que lee `cargar_piezas()` | 23 / 22 | `find 20_insumos/curaduria/piezas -name '*.md' \| wc -l`; la regla de la línea 687 excluye `README.md` y `LEEME.md` (control: sin exclusión lee 23) |
+| Fuentes / normas distintas / sin capa de texto de la ruta de §2 | 9 / 5 / 1 (`rex_482_reglamentos_b`); no vigentes 0 | `Rscript` sobre el front matter de `a3_ruta_uso_dispositivos_moviles.md`; control positivo sobre el corpus completo: `capa_texto_pdf` 20 / `ocr_pendiente_revision` 5 |
+| Claves de `catalogo.json` que nombren al órgano emisor | 0 de 23 | grep `organ\|emisor\|dicta\|autoridad\|servicio` sobre la unión de claves de las 25 normas; control positivo del mismo grep con `tipo` → 3 |
+| Ocurrencias de "derog": total / "no derogad" / otras | 71 / 19 / 52 con el patrón `no\s+derogad`; 71 / 18 / 53 con un espacio literal | `a3_sondeo_deroga.R` + `a3_sondeo_deroga_salida.txt` (en el laboratorio, no en un scratchpad), con control positivo `derogad` = 69 y negativo `zzderogzz` = 0 |
 | Prompt del sistema (caracteres) | 5.022 | `a3_presupuesto_tokens_salida.txt` |
 | Entrada de capa experta (caracteres) | 1.383 a 2.611 | ídem |
-| Artículos citables: n / mediana / p90 (caracteres) | 682 / 888 / 3.117 | ídem |
+| Artículos citables: n / mediana / p90 (caracteres) | 682 / 888,5 / 3.117,9 (exactos, sin truncar) | ídem |
 | Tokens de entrada sin/con descomposición (mediano) | 3.773 / 8.677 | ídem (calculado) |
 | Formas de preguntar por entrada (celulares / expulsión / pertenencias) | 13 / 14 / 11 | `awk '/^formas_de_preguntar:/{f=1;next} /^[a-z_]+:/{f=0} f&&/^  - /{n++} END{print n}' <archivo>` |
 | Frases de la ruta sobre retención en `ley_21801` | 0 (control `prohib` = 2) | §2.3 |
 | Consolidación LGE (frase 21.801 en art-10; frase 21.809 en art-4) | FALSE / FALSE (controles TRUE / TRUE) | `a3_ontologia_relaciones_salida.txt` (1) |
-| `git status --porcelain -- 40_salidas 20_insumos 30_procesamiento` | vacío | corrido al inicio, en cada reanudación y al cierre |
+| `git status --porcelain -- 40_salidas 20_insumos 30_procesamiento` | **0 líneas** | corrido al inicio, en cada reanudación y al cierre. **Control positivo del mismo comando, obligatorio porque un vacío también lo produce un pathspec mal escrito o un directorio equivocado:** `git status --porcelain -- 50_documentacion/andamios/lab_motor_v9` → **1 línea** (`?? 50_documentacion/andamios/lab_motor_v9/`). Se elige esa ruta y no `-- 50_documentacion` entera porque el conteo de la carpeta cambia con el trabajo de los demás agentes y un control positivo tiene que ser reproducible por quien lea esto |
