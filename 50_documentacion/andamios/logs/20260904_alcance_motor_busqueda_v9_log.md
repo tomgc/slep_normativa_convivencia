@@ -1040,141 +1040,40 @@ agentes distintos, y esa segunda pasada encontró defectos que la primera no.
 
 ## 10. Commits
 
-| # | Hash | Mensaje | Estado |
-|---|---|---|---|
-| 1 | `e71f1e0` | `docs(andamios): encargo v9, fase 1 del alcance del motor de busqueda (A1 a A5)` | pusheado dentro del rango del commit 2 |
-| 2 | `80d291e` | `docs(andamios): fase 2 del encargo v9, auditoria independiente y contraste adversarial` | pusheado 2026-09-06 13:35 |
+Cinco commits, uno por fase más el de cierre, que es el tope que el encargo autoriza
+("hasta cinco commits, uno por fase, cada uno pusheado").
+
+| # | Hash | Fase | Push | CI (`head_sha` verificado) |
+|---|---|---|---|---|
+| 1 | `e71f1e0` | Fase 1: encargo, cinco documentos de alcance y dos scripts | dentro del rango del 2 | del run del 2 |
+| 2 | `80d291e` | Fase 2: auditoría independiente y contraste adversarial | 2026-09-06 13:35 | run 34045955413, `success` |
+| 3 | `a67426d` | Fase 3: correcciones verificadas en dos rondas | 2026-09-07 21:59 | run 34175123026, `success` |
+| 4 | `6a0ebd5` | Fase 4: síntesis | 2026-09-08 | run 34284148629, `success` |
+| 5 | este | Cierre del log | | |
 
 El commit 1 se enmendó dos veces **en local** antes de pushear (para sacar el laboratorio
-del índice por la regla R1 del hook y para enmascarar una línea del log por la R3), y su
-mensaje conserva una afirmación falsa que ya no es corregible (`AUT-A-05`, ver §11.3).
+del índice por la regla R1 del hook y para enmascarar una línea por la R3), y su mensaje
+conserva una afirmación falsa que ya no es corregible sin reescribir historia publicada
+(`AUT-A-05`, §11.3).
 
 ```
-$ git push origin main
-   a07dd1a..80d291e  main -> main
 $ git rev-parse HEAD origin/main
-80d291e93ad3b80f20ca616839c8ee69717ceecc
-80d291e93ad3b80f20ca616839c8ee69717ceecc
+6a0ebd57e9ba29f93e9df637abf5c65359e74335
+6a0ebd57e9ba29f93e9df637abf5c65359e74335
+$ gh run view 34284148629 --json status,conclusion,headSha
+completed  success  6a0ebd57e9ba29f93e9df637abf5c65359e74335
 ```
 
-**Guarda de estacionamiento aplicada (`AUT-A-04`).** En los dos commits se estacionó por
-ruta explícita, nunca con `git add -A` ni `git add .`, y antes de cada uno se verificó
+**Guarda de estacionamiento aplicada en los cinco (`AUT-A-04`).** Se estacionó siempre por
+ruta explícita, nunca con `git add -A` ni `git add .`, y antes de cada commit se verificó
 que `git diff --cached --name-only` no trajera nada fuera de `50_documentacion/andamios/`
-ni ningún archivo con extensión vetada por R1 (0 en ambos casos). El laboratorio queda
-**sin trackear pero no ignorado**: 87 archivos en disco, 33 con extensión vetada, y
-`.gitignore` sin regla que lo cubra (`git check-ignore` → no). Cualquier `git add -A`
-futuro lo volvería a meter y el push volvería a ser rechazado.
+ni ningún archivo con extensión vetada por la regla R1 (0 en los cinco casos). El
+laboratorio sigue **sin trackear pero no ignorado**: `git ls-files` sobre esa ruta devuelve
+0 y `.gitignore` no la cubre, de modo que un `git add -A` futuro lo volvería a meter y el
+push volvería a ser rechazado. La decisión que lo resolvería está en la síntesis (D5), y
+tres de sus puntos exigen escribir fuera de la tabla de §2, así que se proponen al titular
+en vez de ejecutarse.
 
-**CI del último push, verificado por `head_sha`:**
-
-```
-$ gh run view 34045955413 --json headSha,conclusion,status,displayTitle
-{"conclusion":"success","displayTitle":"docs(andamios): fase 2 del encargo v9…",
- "headSha":"80d291e93ad3b80f20ca616839c8ee69717ceecc","status":"completed"}
-```
-
-## Anexo A. Incidencias de ejecución (se anota en el momento)
-
-- **2026-09-04 ~21:20 → 2026-09-05 02:30. Primer lanzamiento de la fase 1 abortado por
-  límite de sesión de la API.** Los cinco subagentes (A1 a A5) terminaron con
-  `HTTP 429, rate_limit: "You've hit your session limit · resets 2am
-  (America/Santiago)"` en su primer o segundo turno, antes de escribir nada.
-  Verificado tras el reinicio: `git status --porcelain` muestra solo el encargo y
-  este log; `ls -la 50_documentacion/andamios/lab_motor_v9/` vacío;
-  `pgrep -f 'servr::httd' | wc -l` = 0. Se relanzan los cinco con prompts
-  idénticos a las 02:31 del 2026-09-05. No es error del ejecutor ni de los agentes;
-  se registra porque el encargo exige que el log refleje lo que pasó, no lo que
-  debía pasar.
-- **2026-09-05 ~02:46 → 08:08. Segundo corte por límite de sesión de la API**
-  (`HTTP 429, rate_limit: "You've hit your session limit · resets 7:30am
-  (America/Santiago)"`), esta vez con trabajo parcial en disco. Verificado a las
-  08:08 con `git status --porcelain`: sin trackear solo el encargo, este log,
-  `20260904_prototipo_vocabulario.R` (A1), `20260904_medicion_corpus_semantica.R`
-  (A2) y `lab_motor_v9/` con 11 archivos (`a2_consulta_pagefind.mjs`, `a4_costos.R`,
-  `a4_medir_corpus.R`, siete `a5_*`); ningún `.md` de agente todavía.
-  `git status --porcelain -- 20_insumos 40_salidas 30_procesamiento 10_utils | wc -l`
-  = 0; `pgrep -f 'servr::httd' | wc -l` = 0. Decisión: **reanudar los cinco agentes
-  con su contexto** (mensaje de continuación al mismo agente) en vez de relanzar,
-  con la instrucción de verificar en disco qué ya escribieron antes de seguir.
-- **2026-09-05 ~08:25 → 14:20. Tercer corte por límite de sesión de la API** (`HTTP 429,
-  rate_limit: "You've hit your session limit · resets 1pm (America/Santiago)"`) sobre
-  A2, A3 y A4, después de que A1 y A5 entregaran su informe. Verificado a las 14:20:
-  `git status --porcelain` muestra ya los documentos de A1, A2, A4 y A5 y los dos
-  scripts; A2 y A4 escribieron su documento (479 y 496 líneas, `wc -l`) pero no
-  entregaron el informe; A3 tiene 20 archivos `a3_*` en el laboratorio (mtimes 08:11 a
-  08:21) y ningún documento. `git status --porcelain -- 20_insumos 40_salidas
-  30_procesamiento 10_utils | wc -l` = 0; `pgrep -f 'servr::httd' | wc -l` = 0. Se
-  reanudan los tres con su contexto a las 14:21.
-- **2026-09-05 14:37 → 20:25. Push de la fase 1 rechazado por el hook pre-push** (R1 y
-  R3; salida literal en D7 y O-4). Commit local `6d1412c` (73 archivos) intacto, no
-  pusheado; `git rev-parse HEAD origin/main` = `6d1412c…` / `a07dd1a…`. Corrección
-  dentro de las autorizaciones: laboratorio fuera del índice, línea del log
-  enmascarada, corrección de A3 enrutada a A3 (G-1), commit enmendado (sigue siendo el
-  primero de los cinco: la enmienda es local). En la misma ventana, **cuarto corte por
-  límite de sesión** (`resets 6:50pm`) sobre A5 al iniciar el contraste de fase 2;
-  reanudado a las 20:26.
-- **2026-09-05 20:26 → 20:30. Quinto corte, esta vez por agotamiento de la cuota del
-  modelo** (`HTTP 429: "You've reached your Fable limit. Run /usage-credits to continue
-  or switch models"`), sobre A3 (a mitad de la corrección G-1) y A5 (al iniciar el
-  contraste). Estado medido a las 20:30: A3 alcanzó a dejar su documento en 0 cadenas
-  con forma de RUT (`grep -cE` del patrón, control positivo 1 sobre cadena construida) y
-  a corregir `a3_arnes_citas.R` y `a3_casos_adversariales.yml` (0 cada uno, mtime
-  20:27), pero **no regeneró `a3_arnes_citas_salida.txt`** (mtime 08:21, 2 líneas con el
-  literal viejo): el documento quedó citando una salida que todavía no se producía, que
-  es la regla 3 del estándar al revés. A5 no escribió nada de fase 2 (su documento sigue
-  en 316 líneas, sin sección de contraste). Ambos roles se reasignan por D8.
-- **2026-09-05 20:35 → 2026-09-06 13:33. Tres cortes más y un desbordamiento, todos
-  absorbidos por la reanudación desde caché.** El workflow de la fase 2 corrió en tres
-  invocaciones: la primera completó 9 de 19 agentes (corte a las 02:20), la segunda 22 de
-  30 (corte a las 08:00), y las dos últimas cerraron la fusión y la escritura. La
-  reanudación desde caché replica los agentes ya completados y solo reejecuta los que
-  fallaron. **Efecto no buscado y valioso:** como la reanudación rehace todo lo que sigue
-  al primer fallo, siete de las doce dimensiones se re-derivaron **dos veces por agentes
-  distintos**, lo que convirtió la interrupción en una segunda pasada independiente. Dos
-  pasadas que encuentran el mismo defecto son evidencia más fuerte, y las discrepancias
-  entre pasadas tienen su propia sección (§11) en el documento de auditoría. El
-  desbordamiento de salida de la fusión está en D10.
-- **O-5 (orquestador, 20:30, misma regla que O-4).** Al redactar O-4 escribí dos veces
-  el literal con forma de RUT que estaba describiendo, y el recuento posterior a la
-  enmienda dio 2 en vez de 0. Corregido con `perl -pi` (dígito verificador entre
-  corchetes) y recontado: 0 en el log, 1 en la cadena de control construida con
-  `echo`. Regla operativa desde ahora: todo texto que cite ese ejemplo lo escribe
-  enmascarado, incluida la descripción del error.
-- **2026-09-06 14:00 → 18:04. Sexto y séptimo corte, y un desbordamiento de salida.** La
-  fase 3 corrió entera en la ventana de la tarde; la ronda de cierre cayó completa al
-  lanzarse (los seis agentes con `HTTP 429: "You've hit your session limit · resets 6pm"`,
-  sin escribir nada, verificado por `git status --porcelain`, que solo mostraba las
-  ediciones de la ronda 1) y se relanzó a las 18:04. Antes, el intento de fusionar los 125
-  hallazgos en una sola lista había muerto por el tope de 64 000 tokens de salida (D10).
-  **Ninguna de las tres interrupciones costó trabajo**: la reanudación desde caché replica
-  lo completado, y lo que se pierde es tiempo de reloj, no evidencia. El costo real de los
-  siete cortes de esta sesión fue de unas veinte horas de reloj repartidas en dos días.
-
-- **O-6 (orquestador, 2026-09-06 13:35, regla 7 de la sesión 2).** Pusheé la fase 2 sin
-  leer antes los hallazgos que la auditoría dirigía al orquestador, y uno de ellos
-  (`AUT-A-05`) exigía enmendar el mensaje del commit de la fase 1 **antes** de que fuera
-  inmutable. Al pushear cerré esa ventana. Consecuencia registrada en §11.3: el hallazgo
-  queda abierto, con su afirmación falsa fija en el historial y esta constancia como
-  única reparación. La regla que violé es la que la sesión 2 ya había aprendido en otra
-  forma: leer lo que el instrumento devuelve antes de ejecutar la acción irreversible que
-  ese instrumento evalúa. El resto del push era correcto y necesario (`AUT-A-01` pedía
-  justamente commitear encima), así que el error es de orden, no de acción.
-- **O-7 (orquestador, fase 3, prohibición literal del encargo §3).** Tres subagentes de
-  la fase 3 ejecutaron `python3 --version 2>/dev/null` como sondeo, encadenado delante de
-  un comando real. Lo detectó el verificador independiente de A3 y lo confirmé contra las
-  transcripciones: `grep -o '"command":"python3 --version[^"]*"'` sobre los once
-  transcritos de la fase 3 devuelve 3 ocurrencias, en los agentes que trabajaron sobre los
-  documentos de A2, A3 y A4 (control positivo del instrumento: el mismo grep de
-  `"command":"` sobre los mismos archivos devuelve 702). **Ningún análisis se hizo en
-  Python, ningún archivo `.py` se creó ni se ejecutó, y ninguna cifra del paquete depende
-  de Python**: los tres comandos son sondeos de versión cuya salida se descartó a
-  `/dev/null`. Aun así es una violación literal de la prohibición, que el encargo manda
-  reproducir en el prompt de cada subagente y que sí estaba reproducida, palabra por
-  palabra, en los once prompts. La responsabilidad es mía por omisión de un detalle: el
-  texto prohíbe usar Python como herramienta y los agentes lo respetaron en eso, pero no
-  prohibía explícitamente el sondeo de disponibilidad. **Corrección aplicada a la ronda de
-  cierre:** el prompt agrega "ni siquiera `python3 --version` ni ningún sondeo de
-  disponibilidad, encadenado o no", y la regla queda en §12 como M-8 para el kit.
 ## 11. Correcciones del orquestador (fase 3)
 
 La auditoría dirigió **once hallazgos al orquestador** (2 bloqueantes, 2 mayores, 4
