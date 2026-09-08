@@ -534,6 +534,38 @@ advertencia permanente); render de `pasos` desde el front matter (exige cambio e
 porque 36 de 37 notas citan normas fuera del corpus; `formas_de_preguntar` es
 hipótesis de A3 hasta que el equipo lo corrija; la temporalidad queda en la capa 2.
 
+
+### 2.10 Fase 4 — síntesis (SINT), con las decisiones de paquete resueltas antes
+
+La fase 4 no empezó por escribir. Primero se resolvieron las **cinco decisiones de paquete**
+que la fase 3 había mandado a la síntesis, cada una por un agente independiente con el
+mandato del encargo §6 (se resuelve midiendo o se declara abierta, nunca por preferencia).
+Las cinco quedaron **resueltas midiendo**:
+
+| # | Decisión | Resolución |
+|---|---|---|
+| D1 | Una sola fórmula y una sola unidad para el peso del índice | Índice int8 de 384 dimensiones sobre los 1 160 fragmentos firmados, publicado en dos columnas (601,9 KiB en disco, 440,0 KiB transferidos). Se retira la constante de 57,8 B por unidad, que no describe los seis campos que el propio diseño declara. La cifra que el paquete venía citando deja de ser canónica |
+| D2 | Un solo nombre para las 806 unidades con ancla | `segmento` para las 806, `artículo` para los 682 con `es_articulo`, `fragmento` solo para el trozo de la ventana deslizante. Zanjado porque `segmento` es la única de las claves del JSON canónico que nombra ese objeto |
+| D3 | Si el texto OCR sin revisar entra al contexto del modelo | No entra, y la compuerta va en la **entrada** y no en la salida: el detector de salida tiene 10,96 % de falso positivo medido sobre frases firmadas reales, y la compuerta de entrada deja 0 de 27 745 casos |
+| D4 | El orden de una unidad no citable en una lista | Ninguna unidad no citable precede a una firmada, en ninguna lista del motor. Medido: las dos opciones difieren en 1 de 66 listas, así que el costo de unificar es bajo y el de no unificar es un invariante roto |
+| D5 | Qué hacer con el laboratorio | Versionar por ruta explícita los 87 archivos sin extensión vetada (783,4 KiB). Tres puntos quedan fuera de las autorizaciones de este encargo y solo se proponen al titular |
+
+Después se construyó la **tabla de cifras** (124 entradas re-derivadas en el turno, 24
+declaradas no reproducibles con su razón), y sobre eso SINT escribió
+`20260904_alcance_motor_busqueda_sintesis_v1.md`.
+
+**La síntesis pasó por tres vueltas de revisión adversarial**, y las tres encontraron algo:
+la primera dejó 13 incumplimientos (4 mayores, uno de los cuales cambiaba una recomendación
+publicada); la reparación cerró 11 y creó 4 defectos nuevos, uno mayor; la ronda final,
+con **sesgo explícito a suprimir** (borrar la cláusula antes que reescribirla, porque una
+cláusula borrada no puede estar mal), cerró 4 de esos 6 puntos y dejó 2 parciales, con el
+documento **más corto que antes** (1 076 → 1 072 líneas). Ahí se detuvo, con un residuo de
+forma declarado: un punto de la sección de lo no resuelto perdió su marcador de fuente al
+suprimirse la cláusula que lo traía.
+
+Veredicto final del revisor: **cumple con reservas**. Los cuatro mayores están cerrados y
+las reservas están declaradas en el propio documento.
+
 ### 2.6 Cierre de la fase 1
 
 Las cinco secciones anteriores están en orden de llegada del informe (A1, A5, A2, A4,
@@ -848,11 +880,90 @@ fragmentos firmados); (c) un solo nombre para las 806 unidades con ancla, que ho
 
 ## 6. Invariantes verificados al cierre
 
-(pendiente: se completa al cerrar la fase 4)
+Verificado en el turno de cierre, con el comando pegado y su control positivo al lado.
+
+**`20_insumos/` sin cambios.** Es el invariante más duro del encargo, porque no hay
+delegación vigente.
+
+```
+$ git status --porcelain -- 20_insumos
+[0 líneas]
+$ git diff --stat a07dd1a..HEAD -- 20_insumos
+[0 líneas]
+$ git diff --stat a07dd1a..HEAD -- 50_documentacion   # CONTROL POSITIVO del mismo comando
+[11 líneas]
+```
+
+**`40_salidas/` sin cambios.** Ningún agente reindexó, ni regeneró el sitio, ni escribió un
+`.qmd`. Los que consultaron el índice Pagefind lo hicieron sirviéndolo en modo lectura.
+
+```
+$ git status --porcelain -- 40_salidas
+[0 líneas]
+$ git diff --stat a07dd1a..HEAD -- 40_salidas
+[0 líneas]
+```
+
+A2 midió además el estado de la carpeta antes y después de su consulta al índice:
+`archivos antes=277 después=277 | mtime máximo antes=2026-08-27 12:38:58 después=2026-08-27
+12:38:58 → SIN CAMBIOS`.
+
+**Ningún archivo escrito fuera de la tabla de §2.** El encargo autoriza diez archivos. El
+recuento del cierre da exactamente diez versionados:
+
+```
+$ git diff --name-only a07dd1a..HEAD
+50_documentacion/andamios/20260904_alcance_arquitectura_cloudflare_v1.md
+50_documentacion/andamios/20260904_alcance_capa1_vocabulario_v1.md
+50_documentacion/andamios/20260904_alcance_capa2_semantica_v1.md
+50_documentacion/andamios/20260904_alcance_capa3_orientacion_v1.md
+50_documentacion/andamios/20260904_alcance_motor_busqueda_sintesis_v1.md
+50_documentacion/andamios/20260904_auditoria_alcance_motor_v1.md
+50_documentacion/andamios/20260904_encargo_alcance_motor_busqueda_v1.md
+50_documentacion/andamios/20260904_medicion_corpus_semantica.R
+50_documentacion/andamios/20260904_panel_adversarial_motor_v1.md
+50_documentacion/andamios/20260904_prototipo_vocabulario.R
+50_documentacion/andamios/logs/20260904_alcance_motor_busqueda_v9_log.md
+```
+
+Son once rutas y no diez porque incluye el **propio encargo**, que la tabla de §2 no lista
+(lo depositó el titular y se versiona con la fase 1). La auditoría lo levantó como hallazgo
+`AUT-A-02` contra el encargo y sus escépticos lo descartaron: versionar el encargo que se
+está ejecutando no es escribir fuera de la lista, es dejar constancia de qué se ejecutó.
+Los otros diez son exactamente los diez de la tabla.
+
+**El laboratorio queda fuera del índice y en disco**, por la regla R1 del hook (D7):
+`git ls-files 50_documentacion/andamios/lab_motor_v9 | wc -l` → 0, con la carpeta presente.
+No está ignorado, lo que significa que un `git add -A` futuro lo volvería a meter: la guarda
+de estacionamiento por ruta explícita está en §10 y la decisión que lo resolvería, en la
+síntesis.
+
+**Ninguna cadena con forma de RUT en lo versionado.** El hook la rechaza, ficticia o no:
+
+```
+$ git diff -U0 a07dd1a HEAD | grep -E '^\+' | grep -v '^+++' | grep -Ec '<patrón R3>'
+0
+$ printf '%s-%s\n' "$(printf '11.111.%s' '111')" '1' | grep -cE '<patrón R3>'   # CONTROL
+1
+```
+
+**Ninguna pieza interpretativa publicada, validada ni tocada.** Siguen 22 en borrador y 0
+validadas, igual que al abrir. El generador de páginas no corrió en toda la sesión.
 
 ## 7. Delegaciones ejercidas
 
-Ninguna esperada. (pendiente de confirmar al cierre)
+**Ninguna, y ninguna fue necesaria.** El encargo lo anticipaba así ("ninguna esperada; si
+alguna fue necesaria, no se ejerce: se detiene el encargo y se reporta") y esa rama no se
+usó. Verificación al cierre: `git status --porcelain -- 20_insumos` y
+`git diff --stat a07dd1a..HEAD -- 20_insumos` devuelven vacío, con control positivo del
+mismo comando sobre `50_documentacion/`, que sí imprime. Las tres cosas que en otra sesión
+habrían pedido una delegación se resolvieron dentro de las autorizaciones o se declararon:
+los alias curados que A1 necesitaría para la capa 1 quedan como propuesta de archivo
+firmado en su documento, sin escribirlos; la corrección de las dos anclas rotas de las
+piezas en borrador no se tocó porque vive en `20_insumos/curaduria/piezas/`; y el archivo
+de autorización de datos versionados que permitiría versionar el laboratorio vive en
+`50_documentacion/activa/`, fuera de la tabla de §2, así que se propone al titular en la
+síntesis en vez de crearse.
 
 ## 8. Errores del propio ejecutor
 
@@ -895,7 +1006,37 @@ Ninguna esperada. (pendiente de confirmar al cierre)
 
 ## 9. Residuos declarados
 
-(pendiente: se completa al cierre; D4 ya es un residuo: precio de la API no medido)
+**Lo que no se midió, y por qué.**
+
+| Residuo | Razón | Qué lo zanjaría |
+|---|---|---|
+| Precio de la API del modelo | `docs.claude.com` y `www.anthropic.com` redirigen a hosts no autorizados por §2 (302 y 301, salida literal en D4). Se congeló en vez de improvisar, con el precedente de la T3 del encargo v1 | Autorizar `platform.claude.com` o `claude.com` en la lista de dominios, y correr `curl -sIL` sobre la página de precios |
+| Peso del modelo que vectoriza la consulta en el navegador | Vive en un host no autorizado y la red está acotada | La misma autorización de dominio |
+| Bytes reales del índice vectorial | Está prohibido gastar cuota de API, así que no existe ni un vector: las tres cifras son aritmética explícita sobre la dimensionalidad | Generar los embeddings, que exige cuota |
+| Usuarios máximos de Zero Trust en el plan gratuito | La página de planes responde 200 pero se arma con JavaScript, así que `curl` no ve el número (medido por A4) | Un navegador, o la documentación de límites si algún día lo publica |
+| CPU real del paso a través en streaming del Worker | Exige desplegar y perfilar, y este encargo no despliega nada | El experimento de seis pasos que A4 dejó escrito |
+| Latencia real en el navegador | Nadie escribió el JavaScript de la capa 1: el prototipo es de R y mide la construcción del índice, no su carga | Servir el JSON y medir con las herramientas del navegador |
+| Ganancia del reranking y de la descomposición | El costo está medido; la ganancia exige correr las diez consultas contra un motor que todavía no existe | Construir la capa 2 y medir contra la línea base ya publicada |
+| Lenguaje real de las consultas del equipo | No hay registro de consultas en el repositorio. A1 usó proxies del corpus y A5 construyó 38 consultas, ambas declaradas como aproximación y no como dato de uso | Instrumentar el buscador del sitio, o pedirle al equipo una tanda de consultas reales |
+
+**Lo que se estimó, y con qué regla declarada.** El conteo de tokens (dos reglas, c4 y c35,
+declaradas como estimación); la descarga a 3 Mbps; la extrapolación del corpus a 100 normas,
+que es lineal por supuesto declarado; y el tamaño del equipo que usa el motor.
+
+**Lo que se decidió no hacer.** Versionar el laboratorio (queda propuesto al titular en la
+síntesis, con tres puntos que exigen escribir fuera de la tabla de §2); corregir las dos
+anclas rotas de las piezas en borrador (viven en `20_insumos/`); ampliar `TIPOS_PIEZA` en el
+generador para que acepte la ruta de abordaje como tipo propio (vive en
+`30_procesamiento/`, y A3 encontró una forma que pasa la compuerta vigente sin tocar
+código); y una cuarta ronda de corrección sobre los residuos que el propio documento altera
+al mencionarse, por la razón que §5 explica.
+
+**Un residuo de método, no de medición.** El costo real de esta ejecución fue el tiempo de
+reloj: siete cortes por límite de la API repartidos en cuatro días, ninguno de los cuales
+costó trabajo (la reanudación desde caché replica lo hecho), pero que convirtieron un
+encargo de una sesión en uno de cuatro. La reanudación tuvo un efecto secundario que valió
+la pena: siete de las doce dimensiones de la auditoría se re-derivaron dos veces por
+agentes distintos, y esa segunda pasada encontró defectos que la primera no.
 
 ## 10. Commits
 
