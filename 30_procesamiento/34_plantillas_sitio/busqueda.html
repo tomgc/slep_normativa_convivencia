@@ -1,5 +1,5 @@
 <!-- ==========================================================================
-     busqueda.html - interfaz de Pagefind, incluida al inicio del body de TODAS
+     busqueda.html - interfaz de busqueda, incluida al inicio del body de TODAS
      las paginas (include-before-body de _quarto.yml).
      ---------------------------------------------------------------------------
      Las rutas son RELATIVAS ("pagefind/...") y no absolutas: GitHub Pages sirve
@@ -9,41 +9,226 @@
 
      baseUrl se calcula en tiempo de ejecucion desde location.pathname por la
      misma razon: Pagefind guarda las rutas relativas a la raiz del sitio
-     indexado y la UI las resuelve contra baseUrl, cuyo valor por defecto ("/")
-     apunta fuera del proyecto en GitHub Pages.
+     indexado y las resuelve contra baseUrl, cuyo valor por defecto ("/") apunta
+     fuera del proyecto en GitHub Pages.
 
-     showSubResults es lo que hace que el resultado apunte al ARTICULO y no solo
-     a la norma: Pagefind genera un sub-resultado por cada encabezado con id
-     dentro del cuerpo indexado, y el generador de paginas emite un encabezado
-     con id por articulo.
+     POR QUE ESTA UI Y NO PagefindUI (encargo v10, B1)
+     -------------------------------------------------
+     La unidad de recuperacion de este sitio es el ARTICULO, no la norma: cada
+     articulo emite un encabezado con id y Pagefind produce un sub-resultado por
+     cada uno. PagefindUI muestra a lo mas TRES de esos sub-resultados por norma
+     y los presenta en orden de documento. En un cuerpo legal de 217 articulos,
+     eso significa que el articulo que responde queda tapado por otros tres del
+     mismo cuerpo que solo mencionan la palabra antes que el.
+
+     El tope de 3 esta escrito en el cuerpo de la funcion de recorte del bundle
+     (v1.5.2, `slice(0,3)`), no en un parametro, asi que no se puede subir desde
+     fuera: `process_result` alcanza para reordenar, no para mostrar mas de tres.
+     Medido en 20260908_medicion_correcciones_v1.md seccion 1.5, sobre las dos
+     baterias del conjunto de evaluacion: con el orden de documento hacen falta
+     7 posiciones para cubrir 12 de 13 casos, y con el orden por relevancia
+     bastan 2. El orden pesa mas que el tope, y ninguno de los dos se podia
+     cambiar con la UI por defecto.
+
+     Lo que esta UI hace de mas, y nada mas que eso: ordena los sub-resultados
+     por relevancia, muestra hasta TOPE_SUB_RESULTADOS por norma, y rotula cada
+     uno con el identificador del ancla a la que lleva, para que se vea que
+     articulo se esta abriendo antes de abrirlo.
      ========================================================================== -->
-<link href="pagefind/pagefind-ui.css" rel="stylesheet">
-<script src="pagefind/pagefind-ui.js"></script>
-<div id="buscador"></div>
-<script>
-  window.addEventListener("DOMContentLoaded", function () {
-    if (typeof PagefindUI === "undefined") return;   // aun no se ha indexado
-    var base = window.location.pathname.replace(/[^/]*$/, "");
-    new PagefindUI({
-      element: "#buscador",
-      bundlePath: base + "pagefind/",
-      baseUrl: base,
-      showSubResults: true,
-      showImages: false,
-      pageSize: 8,
-      translations: {
-        placeholder: "Buscar en la normativa (por ejemplo: revisión de mochilas)",
-        clear_search: "Limpiar",
-        load_more: "Ver más resultados",
-        search_label: "Buscar en este sitio",
-        filters_label: "Filtros",
-        zero_results: "Sin resultados para [SEARCH_TERM]",
-        many_results: "[COUNT] resultados para [SEARCH_TERM]",
-        one_result: "1 resultado para [SEARCH_TERM]",
-        alt_search: "Sin resultados para [SEARCH_TERM]. Se muestran resultados para [DIFFERENT_TERM]",
-        search_suggestion: "Sin resultados para [SEARCH_TERM]. Pruebe con alguna de estas búsquedas:",
-        searching: "Buscando [SEARCH_TERM]..."
+<div id="buscador">
+  <label class="buscador-label" for="buscador-entrada">Buscar en la normativa</label>
+  <input id="buscador-entrada" type="search" autocomplete="off" spellcheck="false"
+         placeholder="Buscar en la normativa (por ejemplo: revisión de mochilas)">
+  <p id="buscador-estado" class="buscador-estado" role="status" aria-live="polite"></p>
+  <ol id="buscador-resultados" class="buscador-resultados"></ol>
+  <button id="buscador-mas" class="buscador-mas" type="button" hidden>Ver más resultados</button>
+</div>
+
+<style>
+/* Estilos del buscador, aqui y no en estilo.css, porque el encargo v10 acota
+   este bloque a este archivo. Sin tipografias ni colores nuevos: los grises y
+   el azul son los que ya usa la hoja del sitio. */
+#buscador { max-width: 46rem; margin: 1.2rem auto 2rem auto; }
+.buscador-label {
+  display: block;
+  font-size: 0.82rem;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+#buscador-entrada {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1.05rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.35rem;
+  background: #fff;
+  color: #212529;
+}
+#buscador-entrada:focus { outline: 2px solid #0d3b66; outline-offset: 1px; border-color: #0d3b66; }
+.buscador-estado { font-size: 0.88rem; color: #495057; margin: 0.5rem 0 0 0; }
+.buscador-estado:empty { display: none; }
+.buscador-resultados { list-style: none; padding-left: 0; margin: 0.6rem 0 0 0; }
+.buscador-norma { padding: 0.7rem 0; border-bottom: 1px solid #e9ecef; }
+.buscador-norma-titulo { font-weight: 600; }
+.buscador-norma-titulo a { color: #0d3b66; }
+.buscador-sub { list-style: none; padding-left: 0.9rem; margin: 0.4rem 0 0 0; border-left: 2px solid #e9ecef; }
+.buscador-sub li { margin: 0.35rem 0; }
+.buscador-sub a { color: #0d3b66; }
+/* El identificador del ancla, junto al titulo del articulo: es lo que dice a
+   donde lleva el enlace. Monoespaciado porque es un identificador, no prosa. */
+.buscador-ancla {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  color: #495057;
+  background: #f1f3f5;
+  border-radius: 0.25rem;
+  padding: 0.05em 0.4em;
+  margin-left: 0.4rem;
+}
+.buscador-extracto { font-size: 0.9rem; color: #212529; margin: 0.15rem 0 0 0; }
+.buscador-extracto mark { background: #fff3bf; padding: 0 0.1em; }
+.buscador-mas {
+  margin-top: 0.8rem;
+  font-size: 0.92rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.35rem;
+  background: #f8f9fa;
+  color: #212529;
+  cursor: pointer;
+}
+.buscador-mas:hover { background: #e9ecef; }
+</style>
+
+<script type="module">
+  // == INICIO BLOQUE DE ORDEN ==
+  // Lo lee el instrumento de medicion del encargo v10: se extrae literalmente de
+  // este archivo y se evalua alli, para que la cifra "despues" se mida contra el
+  // codigo que se publica y no contra una copia suya que puede divergir en
+  // silencio. Marcadores de una sola linea a proposito: asi el trozo extraido es
+  // JavaScript valido cualquiera sea el corte. Si se mueven, mover el extractor.
+  const TOPE_SUB_RESULTADOS = 5;
+
+  // Relevancia de un sub-resultado. `balanced_score` es el peso que Pagefind da
+  // a cada aparicion corregido por el largo del fragmento: sin esa correccion un
+  // articulo de tres mil caracteres que menciona el termino cuatro veces le gana
+  // siempre al de doscientos que lo define. Se suma sobre las apariciones y se
+  // desempata por la mejor de ellas; el ultimo desempate es el orden de
+  // documento, para que dos articulos equivalentes salgan en el orden en que
+  // estan en la norma y el resultado sea estable entre corridas.
+  function ordenarSubResultados(subs) {
+    const peso = (s) => (s.weighted_locations || []).reduce((a, l) => a + l.balanced_score, 0);
+    const mejor = (s) => (s.weighted_locations || []).reduce((a, l) => Math.max(a, l.balanced_score), 0);
+    return subs
+      .map((s, i) => ({ s, i, peso: peso(s), mejor: mejor(s) }))
+      .sort((a, b) => (b.peso - a.peso) || (b.mejor - a.mejor) || (a.i - b.i))
+      .map((x) => x.s);
+  }
+  // == FIN BLOQUE DE ORDEN ==
+
+  const PAGINA = 8;   // resultados de norma por tanda, como el pageSize anterior
+
+  const caja       = document.getElementById("buscador-entrada");
+  const estado     = document.getElementById("buscador-estado");
+  const lista      = document.getElementById("buscador-resultados");
+  const boton      = document.getElementById("buscador-mas");
+
+  const base = window.location.pathname.replace(/[^/]*$/, "");
+  let pagefind = null, resultados = [], mostrados = 0, corrida = 0;
+
+  async function motor() {
+    if (pagefind) return pagefind;
+    // Import dinamico: si el sitio aun no se ha indexado, el modulo no existe y
+    // la caja queda inerte en vez de romper la pagina entera.
+    pagefind = await import(base + "pagefind/pagefind.js");
+    await pagefind.options({ basePath: base + "pagefind/", baseUrl: base });
+    await pagefind.init();
+    return pagefind;
+  }
+
+  const texto = (el, s) => { el.textContent = s; };
+
+  function pintarNorma(d) {
+    const li = document.createElement("li");
+    li.className = "buscador-norma";
+
+    const h = document.createElement("p");
+    h.className = "buscador-norma-titulo";
+    const a = document.createElement("a");
+    a.href = d.url;
+    texto(a, (d.meta && d.meta.norma) || d.meta?.title || d.url);
+    h.appendChild(a);
+    li.appendChild(h);
+
+    // El primer sub-resultado repite la pagina cuando la coincidencia cae antes
+    // del primer encabezado con id; ahi no aporta nada sobre el titulo de arriba.
+    let subs = Array.isArray(d.sub_results) ? d.sub_results.slice() : [];
+    if (subs.length && subs[0].url === ((d.meta && d.meta.url) || d.url)) subs = subs.slice(1);
+    subs = ordenarSubResultados(subs).slice(0, TOPE_SUB_RESULTADOS);
+
+    if (subs.length) {
+      const ul = document.createElement("ul");
+      ul.className = "buscador-sub";
+      for (const s of subs) {
+        const sli = document.createElement("li");
+        const sa = document.createElement("a");
+        sa.href = s.url;
+        texto(sa, s.title || "(sin título)");
+        sli.appendChild(sa);
+        const id = s.anchor && s.anchor.id;
+        if (id) {
+          const marca = document.createElement("code");
+          marca.className = "buscador-ancla";
+          texto(marca, "#" + id);
+          sli.appendChild(marca);
+        }
+        const p = document.createElement("p");
+        p.className = "buscador-extracto";
+        // innerHTML porque el extracto trae <mark> alrededor de lo coincidente.
+        // El contenido lo genera Pagefind desde el HTML de este mismo sitio.
+        p.innerHTML = s.excerpt || "";
+        sli.appendChild(p);
+        ul.appendChild(sli);
       }
-    });
+      li.appendChild(ul);
+    }
+    return li;
+  }
+
+  async function pintarTanda() {
+    const hasta = Math.min(mostrados + PAGINA, resultados.length);
+    const datos = await Promise.all(resultados.slice(mostrados, hasta).map((r) => r.data()));
+    for (const d of datos) lista.appendChild(pintarNorma(d));
+    mostrados = hasta;
+    boton.hidden = mostrados >= resultados.length;
+  }
+
+  async function buscar(termino) {
+    const mia = ++corrida;
+    lista.replaceChildren();
+    boton.hidden = true;
+    mostrados = 0;
+    resultados = [];
+    if (!termino) { texto(estado, ""); return; }
+    texto(estado, "Buscando " + termino + "...");
+    let p;
+    try { p = await motor(); }
+    catch { texto(estado, "La búsqueda no está disponible en esta copia del sitio."); return; }
+    const r = await p.search(termino);
+    if (mia !== corrida) return;   // llego una respuesta vieja: se descarta
+    resultados = r.results;
+    if (!resultados.length) { texto(estado, "Sin resultados para " + termino); return; }
+    texto(estado, resultados.length === 1
+      ? "1 norma con resultados para " + termino
+      : resultados.length + " normas con resultados para " + termino);
+    await pintarTanda();
+  }
+
+  let reloj = null;
+  caja.addEventListener("input", () => {
+    clearTimeout(reloj);
+    reloj = setTimeout(() => buscar(caja.value.trim()), 300);
   });
+  boton.addEventListener("click", () => { pintarTanda(); });
 </script>

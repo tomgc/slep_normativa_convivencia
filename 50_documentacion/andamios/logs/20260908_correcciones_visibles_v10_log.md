@@ -89,3 +89,82 @@ comparable con lo que venga después.
 
 ## 3. Bloques
 
+### 3.1 B1 — Sub-resultados del buscador
+
+**Qué se cambió.** `30_procesamiento/34_plantillas_sitio/busqueda.html`, y nada más. Se
+reemplazó `PagefindUI` por una interfaz propia sobre la API pública de Pagefind, dentro del
+mismo archivo (incluidos sus estilos, en un `<style>` local, para no salir de la
+autorización de B1).
+
+**Por qué el reemplazo y no un ajuste.** Las tres cosas que B1 pide son: ordenar por
+relevancia, subir el tope y mostrar el identificador de artículo. La primera y la tercera se
+podían hacer con `process_result`. La segunda no: el tope de 3 está escrito en el **cuerpo**
+de la función de recorte del bundle (`slice(0,3)`), no en un parámetro, de modo que ningún
+ajuste desde fuera lo sube. Verificado leyendo `40_salidas/sitio/pagefind/pagefind-ui.js`
+v1.5.2 y citado literal en la medición §1.1.
+
+**Los tres cambios, uno por uno.**
+
+1. **Orden por relevancia.** `ordenarSubResultados()` ordena por la suma de `balanced_score`
+   de las apariciones, desempata por la mejor aparición y, en último término, por el orden
+   de documento (para que dos artículos equivalentes salgan estables entre corridas).
+   `balanced_score` corrige por el largo del fragmento: sin esa corrección, un artículo de
+   tres mil caracteres que menciona el término cuatro veces le gana siempre al de doscientos
+   que lo define.
+2. **Tope: 5.** Justificado en la medición §1.5. Con el orden nuevo, el tope 2 ya alcanza 12
+   de 13 casos y la curva es plana hasta el 8: **subir el tope no compra cobertura, el orden
+   sí**. Se eligió 5 y no 2 como decisión de **margen** declarada, no como óptimo medido: 2
+   es el mínimo justo sobre una muestra de 13 casos, y fijar el corte en el mínimo justo de
+   una muestra pequeña es sobreajustarla.
+3. **Identificador de artículo.** Cada sub-resultado muestra su ancla (`#art-3`,
+   `#ocr-pagina-008`) junto al título, monoespaciada, para que se vea a dónde lleva el enlace
+   antes de abrirlo.
+
+**Cómo se midió, y por qué es comparable.** El instrumento (`consulta_ui2.mjs`, anexo de la
+medición) **extrae del propio `busqueda.html` el bloque delimitado por
+`// == INICIO BLOQUE DE ORDEN ==` y lo evalúa**. La cifra «después» se mide con el código que
+se publica, no con una transcripción suya. Control de que el instrumento no cambió de vara:
+en su modo de réplica reproduce la línea base exacta (1 de 10 estricto, 2 de 10 aceptado).
+
+**Resultado, consulta por consulta** (ancla esperada visible en la interfaz; entre paréntesis
+la posición en que aparece entre los mostrados):
+
+| id | consulta | antes | después |
+|---|---|---|---|
+| C01 | pueden revisar la mochila de un alumno | no | no |
+| C02 | se puede usar el celular en la sala de clases | no | no |
+| C03 | es obligatorio tener un encargado de convivencia en el colegio | no | no |
+| C04 | qué es el bullying | no | no |
+| C05 | una alumna embarazada puede seguir yendo al colegio | no | **sí (pos. 2)** |
+| C06 | cuántos días tiene el apoderado para apelar una expulsión | sí (pos. 1) | sí (pos. 2) |
+| C07 | quiénes tienen que estar en el consejo escolar | no | no |
+| C08 | el colegio puede obligar a los alumnos a usar uniforme | no | no |
+| C09 | un alumno trans pide que lo llamen por su nombre social | no | no |
+| C10 | se puede suspender al alumno mientras dura el proceso de expulsión | no | **sí (pos. 3)** |
+
+**1 de 10 → 3 de 10** con el ancla esperada; 2 de 10 → 3 de 10 aceptando las alternativas.
+**Es el techo declarado en §2.1**: las 7 restantes no tienen su ancla en el material que la
+interfaz recibe, y eso es recuperación, no presentación.
+
+Segunda batería (término canónico), donde el índice sí recupera las 10: la visibilidad se
+mantiene en 9 de 10, y lo que mejora es **dónde** queda el artículo correcto: posición
+mediana **2 → 1**, y aparece en primer lugar en **5 de 10** frente a 4 de 10. C03 y C04 bajan
+de la posición 1 a la 2; ninguna deja de verse.
+
+**Verificación en navegador real** (Chrome 152, headless, sitio servido en local; banco de
+pruebas fuera del repositorio):
+
+- En la raíz, `revisión de mochilas`: «2 normas con resultados», el dictamen 065 con sus
+  cuatro sub-resultados y `#fuentes` —el ancla esperada de C01— **en primer lugar**; el
+  dictamen 078 con **cinco** sub-resultados, que es el tope nuevo funcionando.
+- Servido bajo `/slep_normativa_convivencia/`, como en Pages: el motor carga, busca y
+  responde («Sin resultados para…» en la consulta que no tiene ninguno). El render completo
+  bajo subdirectorio no se pudo capturar en headless por la interacción entre el reloj
+  virtual de Chrome y la latencia de red; las URL se verificaron en su lugar con el
+  instrumento contra ese mismo servidor: `http://127.0.0.1:8770/slep_normativa_convivencia/dto_215_uniforme_escolar.html#art-3`.
+  Resuelven contra `baseUrl`, igual que antes. Queda declarado como verificación parcial.
+
+**Prueba de regresión de anclas tras esta regeneración:** 806 segmentos declarados, **806
+presentes en el HTML, 0 faltan**; 273 enlaces internos y 205 destinos distintos, **0 rotos**.
+Control positivo del verificador: detecta el ancla rota plantada, 1 de 1.
+
