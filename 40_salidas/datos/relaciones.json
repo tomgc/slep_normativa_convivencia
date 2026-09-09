@@ -676,11 +676,11 @@
       "desde": "ley_19979_jornada_escolar_completa",
       "hacia": "ley_21809_convivencia_educativa",
       "tipo": "remision",
-      "articulo": "preambulo",
-      "etiqueta_articulo": "Encabezado y promulgación",
+      "articulo": "art-7",
+      "etiqueta_articulo": "Artículo 7º",
       "cita_literal": "Ley 21809",
-      "n_citas": 2,
-      "explicacion": "Cita «Ley 21809» en Encabezado y promulgación y en otros 1 fragmentos."
+      "n_citas": 1,
+      "explicacion": "Cita «Ley 21809» en Artículo 7º."
     },
     {
       "desde": "ley_19979_jornada_escolar_completa",
@@ -776,11 +776,11 @@
       "desde": "ley_21809_convivencia_educativa",
       "hacia": "ley_19979_jornada_escolar_completa",
       "tipo": "remision",
-      "articulo": "preambulo",
-      "etiqueta_articulo": "Encabezado y promulgación",
-      "cita_literal": "Ley 19979",
-      "n_citas": 2,
-      "explicacion": "Cita «Ley 19979» en Encabezado y promulgación y en otros 1 fragmentos."
+      "articulo": "art-3",
+      "etiqueta_articulo": "Artículo 3",
+      "cita_literal": "ley N° 19.979",
+      "n_citas": 1,
+      "explicacion": "Cita «ley N° 19.979» en Artículo 3."
     },
     {
       "desde": "ley_21809_convivencia_educativa",

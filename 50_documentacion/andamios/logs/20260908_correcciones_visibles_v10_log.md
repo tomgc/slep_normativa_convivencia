@@ -259,3 +259,103 @@ calculando sobre un `rem` base de 16 px. Medido en el navegador, el tema fija el
 faltan**; 273 enlaces y 205 destinos distintos, **0 rotos**. Control positivo: detecta.
 **El resultado de B1 no se movió:** 3 de 10 con el ancla esperada, medido de nuevo tras B2.
 
+### 3.3 B3 — Limpieza del preámbulo
+
+**Qué se cambió.** `30_procesamiento/31_extraer_texto.R`, y nada más. Una función nueva,
+`quitar_metadatos_origen()`, aplicada sobre el vector de bloques justo después de
+`unir_a_traves_de_paginas()` y antes de unirlos en el texto.
+
+**Por qué ahí y no en el segmentador.** Tres razones medidas:
+
+1. **`cabecera` ya se calculó** (`31:150-154`), a partir de la primera página **cruda**, y es
+   la única fuente del título y del año (`32:73-101` y `32:110-117`). Una limpieza colocada
+   antes de esa línea habría roto título y año de las 17 normas. Colocada después, no los
+   toca. Comprobado en la tabla de abajo: 25 de 25 títulos y años idénticos.
+2. **Dos de las 17 no tienen preámbulo.** `rex_181_celulares` y
+   `rex_482_instrucciones_reglamentos_internos` son documentos de un solo segmento con
+   `id = "documento"`. Una limpieza restringida a `id == "preambulo"` las habría dejado
+   fuera.
+3. **Arregla el intermedio, no solo el JSON.** `40_salidas/intermedios/texto/*.txt` es la
+   entrada de cualquier índice que se construya después; limpiar en el segmentador habría
+   dejado el `.txt` sucio y el `.json` limpio, que es una divergencia nueva.
+
+**La regla, derivada del texto y no de memoria.** Invariante medido en las 17: la ficha
+ocupa un bloque contiguo cerca de la cabeza y ese bloque **termina** en
+`Url Corta: https://bcn.cl/<token>`; aparece una sola vez por documento; su índice es 2 en
+quince normas y 3 en dos. Tres guardas: solo se mira dentro de los primeros 5 bloques; el
+bloque tiene que **terminar** en la URL, no solo contenerla; y nunca se quita un bloque que
+sea encabezado de artículo.
+
+**El pie también.** En los dos documentos de una sola página sobrevive
+`Biblioteca del Congreso Nacional de Chile - www.leychile.cl - documento generado el …`.
+No es una política nueva: `detectar_repetidos()` **ya lo quita** en los documentos de tres
+páginas o más y su propio comentario lo llama «el pie de la Biblioteca del Congreso»; se
+apaga en los de una o dos por `if (n < 3L) return(character(0))`. Aquí se completa esa misma
+limpieza sin el hueco.
+
+**Prueba de la función antes de aplicarla**, contra los 25 textos intermedios reales y con
+siete controles:
+
+| Comprobación | Resultado |
+|---|---|
+| Documentos afectados | **17 de 25**, los mismos que midió §5.6 |
+| Bloques quitados | 19 (17 fichas + 2 pies) |
+| **Encabezados de artículo antes → después** | **682 → 682, sin cambio** |
+| Control: cita de `bcn.cl` en medio de un artículo | no se toca |
+| Control: ficha más allá del bloque 5 | no se toca |
+| Control: documento sin ficha ni pie | no se toca nada |
+| Control: encabezado de artículo que además termina en la URL | no se toca (guarda 3) |
+| Control: ficha en el bloque 2 (el caso de 15 normas) | se quita, 3 → 2 |
+| Control: pie de la BCN como último bloque | se quita |
+| Control: vector vacío | 0, sin error |
+
+**La trampa de la caché, y cómo se resolvió sin borrar nada.** Editar `31` no reprocesa nada
+por sí solo: el paso 30 declaraba los 25 documentos `sin_cambio` (su huella cubre el md5 del
+PDF, el del OCR y el `origen_texto` curado, **no la versión del código**) y `31` reutiliza el
+`.txt` anterior sin reescribirlo. Sin invalidar esa caché, el arreglo habría sido un no-op
+silencioso. Se **apartó** (no se borró) `40_salidas/intermedios/extraccion.json`, que no está
+versionado (`.gitignore:61`) y el pipeline regenera; se movió al directorio de laboratorio,
+de modo que la acción es reversible y no hubo ningún comando destructivo. Resultado:
+`0 reutilizados sin cambio`, 25 documentos reextraídos.
+
+**Criterio de éxito, con el mismo comando exhaustivo de §5.6 antes y después:**
+
+| | antes | después |
+|---|---|---|
+| Normas con la cabecera del sitio de origen en el texto | **17 de 25** | **0 de 25** |
+| Segmentos contaminados | 17 | 0 |
+| … en el preámbulo / fuera de él | 15 / 2 | 0 / 0 |
+| `Biblioteca del Congreso Nacional` en el texto | 2 | 0 |
+| Control positivo del detector | detecta y no da falso positivo | ídem |
+
+**Prueba de regresión bloqueante, en verde:** 806 segmentos declarados, **806 presentes en
+el HTML, 0 faltan**; 273 enlaces internos y 205 destinos distintos, **0 rotos**. No hubo que
+revertir.
+
+**Efectos colaterales, todos verificados contra `HEAD`:**
+
+| Comprobación | Resultado |
+|---|---|
+| Títulos | **25 de 25 idénticos** |
+| Años | **25 de 25 idénticos** |
+| `n_articulos` y `n_segmentos` | **25 de 25 idénticos** |
+| Temas asignados | **25 de 25 idénticos** |
+| `marca_revisar` | **25 de 25 idénticos** |
+| `relaciones.json` | **552 antes y después**; por tipo `sustitucion=2, grupo_acto=2, remision=46, tema=502`, sin cambio |
+| Relaciones que aparecen o desaparecen | **0** |
+| Archivos versionados tocados | los 17 JSON contaminados, `relaciones.json` y el script. `catalogo.json` y `manifiesto_corpus.json`, sin cambio |
+
+Dos remisiones cambian de contenido, y **para mejor**: ambas apuntaban al preámbulo porque
+la ficha traía una cita normativa (`Ultima Modificación: … Ley 21809`). Al desaparecer,
+apuntan al artículo que efectivamente cita:
+
+- `ley_19979 → ley_21809`: `preambulo` → **`art-7`**.
+- `ley_21809 → ley_19979`: `preambulo` → **`art-3`**, y la cita literal pasa de `Ley 19979`
+  (la de la ficha) a `ley N° 19.979` (la del articulado, que es la jurídicamente pertinente).
+
+**Residuo declarado.** Las constantes `REGEX_FICHA_ORIGEN` y `REGEX_PIE_ORIGEN` quedaron en
+`31_extraer_texto.R` y no en `10_utils/10_configuracion.R`, donde `CLAUDE.md` §10.4 dice que
+viven «TODAS las rutas, regex y taxonomías». No es descuido: `10_utils/` **no está en la
+tabla de autorizaciones de §3** y moverlas habría exigido escribir fuera de ella. Queda
+como deuda para el próximo encargo que toque ese archivo.
+

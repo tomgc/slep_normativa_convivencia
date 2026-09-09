@@ -10,7 +10,9 @@
 # MAQUETACION del PDF, que no son parte de la norma:
 #   1. encabezados y pies de pagina repetidos (detectados programaticamente),
 #   2. cortes de palabra por guion al final de linea,
-#   3. saltos de linea internos de un parrafo (son ancho de columna, no texto).
+#   3. saltos de linea internos de un parrafo (son ancho de columna, no texto),
+#   4. la ficha y el pie del SITIO DE ORIGEN (Biblioteca del Congreso Nacional),
+#      que envuelven al documento en su sitio web y no son parte del acto.
 # Todo lo demas se conserva byte a byte, incluidas comillas, mayusculas,
 # numeracion romana y erratas del original.
 # =============================================================================
@@ -127,6 +129,57 @@ unir_a_traves_de_paginas <- function(bloques_por_pagina) {
   todos
 }
 
+# ---- Ficha y pie del sitio de origen ----------------------------------------
+# Los PDF del corpus se descargan de la Biblioteca del Congreso Nacional, que
+# envuelve el texto oficial en metadatos propios: arriba una ficha con fechas de
+# publicacion, promulgacion, version y ultima modificacion, cerrada por una URL
+# corta; abajo, en los documentos de una sola pagina, su linea de pie. Nada de
+# eso es parte del acto administrativo: es el envoltorio del sitio desde donde se
+# obtuvo el archivo. Dentro del texto contamina cualquier indice que se construya
+# sobre el, y ya produjo un defecto visible que se parcho aguas abajo (ver el
+# comentario de extracto_tematico() en 34_generar_paginas.R).
+#
+# Medido antes de escribir la regla: 17 de las 25 normas la arrastran, ninguna en
+# un segmento con es_articulo = TRUE
+# (50_documentacion/andamios/20260908_medicion_correcciones_v1.md, seccion 6).
+#
+# El pie ya lo quita detectar_repetidos() en los documentos de tres paginas o
+# mas; aqui se completa esa misma limpieza para los de una o dos, donde aquella
+# se apaga por falta de repeticion que detectar (n < 3L). No es una politica
+# nueva: es la que ya existe, sin el hueco.
+#
+# LA REGLA SE DERIVO DEL TEXTO REAL, no de memoria. Invariante medido en las 17:
+# la ficha ocupa un bloque contiguo cerca de la cabeza y ese bloque TERMINA en
+# "Url Corta: https://bcn.cl/<token>"; aparece una sola vez por documento; el
+# indice del bloque es 2 en quince normas y 3 en dos.
+#
+# Tres guardas, porque una limpieza que se pase de largo altera la segmentacion y
+# con ella todas las citas ya publicadas:
+#   1. solo se mira dentro de los primeros MAX_BLOQUES_FICHA bloques;
+#   2. el bloque tiene que TERMINAR en la URL corta, no solo contenerla, de modo
+#      que una cita de bcn.cl en medio de un articulo no dispare nada;
+#   3. no se quita jamas un bloque que sea encabezado de articulo.
+REGEX_FICHA_ORIGEN <- "Url\\s+Corta\\s*:\\s*https?://bcn\\.cl/[A-Za-z0-9]+\\s*$"
+REGEX_PIE_ORIGEN   <- "^Biblioteca del Congreso Nacional de Chile\\s*-\\s*www\\.leychile\\.cl"
+MAX_BLOQUES_FICHA  <- 5L
+
+quitar_metadatos_origen <- function(bloques) {
+  if (length(bloques) == 0L) return(bloques)
+  quitar <- rep(FALSE, length(bloques))
+
+  cabeza <- seq_len(min(MAX_BLOQUES_FICHA, length(bloques)))
+  ficha <- cabeza[grepl(REGEX_FICHA_ORIGEN, bloques[cabeza], perl = TRUE)]
+  if (length(ficha) > 0L) quitar[ficha[[1L]]] <- TRUE
+
+  ultimo <- length(bloques)
+  if (grepl(REGEX_PIE_ORIGEN, bloques[[ultimo]], perl = TRUE)) quitar[[ultimo]] <- TRUE
+
+  # Guarda 3. Un bloque que abre articulo no se toca aunque case lo anterior.
+  quitar <- quitar & !grepl(REGEX_ENCABEZADO_ARTICULO, bloques, perl = TRUE)
+
+  bloques[!quitar]
+}
+
 # ---- Extraccion de un documento ---------------------------------------------
 extraer_documento <- function(ruta_pdf) {
   slug <- sub("\\.pdf$", "", basename(ruta_pdf))
@@ -221,12 +274,15 @@ extraer_documento <- function(ruta_pdf) {
   }
 
   bloques   <- unir_a_traves_de_paginas(lapply(limpias, reflujo_pagina))
+  n_bloques_bruto <- length(bloques)
+  bloques   <- quitar_metadatos_origen(bloques)
   texto     <- paste(bloques, collapse = "\n\n")
 
   stopifnot(nchar(texto) > 0)
 
-  log_msg(sprintf("%s: %d paginas, %d bloques, %d caracteres, %d lineas de maquetacion removidas.",
-                  slug, info$pages, length(bloques), nchar(texto), length(repetidos)),
+  log_msg(sprintf("%s: %d paginas, %d bloques, %d caracteres, %d lineas de maquetacion removidas, %d bloque(s) de metadatos del sitio de origen.",
+                  slug, info[["pages"]], length(bloques), nchar(texto), length(repetidos),
+                  n_bloques_bruto - length(bloques)),
           origen = ORIGEN)
 
   list(slug = slug, paginas = info$pages, chars_alfabeticos = alfabeticos,
