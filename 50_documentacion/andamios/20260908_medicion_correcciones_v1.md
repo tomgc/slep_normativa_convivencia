@@ -6,7 +6,7 @@
 > **Alcance:** las seis mediciones de §5 con sus controles positivos, y (§7) la auditoría.
 >
 > Toda cifra de este documento lleva el comando que la produjo, ejecutado en la sesión
-> que lo escribe. Los instrumentos son cuatro scripts de laboratorio; como `§3` del
+> que lo escribe. Los instrumentos son ocho scripts de laboratorio; como `§3` del
 > encargo no autoriza crear archivos de laboratorio en el repositorio, viven fuera de él
 > y se transcriben íntegros en el **anexo A**, que es lo que los hace reproducibles.
 
@@ -191,14 +191,46 @@ Instrumento: `medicion_estructura.R` (anexo A.1).
 | Destinos distintos `archivo#ancla` | 205 | — |
 | de ellos **resuelven** | **205** (0 rotos) | — |
 
-**Sobre el «887 de 887» que §5.2 cita como referencia.** No es reproducible con lo que está
-versionado. Venía del «verificador de anclas del prototipo» de A1, cuyo índice tenía 892
-entradas (17 temas + 25 normas + 806 encabezados + 44 del glosario), y ese prototipo vive en
-`lab_motor_v9/`, sin versionar. Mide un objeto distinto del que mide este encargo: las
-entradas de un índice propuesto, no los enlaces del sitio publicado. **La prueba de
-regresión de este encargo son las dos filas en negrita**: 806 segmentos con ancla, 806
-presentes, y 205 de 205 destinos internos que resuelven, con el comando del anexo A.1. Se
-corre después de cada regeneración.
+**Sobre el «887 de 887» que §5.2 cita como referencia.** Sí es reproducible, y cuadra
+exacto. La primera redacción de esta sección dijo que no lo era, por haber supuesto la
+descomposición en vez de buscarla; la corrección va aquí, con su fuente.
+
+La verdad de terreno está en el laboratorio del v9, `lab_motor_v9/a1_salida_prototipo.txt`,
+línea 166, que se transcribe literal:
+
+```
+destinos verificados: 887 de 887 entradas con destino (con ancla: 845; solo pagina: 42);
+canonicos verificados: 887; entradas sin destino (pendientes de fuente): 5; fallos: 0
+```
+
+De ahí sale toda la aritmética, sin suponer nada:
+
+| Relación | Cuenta |
+|---|---|
+| Entradas del índice del prototipo | **892** |
+| … con destino | **887** = 892 − **5** sin destino (pendientes de fuente) |
+| … de esas, con ancla | **845** |
+| … de esas, solo página | **42** = 25 normas + 17 temas |
+| Anclas de segmento del sitio | **806** |
+| **Encabezados del glosario** | **39** = 845 − 806 |
+
+Los 39 son los encabezados `###` de `20_insumos/curaduria/piezas/borradores/glosario.md`
+(recuento propio: 39), que **no están publicados**: el sitio tiene 0 piezas interpretativas.
+Por eso 887 no se puede verificar entero contra el sitio, y sí se puede verificar la parte
+que sí existe en él:
+
+| Clase de destino | Cantidad | Resuelven |
+|---|---|---|
+| Ancla de segmento (`<slug>.html#<id>`) | 806 | **806** |
+| Página de norma (`<slug>.html`) | 25 | **25** |
+| Página temática (`tema-*.html`) | 17 | **17** |
+| **Total verificable contra el sitio publicado** | **848** | **848, 0 rotos** |
+
+`887 − 848 = 39`, los del glosario no publicado. **La prueba de regresión de este encargo
+tiene entonces tres lecturas**, y las tres se corren después de cada regeneración con el
+comando del anexo A.1: 806 de 806 anclas de segmento; **848 de 848 destinos del inventario
+del v9 que son verificables contra el sitio**; y 273 enlaces internos con 205 destinos
+distintos, 0 rotos.
 
 ### 2.1 Control positivo de §5.2
 
@@ -447,7 +479,7 @@ pero introducirían un gris que la hoja no tiene, contra la restricción de iden
 
 ## Anexo A — Instrumentos
 
-Los cuatro scripts se ejecutaron desde la raíz del repositorio, con `LANG=es_ES.UTF-8`.
+Los ocho scripts se ejecutaron desde la raíz del repositorio, con `LANG=es_ES.UTF-8`.
 Viven fuera del repositorio porque §3 no autoriza archivos de laboratorio dentro; se
 transcriben aquí para que las cifras de arriba sean reproducibles. Residuo declarado: no
 quedan versionados, que es la misma deuda que el v9 dejó con `lab_motor_v9/`.
@@ -1082,8 +1114,13 @@ rel_lum <- function(hex) {
 }
 razon <- function(a, b) { l <- sort(c(rel_lum(a), rel_lum(b)), decreasing = TRUE); (l[[1L]]+0.05)/(l[[2L]]+0.05) }
 
-# rem base del tema cosmo de Bootstrap 5 = 16px
-px <- function(rem) rem * 16
+# rem base del tema. NO son los 16 px del defecto de Bootstrap: el tema cosmo de
+# este sitio declara --bs-root-font-size: 17px, verificado en
+# 40_salidas/sitio/site_libs/bootstrap/bootstrap-*.min.css y confirmado con
+# getComputedStyle en el navegador. Con 16 este anexo produce cifras 6% mas bajas
+# que las publicadas en la seccion 8.1, que son las medidas.
+REM_BASE <- 17
+px <- function(rem) rem * REM_BASE
 
 casos <- data.frame(
   selector = c(".ficha-norma dt", ".procedencia (sobre pagina)", ".procedencia (sobre ficha)",
@@ -1127,4 +1164,188 @@ cand <- data.frame(
   sobre_f1f3f5 = round(sapply(c("#6c757d","#5c636a","#565e64","#495057","#41464b","#343a40"), razon, "#f1f3f5"), 2),
   stringsAsFactors = FALSE)
 print(cand, row.names = FALSE)
+```
+
+### A.7 — `consulta_ui2.mjs` (el instrumento que produce la cifra de B1)
+
+Es el que mide el «después». Se distingue de A.2 en una sola cosa, que es la que hace
+comparable la cifra: **extrae del propio `busqueda.html` el bloque delimitado por
+`// == INICIO BLOQUE DE ORDEN ==` y lo evalúa**, de modo que mide el código que se publica
+y no una transcripción suya. Sin la ruta de ese archivo reproduce la lógica de
+`pagefind-ui.js` v1.5.2, que es la línea base.
+
+```js
+// consulta_ui2.mjs -- instrumento de medicion del buscador, en modo LECTURA.
+// Igual que consulta_ui.mjs, con una diferencia que es la que lo hace comparable:
+// cuando se le pasa la ruta de busqueda.html, EXTRAE de ese archivo el bloque
+// delimitado por "== INICIO BLOQUE DE ORDEN ==" / "== FIN BLOQUE DE ORDEN ==" y
+// lo evalua. Asi el "despues" se mide con el codigo que se publica y no con una
+// transcripcion suya, que es como una medicion deja de medir lo que dice medir.
+//
+// Sin esa ruta reproduce la logica de pagefind-ui.js v1.5.2 (la linea base),
+// transcrita del bundle y citada en 20260908_medicion_correcciones_v1.md 1.1.
+//
+// Uso: node consulta_ui2.mjs <entrada.json> <salida.json> <basePath> <pagefind.js> <pageSize> [busqueda.html]
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const [, , entrada, salida, base, rutaJs, pageSizeArg, rutaHtml] = process.argv;
+if (!entrada || !salida || !base || !rutaJs) { console.error("faltan argumentos"); process.exit(2); }
+const PAGE_SIZE = pageSizeArg ? Number(pageSizeArg) : 8;
+
+let ordenar, TOPE, modo;
+if (rutaHtml) {
+  const html = readFileSync(resolve(rutaHtml), "utf8");
+  const m = html.match(/\/\/ == INICIO BLOQUE DE ORDEN ==[\s\S]*?\/\/ == FIN BLOQUE DE ORDEN ==/);
+  if (!m) { console.error("no se encontro el bloque de orden en " + rutaHtml); process.exit(3); }
+  const bloque = m[0];
+  const f = new Function(bloque + "\nreturn { ordenarSubResultados, TOPE_SUB_RESULTADOS };");
+  const api = f();
+  ordenar = api.ordenarSubResultados;
+  TOPE = api.TOPE_SUB_RESULTADOS;
+  modo = "ui_del_repositorio(" + rutaHtml + ")";
+} else {
+  // Replica literal de pagefind-ui.js v1.5.2: elige los 3 con mas locations y los
+  // devuelve en ORDEN DE DOCUMENTO (o.filter preserva el orden de entrada).
+  TOPE = 3;
+  ordenar = (subs) => {
+    if (subs.length <= 3) return subs;
+    const m = [...subs].sort((f, q) => q.locations.length - f.locations.length).slice(0, 3).map((f) => f.url);
+    return subs.filter((f) => m.includes(f.url));
+  };
+  modo = "replica_pagefind_ui_1.5.2";
+}
+
+const visibles = (d) => {
+  const sr = d.sub_results || [];
+  const primeroEsPagina = sr?.[0]?.url === (d.meta?.url || d.url);
+  const o = primeroEsPagina ? sr.slice(1) : [...sr];
+  return ordenar(o).slice(0, TOPE).map((x) => x.url);
+};
+
+const consultas = JSON.parse(readFileSync(entrada, "utf8"));
+const p = await import(pathToFileURL(resolve(rutaJs)).href);
+await p.options({ basePath: base });
+await p.init();
+
+const suma = (xs, f) => xs.reduce((a, x) => a + f(x), 0);
+const out = { base, page_size: PAGE_SIZE, tope_sub_resultados: TOPE, modo, consultas: [] };
+for (const c of consultas) {
+  const s = await p.search(c.consulta, c.filtros ? { filters: c.filtros } : undefined);
+  const paginas = [];
+  for (const [i, r] of s.results.entries()) {
+    const d = await r.data();
+    const vis = visibles(d);
+    const sub = (d.sub_results || []).map((sr, j) => ({
+      orden_documento: j + 1, title: sr.title, url: sr.url,
+      anchor_id: sr.anchor ? sr.anchor.id : null,
+      n_locations: sr.locations ? sr.locations.length : null,
+      suma_balanced: sr.weighted_locations ? suma(sr.weighted_locations, (l) => l.balanced_score) : null,
+      max_balanced: sr.weighted_locations && sr.weighted_locations.length ? Math.max(...sr.weighted_locations.map((l) => l.balanced_score)) : 0,
+      visible_en_ui: vis.includes(sr.url)
+    }));
+    paginas.push({ rango_pagina: i + 1, url: d.url, score: r.score, pagina_visible: i < PAGE_SIZE,
+                   n_sub_results: sub.length, n_visibles_ui: sub.filter((x) => x.visible_en_ui).length, sub_results: sub });
+  }
+  out.consultas.push({ id: c.id, consulta: c.consulta, n_paginas: s.results.length, paginas });
+}
+writeFileSync(salida, JSON.stringify(out, null, 1));
+console.log(`modo: ${modo} | tope: ${TOPE} | pageSize: ${PAGE_SIZE} | consultas: ${out.consultas.length}`);
+process.exit(0);
+```
+
+### A.8 — `comparar_b1.R` (§6.B1: antes y después consulta por consulta)
+
+```r
+# comparar_b1.R -- antes/despues consulta por consulta, con la POSICION en que el
+# articulo correcto queda entre los mostrados (no solo si esta o no).
+suppressPackageStartupMessages({library(dplyr); library(tibble)})
+sp <- commandArgs(trailingOnly = TRUE)[[1L]]
+EV <- read.csv("50_documentacion/andamios/lab_motor_v9/a2_consultas_evaluacion.csv",
+               stringsAsFactors = FALSE, encoding = "UTF-8")
+norm <- function(u) sub("^.*/", "", sub("^/+", "", sub("^https?://[^/]+", "", u)))
+
+leer <- function(ruta) {
+  r <- jsonlite::fromJSON(ruta, simplifyVector = FALSE)
+  filas <- list(); k <- 0L
+  for (cq in r[["consultas"]]) for (pg in cq[["paginas"]]) {
+    vis <- Filter(function(s) isTRUE(s[["visible_en_ui"]]), pg[["sub_results"]])
+    for (i in seq_along(vis)) {
+      k <- k + 1L
+      filas[[k]] <- tibble(id = cq[["id"]], rango_pagina = pg[["rango_pagina"]],
+                           pagina_visible = isTRUE(pg[["pagina_visible"]]),
+                           pos_mostrado = i, url = norm(vis[[i]][["url"]]),
+                           anchor = if (is.null(vis[[i]][["anchor_id"]])) NA_character_ else vis[[i]][["anchor_id"]])
+    }
+  }
+  if (k == 0L) return(tibble(id=character(0), rango_pagina=integer(0), pagina_visible=logical(0),
+                             pos_mostrado=integer(0), url=character(0), anchor=character(0)))
+  bind_rows(filas)
+}
+# OJO: pos_mostrado sale del ORDEN EN QUE EL INSTRUMENTO RECIBE los sub-resultados,
+# que es el de documento. Para el "despues" hay que reordenar con la misma funcion
+# que usa la pagina; se recalcula abajo desde el JSON completo.
+leer_ordenado <- function(ruta, ordenar_por) {
+  r <- jsonlite::fromJSON(ruta, simplifyVector = FALSE)
+  filas <- list(); k <- 0L
+  for (cq in r[["consultas"]]) for (pg in cq[["paginas"]]) {
+    vis <- Filter(function(s) isTRUE(s[["visible_en_ui"]]), pg[["sub_results"]])
+    if (!length(vis)) next
+    if (ordenar_por == "relevancia") {
+      pesos <- vapply(vis, function(s) as.numeric(s[["suma_balanced"]]), numeric(1))
+      maxs  <- vapply(vis, function(s) as.numeric(s[["max_balanced"]]), numeric(1))
+      vis <- vis[order(-pesos, -maxs, seq_along(vis))]
+    }
+    for (i in seq_along(vis)) {
+      k <- k + 1L
+      filas[[k]] <- tibble(id = cq[["id"]], rango_pagina = pg[["rango_pagina"]],
+                           pagina_visible = isTRUE(pg[["pagina_visible"]]),
+                           pos_mostrado = i, url = norm(vis[[i]][["url"]]))
+    }
+  }
+  bind_rows(filas)
+}
+
+acep <- setNames(lapply(seq_len(nrow(EV)), function(i)
+  norm(trimws(strsplit(EV[["anclas_aceptadas"]][[i]], ";", fixed=TRUE)[[1L]]))), EV[["id"]])
+esp  <- setNames(lapply(seq_len(nrow(EV)), function(i) norm(EV[["ancla_esperada"]][[i]])), EV[["id"]])
+
+resumir <- function(d, conj) {
+  vapply(EV[["id"]], function(idc) {
+    s <- d[d[["id"]] == idc & d[["pagina_visible"]], ]
+    h <- s[s[["url"]] %in% conj[[idc]], ]
+    if (nrow(h) == 0L) NA_integer_ else as.integer(min(h[["pos_mostrado"]]))
+  }, integer(1))
+}
+
+a <- leer_ordenado(file.path(sp, "antes_ui.json"), "documento")
+b <- leer_ordenado(file.path(sp, "despues_ui.json"), "relevancia")
+tab <- tibble(
+  id = EV[["id"]], consulta = EV[["consulta"]],
+  ancla_esperada = vapply(EV[["id"]], function(i) esp[[i]], character(1)),
+  antes_pos = resumir(a, esp), despues_pos = resumir(b, esp),
+  antes_acep = resumir(a, acep), despues_acep = resumir(b, acep)
+)
+tab[["antes"]]   <- ifelse(is.na(tab[["antes_pos"]]),   "no", paste0("si (pos ", tab[["antes_pos"]], ")"))
+tab[["despues"]] <- ifelse(is.na(tab[["despues_pos"]]), "no", paste0("si (pos ", tab[["despues_pos"]], ")"))
+cat("=== B1: ancla ESPERADA visible en la interfaz, consulta por consulta ===\n")
+print(as.data.frame(tab[, c("id","consulta","ancla_esperada","antes","despues")]), row.names = FALSE)
+cat("\nANTES:  ", sum(!is.na(tab[["antes_pos"]])), "de 10\n")
+cat("DESPUES:", sum(!is.na(tab[["despues_pos"]])), "de 10\n")
+cat("\n(con anclas aceptadas: antes", sum(!is.na(tab[["antes_acep"]])), "de 10, despues",
+    sum(!is.na(tab[["despues_acep"]])), "de 10)\n")
+write.csv(as.data.frame(tab), file.path(sp, "b1_comparacion.csv"), row.names = FALSE)
+
+# --- La bateria canonica, misma comparacion -----------------------------------
+ac <- leer_ordenado(file.path(sp, "antes_canonico.json"), "documento")
+bc <- leer_ordenado(file.path(sp, "despues_canonico.json"), "relevancia")
+tc <- tibble(id = EV[["id"]], termino = EV[["termino_canonico"]],
+             antes = resumir(ac, esp), despues = resumir(bc, esp))
+cat("\n=== Bateria canonica: posicion del articulo correcto entre los mostrados ===\n")
+print(as.data.frame(tc), row.names = FALSE)
+cat("\nvisible antes:  ", sum(!is.na(tc[["antes"]])), "de 10 | posicion mediana:", median(tc[["antes"]], na.rm=TRUE), "\n")
+cat("visible despues:", sum(!is.na(tc[["despues"]])), "de 10 | posicion mediana:", median(tc[["despues"]], na.rm=TRUE), "\n")
+cat("aparece en PRIMER lugar: antes", sum(tc[["antes"]] == 1, na.rm=TRUE), "de 10 | despues",
+    sum(tc[["despues"]] == 1, na.rm=TRUE), "de 10\n")
 ```

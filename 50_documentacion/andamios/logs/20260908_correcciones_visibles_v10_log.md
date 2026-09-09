@@ -411,8 +411,11 @@ incumplimiento del ejecutor: el ejecutor se detuvo antes de escribir fuera de la
 
 #### 3.3.2 El «887 de 887» reconstruido
 
-§5.2 del encargo cita «887 de 887 destinos verificados» como referencia del v9, y la
-medición previa lo dio por no reproducible. **Sí lo es, y cuadra exacto.** El inventario del
+§5.2 del encargo cita «887 de 887 destinos verificados» como referencia del v9. La primera
+redacción de la medición lo dio por no reproducible; **sí lo es, y cuadra exacto**. La
+medición quedó enmendada en su §2 con la descomposición completa, tomada de la línea 166 de
+`lab_motor_v9/a1_salida_prototipo.txt` (892 = 887 con destino + 5 sin destino; 887 = 845 con
+ancla + 42 solo página; 845 − 806 = 39 del glosario). El inventario del
 v9 se reconstruyó contra el sitio publicado:
 
 | Clase de destino | Cantidad | Resuelven |
@@ -474,4 +477,227 @@ y por qué el pipeline no puede decidirlo.
 vacío y `git diff --name-only HEAD -- 20_insumos/` también. **`20_insumos/` no tiene un solo
 cambio**, ni el glosario, ni las piezas en borrador, ni los metadatos curados, ni el README
 del corpus, pese a que el bloque encontró defectos en los cuatro.
+
+---
+
+## 4. Prueba de regresión de anclas tras cada regeneración
+
+Se corrió **cinco veces**, sobre cinco estados distintos del sitio: la línea base y cada una
+de las **cuatro regeneraciones que produjeron cambio**. No una sola vez al final. Instrumento
+único (`medicion_estructura.R`, anexo A.1 de la medición), con su control positivo en cada
+corrida.
+
+| # | Momento | Segmentos declarados → presentes | Faltan | Enlaces internos | Destinos distintos | Rotos | Control |
+|---|---|---|---|---|---|---|---|
+| 0 | Línea base, antes de tocar nada | 806 → 806 | 0 | 273 | 205 | **0** | detecta |
+| 1 | Control de idempotencia (regeneración sin cambios) | *no se recorrió* | — | — | — | — | equivalencia por hash |
+| 2 | Tras **B1** | 806 → 806 | 0 | 273 | 205 | **0** | detecta |
+| 3 | Tras **B2**, primer selector | 806 → 806 | 0 | 273 | 205 | **0** | detecta |
+| 4 | Tras **B2**, selector corregido | 806 → 806 | 0 | 273 | 205 | **0** | detecta |
+| 5 | Tras **B3** (la bloqueante) | 806 → 806 | 0 | 273 | 205 | **0** | detecta |
+
+**Precisión sobre la fila 1.** Tras la regeneración de control **no se volvió a correr el
+instrumento**: se comprobó que los 47 HTML quedaban **byte a byte idénticos** a los de la
+línea base (`md5 -r` sobre los 47, 0 diferencias), de modo que la medición 0 es literalmente
+la misma medición sobre los mismos bytes. Se anota así y no como una corrida más, porque
+declarar una corrida que no ocurrió es la desviación que este log existe para evitar.
+
+Más la lectura reconstruida del inventario del v9 tras B3: **848 de 848 destinos** (806
+anclas de segmento + 25 páginas de norma + 17 temáticas), 0 rotos. Ninguna corrida obligó a
+revertir.
+
+---
+
+---
+
+## 5. Hallazgos de auditoría
+
+Una sola pasada, por un agente que **no participó en ningún bloque** y con el mandato de no
+corregir lo que audita. Verificó los seis puntos de §7 reejecutando los comandos por su
+cuenta, y reprodujo de forma independiente la cifra cabecera, la segunda batería, el
+inventario de anclas, la contaminación, las 552 relaciones, los invariantes de B3 y
+prácticamente todas las cifras de B4.
+
+**Veredicto: ningún bloqueante. Tres mayores, seis menores.** Los tres mayores son de
+**evidencia citada que no sostiene la cifra que respalda**, no de resultado: en los tres
+casos la cifra publicada resultó ser la correcta. Se corrigieron, como manda §7. Los seis
+menores se anotan y **no se reparan**.
+
+### 5.1 Mayores, corregidos
+
+| # | Hallazgo | Corrección |
+|---|---|---|
+| **M1** | El log cita `consulta_ui2.mjs` como «anexo de la medición» y **no estaba en el anexo ni en el repositorio**: la cifra que justifica el encargo entero quedaba citada contra un artefacto inexistente. Agravante: la medición decía «cuatro scripts» y transcribía seis | Transcrito como **anexo A.7**, junto con `comparar_b1.R` como **A.8**. El conteo pasa a «ocho scripts» en las dos líneas donde aparecía |
+| **M2** | El anexo A.6 conservaba `px <- function(rem) rem * 16`, de modo que **ejecutado producía las cifras derogadas** (13,1 / 12,5 / 14,1 / 12,8 / 13,9 px) y no las publicadas en §8.1. Seis cifras publicadas quedaban sin comando que las produjera, y el comando ofrecido producía otras | `REM_BASE <- 17`, con el comentario que cita `--bs-root-font-size: 17px` del CSS del tema. **Verificado ejecutando el anexo tal como queda publicado**: produce 13,9 / 15,0 / 13,3 / 13,6 / 14,8 / 17,0, que son exactamente las de §8.1 |
+| **M3** | Los dos documentos descomponían el «887» de forma **incompatible**: la medición decía «no es reproducible» y lo repartía como 892 = 17 + 25 + 806 + 44; el log decía que sí y lo repartía como 887 = 848 + 39. Ambas no pueden ser ciertas, y la medición no se había enmendado | El auditor encontró la verdad de terreno en `lab_motor_v9/a1_salida_prototipo.txt:166`, transcrita literal. **El log tenía razón y la medición estaba mal**: había supuesto la descomposición en vez de buscarla. §2 de la medición reescrito con la aritmética completa y su fuente |
+
+El instrumento del **M1** fue el más grave de los tres, y no por la cifra sino por lo que
+habilita: sin el instrumento transcrito, nadie puede rehacer la medición que justifica el
+encargo. Es exactamente la deuda que el residuo 1 anticipaba, materializada en la cita.
+
+### 5.2 Menores, anotados y no reparados (§1 y §7 lo mandan así)
+
+1. **El comando del glosario en §3.4 no produce su cifra.** `grep("^### ", l)` sin
+   `value = TRUE` devuelve números de línea, y aun con él el `nchar` incluiría el prefijo
+   `### ` (los 20 encabezados miden 64 con él). **La cifra 20 es correcta** medida sobre el
+   texto sin marcador, y el auditor la reprodujo así. Lo que falla es la transcripción del
+   comando.
+2. **«0 reglas responsivas antes de B2» se publicó sin control positivo.** El auditor lo
+   suplió: el mismo `grep` sobre la hoja posterior devuelve 1, luego el instrumento detecta.
+3. **«0 usos de `.lista-normas`» se publicó sin control positivo.** Suplido igual: el mismo
+   comando sobre cuatro clases que sí se usan devuelve 17, 26, 42 y 25.
+4. **La enmienda de §3 consta en este log y en ninguna otra parte.** El archivo del encargo
+   no se reescribió (su tabla sigue con siete filas), de modo que quien cruce §3 contra
+   `git diff --name-only` hallará un octavo archivo sin autorización visible. **No se
+   repara aquí porque el encargo no está en la tabla de escritura**; queda señalado como el
+   pendiente más barato de cerrar y más caro de explicar dentro de seis meses.
+5. **`$` sobre estructura de disco corregido a medias en `31_extraer_texto.R`.** El cambio
+   pasó `info$pages` a `info[["pages"]]` en la línea del `log_msg`, pero dos líneas más
+   abajo sobrevive `paginas = info$pages` en el `list()` de retorno. Doble anotación: la
+   prohibición de §4 queda cumplida a medias **y** la línea que sí se tocó no era necesaria
+   para el arreglo, contra la regla de cambios quirúrgicos.
+6. **El sondeo de Python autodeclarado** (§7.1). El auditor lo toma de la autodeclaración,
+   ya que no deja rastro en el repositorio.
+
+### 5.3 Lo que la auditoría descartó explícitamente
+
+- **Ninguna cifra sustantiva difiere de lo medido por el auditor.** Reprodujo la tabla
+  consulta por consulta de B1 (incluido «C03 y C04 bajan de la posición 1 a la 2»), la
+  verificación en navegador, el inventario de anclas con su control, la contaminación 17 → 0,
+  los invariantes de B3 y las cifras de B4 verbatim.
+- **No hay cambio de vara entre el antes y el después del buscador**: mismo `page_size` (8,
+  verificado contra `git show bf9bd90:…/busqueda.html`), mismo criterio de acierto, mismo
+  conjunto de consultas y mismo corpus. Señaló con razón que §3.1, por sí solo, no
+  establecía lo del corpus, porque B3 cambió el texto indexado después; la corrida contra el
+  índice de producción de §9 lo cierra, y el auditor lo recomprobó por su cuenta.
+- **La regresión no se corrió una sola vez al final**: aparece tres veces en el log
+  comiteado, una por bloque.
+- **No hay rediseño encubierto en B2**: cero colores hex nuevos, cero eliminados, las mismas
+  dos familias tipográficas.
+- **No hay escritura en `20_insumos/`**, con control positivo propio del auditor.
+- **Los 17 JSON tocados son exactamente los 17 contaminados**, verificado con un `diff` entre
+  la lista del commit y la lista de contaminados en `bf9bd90`.
+- El auditor descartó además un falso positivo propio: su verificador marcó 3 anclas rotas en
+  las piezas, no 2; la tercera es un marcador de plantilla `slug.html#art-N` **dentro de un
+  comentario HTML** en 9 fichas. El 2 publicado es correcto.
+
+### 5.4 Una cifra que ya no se puede recontar, y por qué no es contradicción
+
+El peso base de §5.3 (3 048 234 B en total, `dfl_1` con 305 372 B) **no es reverificable
+contra el árbol actual**, porque el sitio se regeneró cuatro veces después de medirlo. Hoy da
+3 424 507 y 313 211. La diferencia (+376 273 en total, ≈ +8 007 por página) es exactamente lo
+que explica el crecimiento de `busqueda.html`, que pasó de 2 467 a 10 550 bytes y se incluye
+en las 47 páginas. Queda anotado para que nadie lo lea como contradicción: es el efecto
+esperado de B1 sobre el peso, no una cifra equivocada.
+
+## 6. Invariantes al cierre
+
+| Invariante | Comprobación | Resultado |
+|---|---|---|
+| **`20_insumos/` sin un solo cambio** | `git status --porcelain 20_insumos/` y `git diff --name-only HEAD -- 20_insumos/` | **vacío en ambos** |
+| Control positivo del mismo comando | `git status --porcelain 50_documentacion/` | devuelve 7 entradas: el comando **sí detecta** cuando hay algo |
+| Ningún archivo fuera de la tabla de §3 | `git diff --name-only bf9bd90..HEAD` cruzado con la tabla | ver §6.1 |
+| Ninguna pieza interpretativa publicada | `grep -c badge-interpretacion` sobre las 47 páginas | **0** |
+| Ninguna pieza validada ni firmada | `20_insumos/curaduria/piezas/` sin cambios (fila 1) | 22 borradores, 0 validadas |
+| `00_ocr_documentos.R` no se corrió | no aparece en ninguna corrida del log | correcto |
+| Ningún `.qmd` de `40_salidas/` editado a mano | todo se regeneró con `run_all()`, 5 veces | correcto |
+
+### 6.1 Archivos escritos, contra la tabla de §3
+
+| Ruta escrita | ¿En la tabla? | Bloque |
+|---|---|---|
+| `30_procesamiento/34_plantillas_sitio/busqueda.html` | sí | B1 |
+| `30_procesamiento/34_plantillas_sitio/estilo.css` | sí | B2 |
+| `30_procesamiento/31_extraer_texto.R` | sí («el script de extracción o segmentación que produce el preámbulo, en `30_procesamiento/`») | B3 |
+| `50_documentacion/andamios/20260908_medicion_correcciones_v1.md` | sí | medición |
+| `50_documentacion/andamios/20260908_pendientes_firma_humana_v1.md` | sí | B4 |
+| `50_documentacion/andamios/logs/20260908_correcciones_visibles_v10_log.md` | sí | log |
+| `40_salidas/datos/normas/*.json` (17) y `40_salidas/datos/relaciones.json` | sí, por «Regeneración del sitio: autorizada»; regenerados por pipeline, nunca a mano | B3 |
+| `50_documentacion/activa/50_datos_versionados_autorizados.md` | **ampliación explícita del emisor** durante la ejecución (§3.3.1) | B3 |
+
+**`_quarto.yml` estaba autorizado y no se escribió.** Ninguna corrección que la medición
+confirmara lo necesitaba.
+
+---
+
+## 7. Errores del propio ejecutor
+
+1. **Se ejecutó `python3 --version`.** §4 del encargo prohíbe Python «sin borde» y dice que
+   «no se ejecuta ni un sondeo de disponibilidad». Fue exactamente ese sondeo, escrito por
+   inercia al encabezar un comando de shell. No se usó Python para nada y ninguna medición
+   depende de él, pero la prohibición se incumplió en su letra. Queda declarado.
+2. **El primer selector de B2 compactaba la portada.** `body:has(.ficha-norma)` alcanzaba a
+   `index.html`, que reutiliza esa clase como caja de resumen y cuyo texto dice «Escriba en
+   el buscador de arriba». Detectado en la verificación del propio bloque, antes de dar B2
+   por terminado, y corregido a `body:has(.ficha-norma dl)`, comprobado con XPath sobre las
+   47 páginas.
+3. **Cifras de px publicadas con un supuesto falso.** La medición declaró los tamaños
+   calculando sobre un `rem` base de 16 px; medido en el navegador, el tema fija 17 px.
+   Corregido en el documento de medición con la medida real. El juicio de contraste no
+   cambia: ningún tamaño cruza el umbral de «texto grande».
+4. **El regex de B3 se truncó al escribirlo.** `REGEX_FICHA_ORIGEN` perdió su `$"` final por
+   expansión de shell. Lo detectó `parse()` **antes** de correr el pipeline; se reparó y se
+   volvió a verificar. Nada llegó a ejecutarse con el regex roto.
+5. **Se estuvo a punto de reportar un desborde horizontal inexistente.** Una captura de
+   Chrome headless a 390 px mostraba el contenido cortado. Antes de «corregirlo» se midió:
+   `scrollWidth == viewport` y 0 elementos excedían, tanto antes como después. La causa era
+   que el viewport mínimo de Chrome headless es 500 px y la captura recortaba a 390. El
+   error no llegó al producto, pero costó tres intentos y por poco produce una corrección a
+   un defecto que no existía.
+
+---
+
+## 8. Residuos declarados
+
+1. **Los instrumentos de laboratorio no quedan versionados.** Viven fuera del repositorio
+   porque §3 no autoriza crear archivos de laboratorio dentro. Se transcriben íntegros en el
+   anexo A de la medición, que es lo que los hace reproducibles. Es la misma deuda que el v9
+   dejó con `lab_motor_v9/`.
+2. **`REGEX_FICHA_ORIGEN` y `REGEX_PIE_ORIGEN` quedaron en `31_extraer_texto.R`** y no en
+   `10_utils/10_configuracion.R`, donde `CLAUDE.md` §10.4 dice que viven todos los regex.
+   `10_utils/` no está en la tabla de §3.
+3. **`CLAUDE.md` §10.6 («Últimos cambios») no se actualizó.** El contrato global manda
+   mantenerlo al día tras cada cambio importante, pero `CLAUDE.md` **no está en la tabla de
+   §3** y §8 manda detenerse antes de escribir fuera de ella. Queda pendiente de
+   autorización; es la entrada más obvia que falta.
+4. **Cinco archivos siguen sin versionar** en el árbol: los cuatro documentos del 2026-09-08
+   y `lab_motor_v9/`. No están en la tabla y este encargo no los adopta.
+5. **La verificación en navegador del render bajo subdirectorio quedó parcial.** El motor
+   carga, busca y responde bajo `/slep_normativa_convivencia/`, y las URL se verificaron con
+   el instrumento contra ese servidor; el volcado del DOM completo no se pudo capturar por la
+   interacción entre el reloj virtual de Chrome headless y la latencia de red.
+6. **El techo de B1 son 3 de 10**, y las 7 restantes quedan sin tocar. Su cuello de botella
+   es la recuperación léxica (Pagefind exige todos los términos; las consultas están en el
+   lenguaje del equipo y no en el de la norma), que la regla de detención de B1 deja fuera.
+7. **Defecto mayor encontrado y no corregido: el índice lateral está vacío.** Las páginas de
+   norma titulan su índice «Articulado» y contienen una sola entrada, «Normas relacionadas»;
+   los artículos no entran porque se emiten dentro del `div` de `data-pagefind-body`. La
+   corrección vive en `34_generar_paginas.R`, fuera de la tabla de §3.
+8. **Código muerto mencionado y no borrado:** `.lista-normas` y `.titulo-norma`
+   (`estilo.css`), sin un solo uso en las 47 páginas. Se dejan por la regla de cambios
+   quirúrgicos.
+
+---
+
+## 9. Commits y estado de CI, verificado por `head_sha`
+
+Todos sobre `main`, todos pusheados, CI consultado con
+`gh run list --json headSha,status,conclusion`.
+
+| # | Commit | Qué | CI |
+|---|---|---|---|
+| 1 | `6876617` | medición previa, con controles positivos | **success** |
+| 2 | `32e19c2` | B1, buscador por relevancia con ancla visible | **success** |
+| 3 | `6524ffe` | B2, legibilidad acotada a lo confirmado | **success** |
+| 4 | `082a26d` | archivo de autorización del hook (enmienda del emisor) | **success** |
+| 5 | `174087a` | B3, limpieza del preámbulo en el origen | **success** |
+| 6 | `bff6390` | B4, pendientes de firma humana | **success** |
+
+Seis commits, el tope que §3 autoriza. **Los seis en verde.**
+
+**Verificado además en producción**, sobre `https://tomgc.github.io/slep_normativa_convivencia/`:
+el bloque de orden con `TOPE_SUB_RESULTADOS = 5` está publicado; `estilo.css` sirve 1 regla
+`@media` y 4 selectores `:has`; `grep "Url Corta"` sobre las páginas de norma devuelve **0**;
+y las diez consultas corridas contra el índice de producción dan **3 de 10**, la misma cifra
+que en local.
 
