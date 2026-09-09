@@ -411,25 +411,27 @@ de este documento. **La línea base es comparable con lo que venga después.**
 | 1 | Cero reglas responsivas en las 163 líneas de la hoja | **confirmado** | `grep -c "@media" 30_procesamiento/34_plantillas_sitio/estilo.css` → **0**; ídem sobre la copia publicada `40_salidas/sitio/estilo.css` → **0** |
 | 2 | Enlaces que no parecen enlaces: títulos de norma en gris y sin subrayado en los listados | **confirmado en otra regla** | `.lista-normas` y `.titulo-norma` (`estilo.css:79-81`) **no se usan en ninguna de las 47 páginas**: `grep -l 'lista-normas' 40_salidas/sitio/*.html \| wc -l` → **0**. Es código muerto. La regla que sí aplica es `.tema-norma a { text-decoration: none; }` (`estilo.css:149`), presente en las 17 páginas temáticas (14 ocurrencias de `class="tema-norma"` solo en `tema-convivencia-escolar.html`) |
 | 3 | Contraste bajo en texto pequeño de ficha, procedencia y etiquetas de relación | **parcial** | 2 de 11 pares bajo AA. Tabla abajo |
-| 4 | Versalitas diminutas en las insignias, varias por ficha | **confirmado** | `.badge-fuente` a `0.78rem` = **12,5 px** con `text-transform: uppercase`; `.ficha-norma dt` a `0.82rem` = **13,1 px**, también versalita. Insignias por página: mediana **15**, máximo **48** (`tema-medidas-disciplinarias.html`), total **781** en 42 de 47 páginas |
+| 4 | Versalitas diminutas en las insignias, varias por ficha | **confirmado** | `.badge-fuente` a `0.78rem` = **13,3 px** medidos con `getComputedStyle` (el `rem` base del tema es 17 px, no 16); `.ficha-norma dt` a `0.82rem` = **13,9 px**, también versalita. Insignias por página: mediana **15**, máximo **48** (`tema-medidas-disciplinarias.html`), total **781** en 42 de 47 páginas |
 | 5 | Buscador en todas las páginas | **confirmado** | 47 de 47 (§5 arriba) |
 | 6 | Índice lateral desproporcionado | **NO confirmado** | 1 entrada en las 5 páginas mayores, máximo 16 en el sitio (§4 arriba). Se declara y no se toca |
 
 ### 8.1 Contraste WCAG 2.1 (defecto 3)
 
-Texto pequeño: AA exige 4,5:1. Todas las medidas son de texto pequeño (< 18,66 px).
+Texto pequeño: AA exige 4,5:1. Todas las medidas son de texto pequeño (< 18,66 px). Los px
+salen de `getComputedStyle` en Chrome 152 sobre el sitio servido, no de un cálculo: el tema
+cosmo fija el `rem` base en **17 px**, no en los 16 px del defecto de Bootstrap.
 
 | selector | color | fondo | tamaño | contraste | AA |
 |---|---|---|---|---|---|
-| `.ficha-norma dt` | `#6c757d` | `#f8f9fa` | 13,1 px versalita | **4,45** | **no** |
-| `.procedencia` dentro de la ficha | `#6c757d` | `#f8f9fa` | 13,1 px | **4,45** | **no** |
-| `.procedencia` sobre la página | `#6c757d` | `#ffffff` | 13,1 px | 4,69 | sí |
-| `.lista-relaciones .rel-por` | `#6c757d` | `#ffffff` | 14,1 px | 4,69 | sí |
-| `.badge-tema` | `#495057` | `#f1f3f5` | 12,5 px | 7,35 | sí |
-| `.badge-tipo` | `#212529` | `#e9ecef` | 12,5 px versalita | 13,01 | sí |
-| `.marca-ocr` | `#6b5200` | `#fffbe9` | 12,8 px | 7,14 | sí |
-| `.transcripcion-ocr pre` | `#3d3d3d` | `#fffdf5` | 13,9 px | 10,67 | sí |
-| `.lista-normas .titulo-norma` (muerta) | `#495057` | `#ffffff` | 16 px | 8,18 | sí |
+| `.ficha-norma dt` | `#6c757d` | `#f8f9fa` | 13,9 px versalita | **4,45** | **no** |
+| `.procedencia` dentro de la ficha | `#6c757d` | `#f8f9fa` | 13,9 px | **4,45** | **no** |
+| `.procedencia` sobre la página | `#6c757d` | `#ffffff` | 13,9 px | 4,69 | sí |
+| `.lista-relaciones .rel-por` | `#6c757d` | `#ffffff` | 15,0 px | 4,69 | sí |
+| `.badge-tema` | `#495057` | `#f1f3f5` | 13,3 px | 7,35 | sí |
+| `.badge-tipo` | `#212529` | `#e9ecef` | 13,3 px versalita | 13,01 | sí |
+| `.marca-ocr` | `#6b5200` | `#fffbe9` | 13,6 px | 7,14 | sí |
+| `.transcripcion-ocr pre` | `#3d3d3d` | `#fffdf5` | 14,8 px | 10,67 | sí |
+| `.lista-normas .titulo-norma` (muerta) | `#495057` | `#ffffff` | 17 px | 8,18 | sí |
 
 **Confirmado solo para la ficha**, y por poco: 4,45 contra un umbral de 4,5. Las etiquetas
 de relación que el encargo nombra **sí cumplen** (4,69 y 7,35) y por tanto no se tocan.

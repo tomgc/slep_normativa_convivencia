@@ -168,3 +168,94 @@ pruebas fuera del repositorio):
 presentes en el HTML, 0 faltan**; 273 enlaces internos y 205 destinos distintos, **0 rotos**.
 Control positivo del verificador: detecta el ancla rota plantada, 1 de 1.
 
+### 3.2 B2 — Legibilidad
+
+**Qué se cambió.** `30_procesamiento/34_plantillas_sitio/estilo.css`, y nada más.
+**`_quarto.yml` estaba autorizado y no se tocó**: ninguna de las correcciones que la medición
+confirmó lo necesitaba.
+
+De los seis defectos, la medición (§8 del documento de medición) confirmó cuatro, confirmó
+uno en otra regla distinta de la nombrada, y no confirmó el sexto.
+
+| # | Defecto | Qué se hizo |
+|---|---|---|
+| 1 | Cero reglas responsivas | **corregido** |
+| 2 | Enlaces que no parecen enlaces | **corregido, en la regla que sí aplica** |
+| 3 | Contraste bajo | **corregido donde estaba bajo AA**; lo que cumplía no se tocó |
+| 4 | Versalitas diminutas | **corregido** |
+| 5 | Buscador en todas las páginas | **corregido: compactado, no ocultado** |
+| 6 | Índice lateral desproporcionado | **no confirmado: declarado y no tocado** |
+
+**Antes y después, medidos con `getComputedStyle` en Chrome 152 sobre el sitio servido**
+(banco de comparación fuera del repositorio: una copia con la hoja anterior y otra con la
+nueva, mismo HTML, para aislar el efecto de la hoja).
+
+Página de norma (`dto_24_consejos_escolares.html`):
+
+| medida | ancho | antes | después |
+|---|---|---|---|
+| alto del bloque de búsqueda | ambos | 71 px | **46 px** |
+| top del título de la norma | 500 px | 201 px | **142 px** |
+| top de la ficha | 500 px | 313 px | **253 px** |
+| top del primer artículo | 500 px | 1861 px | **1757 px** |
+| top del primer artículo | 1280 px | 1519 px | **1490 px** |
+| relleno de la ficha | 500 px | 17 / 20,4 px | **13,6 / 14,45 px** |
+| relleno del filete de artículo | 500 px | 18,7 px | **11,9 px** |
+| relleno de la ficha | 1280 px | 17 / 20,4 px | 17 / 20,4 px (sin cambio, como debe) |
+| color de `.ficha-norma dt` | ambos | `rgb(108,117,125)` | **`rgb(73,80,87)`** |
+| cuerpo de `.ficha-norma dt` | ambos | 13,94 px | **14,45 px** |
+| tracking de `.ficha-norma dt` | ambos | 0,42 px | **0,72 px** |
+| cuerpo de `.badge-fuente` | ambos | 13,26 px | **13,94 px** |
+| tracking de `.badge-fuente` | ambos | 0,27 px | **0,70 px** |
+| etiqueta del buscador | ambos | `static` | **`absolute` + `clip-path: inset(50%)`** (queda para el lector de pantalla) |
+
+Página temática (`tema-convivencia-escolar.html`):
+
+| medida | ancho | antes | después |
+|---|---|---|---|
+| `text-decoration-line` de los 14 títulos de norma | ambos | `none` | **`underline`** |
+| top del primer extracto | 500 px | 635 px | **577 px** |
+| top del primer extracto | 1280 px | 572 px | **513 px** |
+| margen de las insignias | 500 px | 6,8 / 0 px | **5,1 / 4,25 px** |
+| margen de las insignias | 1280 px | 6,8 / 0 px | 6,8 / 0 px (sin cambio, como debe) |
+
+**Punto de corte: `@media (max-width: 575.98px)`**, el `sm` de Bootstrap 5, que es el marco
+que el tema del sitio ya usa. No se inventó uno propio. La tabla muestra que las reglas
+aplican bajo el corte y no por encima, que es la comprobación de que el corte funciona.
+
+**Sobre el defecto 2.** `.lista-normas` y `.titulo-norma`, las reglas que el encargo
+describe («títulos de norma en gris»), **no se usan en ninguna de las 47 páginas**: son
+código muerto. Se mencionan y **no se borran** (regla de cambios quirúrgicos). Lo que sí
+aplicaba era `.tema-norma a { text-decoration: none; }` en las 17 páginas temáticas, y esa
+declaración se quitó. El color de esos enlaces resultó ser el azul de enlace del tema
+(`rgb(39,97,227)`), no gris: la mitad «en gris» del defecto tampoco se confirmó.
+
+**Sobre el defecto 3.** Solo dos de once pares estaban bajo AA, y por poco: `.ficha-norma dt`
+y `.procedencia` sobre el fondo de la ficha, ambos 4,45 contra un umbral de 4,5. Pasan a
+**7,76** con `#495057`, un gris que **ya estaba en la hoja**, sin introducir paleta nueva.
+`.lista-relaciones .rel-por`, que el encargo nombra, mide 4,69 y **cumple**: no se tocó, y
+por eso queda como el único `#6c757d` de la hoja.
+
+**Sobre el defecto 5.** Se compactó y no se ocultó: buscar desde una norma es legítimo y
+quitarlo obligaría a volver a la portada. El selector `:has()` deja el bloque **completo en
+las 5 páginas de portada e índices** y compacto en las 42 restantes (25 normas y 17
+temáticas). Degradación segura: un navegador sin `:has()` ignora la regla y ve lo de antes.
+Para ocultarlo del todo basta cambiar el bloque por `display: none` sobre el mismo selector.
+
+**Error propio, detectado y corregido en el mismo bloque.** El primer selector fue
+`body:has(.ficha-norma)`, y compactaba también `index.html`: la portada **reutiliza
+`.ficha-norma`** como caja de resumen, y su texto dice literalmente «Escriba en el buscador
+de arriba». Se corrigió a `body:has(.ficha-norma dl)`, que distingue la ficha real (lleva
+lista de definiciones) de la caja de la portada (no la lleva). Verificado con XPath sobre las
+47 páginas antes de dar el bloque por terminado: 25 + 17 compactas, 5 completas.
+
+**Segundo error propio, en una cifra publicada.** La medición declaró los tamaños en px
+calculando sobre un `rem` base de 16 px. Medido en el navegador, el tema fija el `rem` en
+**17 px**: `.badge-fuente` no son 12,5 px sino 13,3, y `.ficha-norma dt` no son 13,1 sino
+13,9. Corregido en el documento de medición. Ninguno cruza el umbral de «texto grande»
+(18,66 px), así que el juicio de contraste no cambia.
+
+**Prueba de regresión de anclas tras esta regeneración:** 806 declarados, **806 presentes, 0
+faltan**; 273 enlaces y 205 destinos distintos, **0 rotos**. Control positivo: detecta.
+**El resultado de B1 no se movió:** 3 de 10 con el ancla esperada, medido de nuevo tras B2.
+

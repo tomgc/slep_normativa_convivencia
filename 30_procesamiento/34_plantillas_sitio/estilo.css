@@ -37,9 +37,9 @@
   display: inline-block;
   padding: 0.18em 0.6em;
   border-radius: 0.3rem;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-right: 0.4rem;
 }
@@ -58,7 +58,7 @@
   margin-bottom: 2rem;
 }
 .ficha-norma dl { margin-bottom: 0; }
-.ficha-norma dt { font-size: 0.82rem; text-transform: uppercase; color: #6c757d; letter-spacing: 0.03em; }
+.ficha-norma dt { font-size: 0.85rem; text-transform: uppercase; color: #495057; letter-spacing: 0.05em; }
 .ficha-norma dd { margin-bottom: 0.7rem; }
 
 /* --- Avisos --------------------------------------------------------------- */
@@ -123,7 +123,7 @@
 }
 
 /* Procedencia de un metadato curado: visible pero subordinada al dato. */
-.procedencia { color: #6c757d; font-size: 0.82rem; }
+.procedencia { color: #495057; font-size: 0.82rem; }
 
 /* --- Vigencia -------------------------------------------------------------- */
 /* Una norma sustituida sigue publicada (es referencia histórica y puede seguir
@@ -146,7 +146,6 @@
 
 /* --- Páginas temáticas ----------------------------------------------------- */
 .tema-norma { margin-bottom: 0.35rem; }
-.tema-norma a { text-decoration: none; }
 blockquote.texto-legal, blockquote.transcripcion-ocr {
   border-left: 3px solid #dee2e6;
   margin: 0 0 0.4rem 0;
@@ -161,3 +160,61 @@ blockquote.transcripcion-ocr { border-left-color: #b58900; background: #fffdf5; 
    lectura del equipo, no la norma. La distinción es un invariante del proyecto,
    no una preferencia estética. */
 .badge-interpretacion { background: #7a5195; color: #fff; }
+
+/* --- Buscador en las páginas que no son de búsqueda ------------------------ */
+/* El bloque de búsqueda se incluye al inicio del body de TODAS las páginas
+   (`include-before-body` de `_quarto.yml`), y en una página de norma eso empuja
+   el articulado hacia abajo con algo que ahí no es la tarea principal: quien
+   abre la ley 21.809 viene a leerla, no a buscar otra cosa.
+
+   Se compacta, no se oculta: buscar desde una norma es legítimo y quitarlo
+   obligaría a volver a la portada. El selector `:has()` distingue la página de
+   norma por su ficha y la temática por sus extractos, sin necesidad de que el
+   generador marque nada. Si el navegador no soporta `:has()` la regla se ignora
+   entera y el buscador queda como estaba: la degradación es al estado anterior,
+   no a uno roto. Para ocultarlo del todo, cambiar el bloque por `display: none`
+   sobre el mismo selector.
+
+   Espacio vertical reservado por delante del contenido: 3,2 rem de margen más la
+   etiqueta pasan a 1,2 rem sin etiqueta. */
+body:has(.ficha-norma dl) #buscador,
+body:has(.tema-norma) #buscador {
+  margin: 0.4rem auto 0.8rem auto;
+}
+body:has(.ficha-norma dl) .buscador-label,
+body:has(.tema-norma) .buscador-label {
+  /* Fuera de la vista pero disponible para el lector de pantalla: el campo no
+     puede quedarse sin etiqueta accesible por un ajuste de espacio. */
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* --- Pantalla angosta ------------------------------------------------------ */
+/* La hoja no tenía una sola regla responsiva: el teléfono heredaba íntegro el
+   diseño de escritorio. El punto de corte es el `sm` de Bootstrap 5 (575,98 px),
+   el mismo marco que ya usa el tema del sitio, y no uno inventado aquí.
+
+   Lo que se corrige es el ancho que se pierde en decoración: en una pantalla de
+   390 px, los 1,2 rem de relleno de la ficha más los 1,1 rem del filete del
+   artículo se comen cerca del 15 % de la línea de lectura. El cuerpo del texto
+   legal NO se toca: es lo que hay que leer. */
+@media (max-width: 575.98px) {
+  .ficha-norma { padding: 0.8rem 0.85rem; }
+  .ficha-norma dd { margin-bottom: 0.5rem; }
+  .articulo { padding-left: 0.7rem; margin-bottom: 1.8rem; }
+  .aviso { padding: 0.7rem 0.8rem; }
+  .transcripcion-ocr { padding: 0.7rem 0.75rem; }
+  blockquote.texto-legal, blockquote.transcripcion-ocr { padding: 0.5rem 0.75rem; }
+
+  /* La transcripción automática se achica, no se reflueye: `pre-wrap` conserva
+     los saltos del reconocedor y bajar el cuerpo mete más caracteres por línea,
+     que es justo lo que evita que el texto quede picado en una columna estrecha.
+     Lo que se muestra sigue siendo exactamente lo que el equipo va a corregir. */
+  .transcripcion-ocr pre { font-size: 0.8rem; line-height: 1.5; }
+
+  /* Con hasta 48 insignias en una página temática, el margen entre ellas importa
+     más que su tamaño cuando cada una cae en su propia línea. */
+  .badge-fuente { margin-right: 0.3rem; margin-bottom: 0.25rem; }
+}
