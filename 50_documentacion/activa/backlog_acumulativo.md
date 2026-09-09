@@ -40,8 +40,9 @@ los mantiene el cierre.
 |---|---|---|---|---|
 | 1 | traspaso_cierre_v01.md | 17 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | fundación: corpus, pipeline, sitio |
 | 2 | traspaso_cierre_v02.md | 15 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | Sesión íntegra de máquina: siete encargos autónomos, auditoría contra producto, endurecimiento de la compuerta de firma y ensayo general de la vía A; el material de validación humana quedó completo. |
+| 3 | traspaso_cierre_v03.md | 10 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | Diseño completo del motor de búsqueda por encargo de alcance, y primeras correcciones que sí cambian el producto publicado. |
 | Refinamientos menores no atribuibles | — | 0 | — | — |
-| **Total** | 2 | 32 | | |
+| **Total** | 3 | 42 | | |
 
 ## Detalle cronológico
 
@@ -115,9 +116,69 @@ los mantiene el cierre.
 31. **README de piezas alineado con la compuerta real.** Tres delegaciones registradas (bloque de exigencias del pipeline, advertencia de mover-no-copiar, ejemplo con ancla que resuelve y coherente con su título).
 32. **Nuevo pendiente estratégico: módulo de análisis de reglamentos.** Comparar reglamentos de establecimientos contra la normativa con recomendaciones de mejora; prerrequisitos declarados: vía A avanzada (OCR del grupo REX 482) y cruce completado; todo informe nace con gate `validado_por`.
 
+### Sesión 3 — 2026-09-09
+
+33. **Encargo v9 de alcance del motor de búsqueda.** Cinco agentes
+    especializados (vocabulario controlado, recuperación, orientación,
+    arquitectura, panel adversarial) más auditoría independiente de doce
+    verificadores y síntesis: nueve documentos, dos prototipos en R, un
+    esqueleto de Worker y un log de 1 211 líneas, con el sitio sin cambios.
+    Seis decisiones medidas quedan firmes, entre ellas que la unidad de
+    recuperación son 806 segmentos y no 682 artículos.
+34. **Evaluación del diseño conceptual externo aportado por el titular.**
+    Adopciones y rechazos explícitos uno por uno: entran búsqueda híbrida,
+    reranking, temporalidad, cuatro niveles de fuente y capa experta como
+    estructura de datos; se rechazan la ontología de doce relaciones (el
+    grafo ya existe con cuatro tipos derivados), la clasificación
+    automática del corpus por modelo (colisiona con la curaduría humana) y
+    el stack de cinco servicios para 806 unidades.
+35. **Requisito de incorporación incremental del corpus.** El motor debe
+    integrar normas nuevas por el manifiesto de hash existente, con
+    vectorización incremental y no reembebido completo; cada capa declara
+    qué se regenera sola y qué queda desactualizado hasta que una persona
+    lo escriba.
+36. **Juicio del encargo v9 y reorientación de prioridades.** El paquete
+    recomendaba construir primero la capa de vocabulario; su propio panel
+    adversarial midió que cubre 21 % de los términos y 3 % de las consultas,
+    con 42 % sin una palabra en común. La prioridad se movió a lo que el
+    encargo destapó sin proponérselo: buscador, legibilidad y saneamiento
+    del corpus.
+37. **Buscador: sub-resultados por relevancia con ancla visible.** El tope
+    de tres estaba escrito en el cuerpo del bundle y no en un parámetro, así
+    que se reemplazó el componente por una interfaz propia sobre la API
+    pública. De 1 de 10 a 3 de 10 con el conjunto de evaluación; en la
+    batería canónica la posición mediana del artículo correcto baja de 2 a 1.
+38. **Legibilidad del sitio, acotada a lo confirmado por medición.** Primer
+    punto de corte responsivo, subrayado restituido en los enlaces
+    temáticos, contraste de 4,45 a 7,76 en los dos pares bajo el umbral,
+    versalitas agrandadas y bloque de búsqueda compactado en las 42 páginas
+    que no son portada ni índice. Dos de los seis defectos nombrados
+    resultaron ser código muerto y se declararon sin tocarse.
+39. **Limpieza de la cabecera del sitio de origen en el texto extraído.**
+    De 17 normas contaminadas de 25 a 0, corregida en el extractor y no en
+    el segmentador para que el texto intermedio quede limpio también.
+    Regresión bloqueante en verde y dos remisiones que pasan de apuntar al
+    preámbulo a apuntar al artículo que efectivamente citan.
+40. **Inventario de pendientes que solo puede resolver una persona.**
+    Cuatro puntos accionables sin corregir ninguno: 27 encabezados de
+    glosario con la definición pegada al título, dos anclas rotas en piezas
+    en borrador, `aviso_vigencia` nulo en las 25 normas, y cuatro erratas de
+    nombre más un slug materialmente falso.
+41. **Cierre del hueco del hook global de gobernanza de datos.** El hook,
+    instalado en la estación después del bootstrap del repositorio,
+    rechazaba los JSON que el proyecto versiona por diseño porque su archivo
+    de autorización nunca existió. Se declaró `40_salidas/datos/` y nada
+    más, con la prueba de señuelos transcrita en el propio archivo.
+42. **Especificación técnica del motor y revisión externa en dos roles.**
+    Documento autocontenido con sus debilidades y residuos declarados por
+    adelantado, y un encargo con esquema estricto de devolución para dos
+    revisores con mandatos separados: uno juzga si el diseño funciona, el
+    otro si le sirve a alguien y cómo falla en uso.
+
 ## Delta del backlog
 
 | Versión | Entradas nuevas | Taxonomía | Lectura |
 |---|---|---|---|
 | v01 | 17 (tramo 1→17) | taxonomía inicial de 8 categorías propuesta en esta sesión | sesión fundacional cargada hacia infraestructura y derivador; el trabajo migra ahora del pipeline a la validación humana (OCR, temas, borradores), que es el cuello declarado de la fase siguiente. |
 | v02 | 15 (tramo 18→32) | sin cambios | El movimiento de la sesión fue de construcción a garantía: lo nuevo no es contenido sino evidencia (auditoría, controles calibrados, ensayo en clon, autoprueba en CI) y la frontera máquina/humano quedó operacionalizada con delegaciones registradas en gate. |
+| v03 | 10 (tramo 33→42) | sin cambios; recuento diferido, reparto archivado: 33:sitio_navegacion; 34:sitio_navegacion; 35:infraestructura_pipeline; 36:gobernanza_docs; 37:sitio_navegacion; 38:diseno_visual; 39:corpus_insumos; 40:ocr_curaduria; 41:infraestructura_pipeline; 42:gobernanza_docs | El movimiento de la sesión fue de garantía a producto: la sesión 2 acumuló evidencia sin tocar el sitio, y esta volvió a cambiarlo, con la diferencia de que ahora cada cambio se expresa contra una medición previa. La entrada de `diseno_visual` es la primera desde el brief de la sesión 1 y cierra una categoría que llevaba dos sesiones vacía. `sitio_navegacion` concentra tres entradas porque el diseño y la corrección del buscador son la misma materia vista desde dos distancias. |
