@@ -75,3 +75,6 @@ node_modules/
 # repropagacion por commit que bloqueaba 25 copias de la cartera.
 50_documentacion/activa/POLITICA_PROYECTO.md
 50_documentacion/activa/SETTINGS_Y_PROMPTS_OPERACIONALES.md
+
+# Laboratorio de medicion del encargo v9, no versionado hasta limpiar rutas absolutas y decidir la autorizacion de sus archivos de datos (pendiente P7 del traspaso v03).
+50_documentacion/andamios/lab_motor_v9/
