@@ -220,3 +220,223 @@ descuento que F10 aplica a su predicado es, por tanto, **vacío**.
 - **Hash de documentación (F7):** `4c8bdf5` (el commit previo del mismo F7, `e85057c`, trae solo el renombrado; ver desviación 2)
 - **Hash del log (F9):** no puede vivir aquí (ningún commit contiene su propio hash, SETTINGS §1.2.2). Queda en el eco de F10 y en git
 - **Push:** `por publicar` — `push_autorizado: si`, los tres commits viajan juntos al final de F9
+
+## v03 — 2026-09-09
+
+**Instrumento:** `cierre_sesion_autonomo_cc_v14.md` | kit `76342e6`.
+**Sesión cerrada:** 3. **Traspaso:** v03. **Tramo del backlog:** 33→42.
+
+### F0.0 — Kit y normativos
+
+- **Kit:** sincronizado (`fetch` + `merge --ff-only`); `status --porcelain` vacío
+  y `rev-list --left-right --count @{u}...HEAD` = `0 0`.
+- **Normativos:** `POLITICA_PROYECTO.md` al día (`> **Versión 5.8 — vigente.**`
+  en kit y en `activa/`). `SETTINGS_Y_PROMPTS_OPERACIONALES.md` **actualizado
+  desde el kit**: `activa/` estaba en `> **Versión 34.**` y el kit en
+  `> **Versión 37.**`. La copia se aplicó en F6. No produjo commit: los dos
+  normativos están en `.gitignore` líneas 76-77 y no se versionan (decisión de
+  gobernanza del 2026-08-24, opción C).
+
+### Severidades
+
+Primera corrida bajo v14 en este repositorio, y primera bajo el esquema de
+`reparto` (v12): el cierre v02 corrió con v11.
+
+| Condición | Severidad | Resultado |
+|---|---|---|
+| F0.0a kit | — | pasa (sincronizado, sin divergencia) |
+| F0.0b normativos | REPARA | reparada: `SETTINGS` en `activa/` v34 → v37 (copia del kit, sin commit por estar en `.gitignore`) |
+| F0.1 `.git` y `traspasos/` | BLOQUEA | pasa |
+| F0.2 paquete único, front matter, 4 delimitadores, 0 placeholders | BLOQUEA | pasa; ningún campo derivado viajó con valor |
+| F0.3 guardia de repo | BLOQUEA | pasa (`raiz_proyecto` = `pwd`) |
+| F0.4 correlativo triple | BLOQUEA | pasa (v03 = v03 = máx(v01, v02)+1) |
+| F0.5 `n` vs `backlog_entradas_nuevas` | BLOQUEA | pasa (10 = 10) |
+| F0.5 numeración provisional contigua | BLOQUEA | pasa (33..42) |
+| F0.5 desplazamiento `k` | REPARA | pasa sin reparación: `k = 0` |
+| F0.5 `sesion_nueva` | ADVIERTE + REPARA | advertencia y reparación: declarado `4`, disco+1 = `3`; se aplicó `3` |
+| F0.5 `fecha_cierre` | ADVIERTE | pasa (2026-09-09 = fecha de la máquina) |
+| F0.5bis reparto contra disco | BLOQUEA | pasa (10 líneas, 6 categorías, las 6 en disco, control positivo en verde) |
+| F0.5ter / `recuento_tematico` | REPARA | reparada: `vigente` → `diferido` (fundamento abajo) |
+| F0.6 `settings_version` | BLOQUEA | pasa (coincide literal con el kit sincronizado) |
+| F0.6 `compuerta_dudas` | BLOQUEA / ADVIERTE | pasa (`8 registradas` = 8 filas D en §11.4) |
+| F0.7 scope del cierre limpio | BLOQUEA | pasa |
+| F0.7bis rutas fuera del scope | BLOQUEA | **bloqueó en la primera corrida; resuelto por el titular** (abajo) |
+| F0.8 marcadores `<<EJECUTOR>>` | BLOQUEA | pasa (los dos con valor literal) |
+| F2 encabezados estructurales | BLOQUEA | pasa (los 4 aparecen exactamente una vez) |
+| F2 encabezado de sesión reconocible | BLOQUEA | pasa (grafía `### Sesión N — YYYY-MM-DD`) |
+| F2 formato de fila | REPARA | pasa sin reparación |
+| F3 catálogo aplicable sin disparo | ADVIERTE | pasa (los 3 del catálogo aplicable disparan) |
+| F3 cifras sin rótulo | ADVIERTE | advertencia: tercera aparición (abajo) |
+| I1 numeración contigua | BLOQUEA | pasa (42 entradas, 1..42, 0 huecos, 0 duplicados) |
+| I2 cuadratura | BLOQUEA | pasa (17 + 15 + 0 + 10 = 42 = Total) |
+| I2ter recuento diferido intacto | BLOQUEA | pasa (tabla byte a byte idéntica, verificado con `diff`; reparto archivado en la fila del delta) |
+| I3 filas del resumen | BLOQUEA | pasa (2 → 3) |
+| I4 magnitudes viejas | ADVIERTE | advertencia: 4 apariciones, las 4 contexto histórico legítimo |
+| I5 autorreferencias | ADVIERTE | advertencia: 1 («`sitio_navegacion` concentra tres entradas») |
+| I6 gobernanza | BLOQUEA | pasa sobre los tres destinos y sobre lo staged en F7.1 |
+| I7 traspaso vigente | BLOQUEA | pasa (1 vigente, 2 archivados) |
+| F7.1 ruta excluida en el staging | BLOQUEA | pasa (commit por pathspec explícito; ver desviación 1) |
+| F8 diff de distribución | BLOQUEA | pasa (3 bloques idénticos; el cuarto es compuesto) |
+| F9.3 marcador sobreviviente | BLOQUEA | pasa |
+| F10 árbol vacío / publicado / estado coherente | BLOQUEA | pasa |
+
+### Las dos detenciones de la primera corrida y su resolución
+
+F5 detuvo con **dos `BLOQUEA`** y el árbol intacto. Los dos apuntaban a los 128
+archivos no rastreados que F7.1 habría commiteado:
+
+1. **Rutas absolutas de la máquina del titular hacia un repositorio público.**
+   13 apariciones de la ruta del home en 5 archivos del laboratorio del v9
+   (`a4_volcados_cf_salida.txt` 8, `a2_correcciones_fase3_salida.txt` 2,
+   `a1_ronda_cierre_cifras.R` 1, `a1_ronda_cierre_controles.R` 1,
+   `a4_medir_corpus_salida.txt` 1). `CLAUDE.md` §10.2 lo prohíbe.
+2. **Push cierto de fallar.** 36 de los 128 con extensión de datos (26 `.csv`,
+   10 `.json`), ninguno cubierto por los globs de
+   `activa/50_datos_versionados_autorizados.md`. La regla R1 del hook global
+   `pre-push` habría rechazado el push con 36 hallazgos.
+
+**Decisión del titular:** ignorar el laboratorio, no versionarlo.
+`50_documentacion/andamios/lab_motor_v9/` entra a `.gitignore` con su
+comentario, y el saneamiento (limpiar rutas y decidir la autorización de sus
+archivos de datos) queda en el pendiente P7 del traspaso v03.
+
+### Tercera detención: patrón de RUT en el informe de rol B
+
+Al re-correr la compuerta apareció en el árbol
+`20260909_revision_externa_motor_rolB_v1.md`, que **no existía cuando se emitió
+el primer reporte**: el segundo informe de revisión externa llegó durante el
+cierre. Su línea 163 traía un patrón de RUT dentro de un ejemplo ilustrativo del
+propio revisor. Es el mismo modo de falla que E6 del traspaso v03 y habría sido
+rechazado por la regla R3 del mismo hook.
+
+**Decisión del titular:** redactar solo el número y versionar el informe. Se
+sustituyó el patrón por el marcador `<RUT de ejemplo, redactado por gobernanza>`
+sin tocar ninguna otra palabra (verificado con `diff` contra la copia previa: dos
+cambios, la línea 163 y la constancia), y se agregó al pie una línea de constancia
+que declara la edición, la línea, la fecha y que la hizo el cierre y no el
+revisor. **Verificación del informe de rol A por el mismo criterio: 0 patrones de
+RUT y 0 rutas absolutas.**
+
+### F0.5ter — Por qué el recuento temático pasó a diferido
+
+`recuento_tematico` llegó como `vigente` y es inalcanzable en este archivo:
+
+- La tabla «Clasificación temática» en disco tiene **dos** columnas
+  (`Categoría | Descripción y ejemplos`): no tiene columna N ni columna de
+  porcentaje, así que no hay `N_disco` que recalcular ni cuadratura que I2bis
+  pueda comprobar.
+- **Población clasificable: 27 de 42.** Las 17 entradas de la sesión 1 llevan su
+  categoría como rótulo `[categoria]` en el texto; las 15 de la sesión 2 no la
+  llevan en ninguna parte del repositorio (el `reparto` es de v12 y el cierre v02
+  corrió con v11); las 10 nuevas vienen cubiertas por el `reparto`.
+- Un recuento vigente exigiría asignar categoría a esas 15 entradas, que la
+  sección 6 del instrumento prohíbe expresamente.
+
+Aplicado `diferido`: la tabla queda byte a byte como estaba y el `reparto` se
+archiva en la fila del delta (I2ter). El diferimiento es del recuento, no de la
+clasificación. Levantarlo es sesión propia: exige decidir la categoría de las 15
+entradas de la sesión 2 y agregar las dos columnas a la tabla.
+
+**Reparto archivado (10 entradas):** 33 sitio_navegacion; 34 sitio_navegacion;
+35 infraestructura_pipeline; 36 gobernanza_docs; 37 sitio_navegacion;
+38 diseno_visual; 39 corpus_insumos; 40 ocr_curaduria;
+41 infraestructura_pipeline; 42 gobernanza_docs. `categorias_nuevas: ninguna`,
+`reclasificaciones: ninguna`.
+
+### Renumeración
+
+`renumeracion: sin desplazamiento`. `U` = 32, `n` = 10, primer provisional 33,
+`k` = 32 + 1 − 33 = 0. Patrón de entrada declarado: `^[0-9]+\. \*\*`, tomado de
+la línea que abre la entrada 32 en disco. Sin desplazamiento no hay referencias
+cruzadas que advertir.
+
+### F3 — Disparos por rótulo del catálogo
+
+Catálogo aplicable heredado de v02 = **{R2, R5, R6}**; los tres disparan.
+
+| ID | Rótulo | Disparos |
+|---|---|---:|
+| R2 | Mapa de tramos (celdas `tramo N→M` del Delta) | 3 |
+| R5 | Encabezado del Detalle cronológico | 1 |
+| R6 | Cabecera del Resumen estadístico por sesión | 1 |
+| — | **Cero disparos:** R1, R3, R4, R7, R8, R9, R10, R11 (8 de 13) | 0 |
+| — | **Fuera del catálogo aplicable por declaración** (`diferido`): R12, R13 | — |
+
+R5 y R6 se cuentan con el criterio que fijó v01 y declaró v02 (sección
+localizada, no rango reescrito): los dos encabezados siguen siendo planos. Se
+mantiene la continuidad y se vuelve a declarar. **Catálogo aplicable de este
+cierre para el siguiente: {R2, R5, R6}.**
+
+### F3 — Cifras sin rótulo (zonas declarativas; Detalle cronológico excluido)
+
+| Cifra | Línea | Resolución |
+|---|---|---|
+| `2026-08-25` | «Existe desde el 2026-08-25.» | (b) histórica legítima |
+| `1` | «Taxonomía orgánica propuesta en la sesión 1» | (b) histórica legítima |
+| `78` | fila `corpus_insumos` de Clasificación temática | (b) histórica legítima: ejemplo ilustrativo |
+| `17`, `15`, `10`, `0`, `2`, `3`, `18`, `32`, `33`, `42` | celdas del Resumen (filas de sesión y pie **Total**) y del Delta | **(a) rótulos faltantes, TERCERA aparición.** v01 los declaró y propuso tres rótulos nuevos; v02 los volvió a declarar; siguen sin incorporarse porque el catálogo vive en otro repositorio. **Además los IDs que v01 propuso (R13/R14/R15) ya están tomados:** el catálogo v14 usa R12 y R13 para el recuento temático. La propuesta debe renumerarse a **R14** (celda «N° de cambios» ← `backlog_entradas_nuevas`), **R15** (celda «Total» ← `U+n`) y **R16** (celda «Entradas nuevas» del delta ← `backlog_entradas_nuevas` + tramo). Este cierre volvió a recomputar el pie **Total** a mano (32 → 42 y 2 → 3) |
+
+### F4 — Invariantes
+
+| # | Invariante | Resultado |
+|---|---|---|
+| I1 | Numeración 1→N contigua | ✅ 42 entradas, 1..42, 0 duplicados, 0 huecos, acotado al Detalle cronológico |
+| I2 | Cuadratura | ✅ 17 + 15 + 0 + 10 = 42 = Total declarado |
+| I2ter | Recuento diferido intacto | ✅ tabla byte a byte idéntica (`diff` sobre la sección); las 10 entradas del tramo aparecen una vez cada una en el `reparto`; el `reparto` está en la fila del delta |
+| I3 | Filas del resumen = previas + 1 | ✅ 2 → 3 filas de sesión |
+| I4 | Sin magnitudes viejas sobrevivientes | ⚠️ 4 apariciones, 4 clasificadas como contexto histórico legítimo (detalle abajo) |
+| I5 | Sin autorreferencias de cifras | ⚠️ 1 aparición: la lectura de la fila del delta dice «`sitio_navegacion` concentra tres entradas». Es correcta contra el `reparto` (33, 34, 37) y es autoría: se lista, no se toca |
+| I6 | Gobernanza | ✅ 0 RUT, 0 rutas de usuario, 0 OneDrive/Dropbox, 0 credenciales, 0 marcas de coautoría, 0 placeholders, sobre los tres destinos y sobre el diff staged de F7.1 |
+| I7 | Traspaso | ✅ 1 vigente (`traspaso_cierre_v03.md`), 2 archivados (v01, v02) |
+
+**I4 — las 4 apariciones, clasificadas una a una:**
+
+| # | Aparición | Contexto | Clasificación |
+|---|---|---|---|
+| 1 | `32` | correlativo de la entrada 32 del Detalle | numeración del propio Detalle |
+| 2 | `tramo 18→32` | fila del Delta v02 | histórico legítimo: tramo cerrado |
+| 3 | `Sesión 2` | encabezado `### Sesión 2 — 2026-08-27` | encabezado del bloque histórico |
+| 4 | `la sesión 2` | lectura de la fila del delta v03 | referencia narrativa a una sesión cerrada, autoría |
+
+El recuento de filas anterior (2) no aparece en ninguna afirmación en curso: R4
+(«X filas para Y sesiones») dio cero disparos, igual que en v02.
+
+### Desviaciones declaradas
+
+1. **F7.1 se commiteó con `git commit -- <rutas>` y no con `git add` + `git
+   commit`.** El `git mv` de F6 deja el renombrado del traspaso v02 **ya
+   indexado**, de modo que un `git commit` sin pathspec lo habría arrastrado al
+   commit de trabajo, que es justo la ruta que F7.1 debe excluir. El commit por
+   pathspec explícito deja esa entrada intacta en el índice para F7.2.
+   **Corrección para el instrumento:** F7.1 debe declarar que el índice ya trae
+   el renombrado de F6 y commitear por pathspec, o bien F6 debe posponer el
+   `git mv` hasta después de F7.1. Es el reverso de la desviación 2 de v02, que
+   describió el otro filo del mismo borde.
+2. **La fila del resumen se anexó tras la última fila de SESIÓN y el pie `Total`
+   se recomputó**, como en v02 y por el mismo motivo: la tabla termina en dos
+   filas que no son de sesión. F2 sigue sin contemplar tablas con pie.
+3. **El árbol se tocó antes de F6**, con la línea de `.gitignore`. Es la
+   resolución que la propia F0 7bis sanciona («el titular la saca o la ignora en
+   `.gitignore`») y la ordenó el titular por escrito; se declara porque el
+   principio de orden de la sección 4 dice que el árbol real se toca en F6.
+4. **Se editó un archivo de autoría de un tercero** (la línea 163 del informe de
+   rol B), por instrucción explícita del titular y bajo `CLAUDE.md` §10.2, con
+   constancia al pie del propio archivo.
+
+### Sucios fuera de scope
+
+Ninguno al terminar. Durante el cierre, los 128 archivos del laboratorio (ahora
+ignorados), 6 documentos `.md` de andamios (commiteados en F7.1) y el propio
+paquete (eliminado en F8).
+
+### Commits y push
+
+- **Hash de trabajo (F7.1):** `97bd033` — 7 rutas: `.gitignore` y los 6
+  documentos de andamios del 2026-09-08 y 2026-09-09 (los dos informes de
+  revisión externa entre ellos), 1 375 líneas agregadas.
+- **Hash de documentación (F7.2):** `4fe2085` — traspaso v03 nuevo, v02
+  archivado, backlog y las 4 salidas del escáner con 2 snapshots podados.
+- **Hash del log (F9):** no puede vivir aquí (ningún commit contiene su propio
+  hash). Queda en `ESTADO.md` y en el eco de F10.
+- **Push:** `por publicar` — `push_autorizado: si`, los cuatro commits viajan
+  juntos al final de F9.
