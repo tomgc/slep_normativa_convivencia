@@ -3,43 +3,44 @@ slug: slep_normativa_convivencia
 nombre_real: Biblioteca de normativa de convivencia escolar (SLEP Costa Central)
 categoria: activo
 semaforo: activo
-sesion_actual: v02
-ultima_actividad: 2026-09-01
+sesion_actual: v03
+ultima_actividad: 2026-09-09
 maneja_sensibles: false
 tipo_pendiente: bloqueante
-sesion_abierta: true
+sesion_abierta: false
 maquina: MacBook-Pro-de-Tomas
-commit_cierre: 358e150
-traspaso_vigente: traspaso_cierre_v02.md
+commit_cierre: 960ff36
+traspaso_vigente: traspaso_cierre_v03.md
 cierre_incompleto: no
-insumos_verificados: 2026-08-27
+insumos_verificados: 2026-09-09
 ventana_insumos: ./20_insumos
 ---
 ## En que vamos
 
-La sesión 2 dejó el proyecto sin pendientes de máquina: 25 normas y 682
-artículos publicados, 552 relaciones con 67 descartes registrados, compuerta de
-firma endurecida en dos rondas y ensayada de punta a punta en un clon, CI con
-versiones fijadas y autoprueba de la compuerta de coincidencia parcial en cada
-despliegue. Las 22 piezas interpretativas siguen en borrador con 0 publicadas, y
-todo el material de validación humana está listo para entregarse.
+La sesión 3 diseñó el motor de búsqueda completo mediante un encargo de alcance
+de cinco agentes (nueve documentos, seis decisiones medidas, cero cambios al
+sitio) y después corrigió lo que ese encargo destapó en el producto real: el
+buscador pasó de 1 a 3 de 10 consultas de evaluación, la hoja de estilos ganó su
+primer punto de corte responsivo, y la cabecera del sitio de origen desapareció
+del texto de las 17 normas contaminadas sin mover una sola ancla. Dos revisiones
+externas del diseño quedaron corriendo al cierre.
 
 ## Proximo paso
 
-Entregar la pauta de validación al equipo de convivencia (4 bloques: OCR,
-34 temas frágiles, piezas, decisión del slug del DFL 1) junto con el CSV del
-cruce referencia↔instrumentos. Cuando respondan, la vía A arranca con el guion
-del ensayo como mapa. La sesión de alcance del módulo de reglamentos espera el
-cruce completado. El `commit_cierre` de este archivo lo actualiza la apertura
-siguiente con el hash del eco del cierre v02.
+Integrar los dos informes de revisión externa con decisión explícita de adoptar
+o rechazar por hallazgo, y de ahí emitir el encargo v11 con el índice lateral
+vacío de las páginas de norma y la expansión de sinónimos en la consulta, más el
+cierre de los cuatro huecos de autorización que el v10 dejó abiertos. El
+saneamiento del corpus (Ley General de Educación desactualizada y normativa de
+expulsión faltante) exige delegación registrada de escritura en `20_insumos/`.
 
 ## Bloqueantes
 
-- Revisión humana de 84 páginas (75 OCR + 9 del dictamen 078) en 5 documentos
-  (bloqueante de contenido): sin `ocr_revisado` firmado, ese texto no es
-  citable.
-- Validación de 34 asignaciones frágiles de tema y de las primeras piezas
-  (bloqueante de calidad): sustentan las páginas temáticas y la capa
-  interpretativa.
-- Ninguno frena trabajo de máquina, porque no queda trabajo de máquina: ambos
-  son la vía A.
+- Vía A completa sin avance desde la sesión 1: la pauta de validación no se
+  entregó, 84 páginas de OCR siguen sin firma en 5 documentos, 34 asignaciones
+  frágiles de tema sin validar y 22 piezas en borrador con 0 publicadas.
+- Corpus incompleto y desactualizado (bloqueante de contenido): la Ley General
+  de Educación es el texto consolidado a 2010 y falta el procedimiento de
+  expulsión que los propios documentos citan 22 y 17 veces.
+- Ninguno frena trabajo de máquina: el índice lateral vacío y la recuperación
+  léxica son vía B y están listos para encargo.
