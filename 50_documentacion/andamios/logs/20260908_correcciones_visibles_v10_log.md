@@ -359,3 +359,119 @@ viven «TODAS las rutas, regex y taxonomías». No es descuido: `10_utils/` **no
 tabla de autorizaciones de §3** y moverlas habría exigido escribir fuera de ella. Queda
 como deuda para el próximo encargo que toque ese archivo.
 
+#### 3.3.1 Enmienda de autorizaciones del emisor (no es incumplimiento del ejecutor)
+
+El push de B3 fue **rechazado por el hook global** con 18 hallazgos R1, uno por cada JSON
+de datos del commit. Salida literal, primera y última línea:
+
+```
+pre-push: R1 archivo de datos sin autorizar: 40_salidas/datos/normas/dfl_315_perdida_reconocimiento_oficial.json (autoriza en 50_documentacion/activa/50_datos_versionados_autorizados.md o quitalo del commit)
+[... 16 más ...]
+pre-push: R1 archivo de datos sin autorizar: 40_salidas/datos/relaciones.json (autoriza en 50_documentacion/activa/50_datos_versionados_autorizados.md o quitalo del commit)
+pre-push: 18 hallazgo(s); push RECHAZADO hacia origin.
+```
+
+**Causa: el hook es posterior al repositorio.** El archivo que R1 consulta,
+`50_documentacion/activa/50_datos_versionados_autorizados.md`, **no existía**
+(`find . -name "*datos_versionados*"` → sin resultados). El hook global se instaló en la
+estación el 2026-09-01; este repositorio versiona sus JSON desde el bootstrap del
+2026-08-25, de modo que esos archivos nunca se habían enfrentado al hook. Sin ese archivo,
+la lista de globs queda vacía y R1 rechaza **toda** extensión de datos, incluidos los JSON
+que este proyecto versiona por diseño (`CLAUDE.md` §10.4).
+
+Se aplicó la **regla de detención de §8** («un cambio exige escribir fuera de la tabla de
+§3») y se consultó al emisor, que **amplió §3** con la ruta
+`50_documentacion/activa/50_datos_versionados_autorizados.md` bajo seis condiciones. Queda
+constancia de que esto es una **enmienda de autorizaciones del emisor**, no un
+incumplimiento del ejecutor: el ejecutor se detuvo antes de escribir fuera de la tabla.
+
+**Cumplimiento de las seis condiciones:**
+
+1. §3 ampliada con esa ruta. Archivo nuevo; no toca nada existente.
+2. Autoriza `40_salidas/datos/` y nada más. **Con una desviación declarada de la letra de la
+   instrucción**: el patrón pedido, `40_salidas/datos/**/*.json`, se probó contra el
+   mecanismo real del hook (`case "$ruta" in $glob`, en `bash`) y **deja fuera**
+   `relaciones.json`, que es uno de los 18 del push, porque exige un `/` después de
+   `datos/`. Se usaron dos líneas, `40_salidas/datos/*.json` y
+   `40_salidas/datos/**/*.json`, que cubren los dos niveles que hoy tienen archivos y
+   ninguna otra ruta: la prueba muestra `NO` para `40_salidas/sitio/search.json`,
+   `40_salidas/intermedios/extraccion.json`, `20_insumos/curaduria/metadatos_curados.json`,
+   `package.json` y un `40_salidas/datos/algo.csv`. La prueba está transcrita en el propio
+   archivo de autorización.
+3. La justificación se apoya en hechos de este turno: los 28 JSON versionados enumerados con
+   `git ls-files 40_salidas/datos | grep '[.]json$'` y pesados con `wc -c` en la misma
+   corrida, y `maneja_sensibles: false` citado del encabezado de `ESTADO.md`.
+4. Commit propio y separado, `082a26d`
+   («chore(hooks): declara los JSON de datos como versionados autorizados»), pusheado
+   **antes** del de B3. Para que quedara antes en la historia se deshizo el commit de B3 con
+   `git reset --soft` (nada se pierde; el commit no estaba publicado) y se rehizo con su
+   mensaje original, guardado antes de la operación.
+5. Registrado aquí como enmienda del emisor, con su causa.
+6. Regresión de anclas corrida de nuevo antes del push. En verde. No hubo que revertir.
+
+#### 3.3.2 El «887 de 887» reconstruido
+
+§5.2 del encargo cita «887 de 887 destinos verificados» como referencia del v9, y la
+medición previa lo dio por no reproducible. **Sí lo es, y cuadra exacto.** El inventario del
+v9 se reconstruyó contra el sitio publicado:
+
+| Clase de destino | Cantidad | Resuelven |
+|---|---|---|
+| Ancla de segmento (`<slug>.html#<id>`) | 806 | **806** |
+| Página de norma (`<slug>.html`) | 25 | **25** |
+| Página temática (`tema-*.html`) | 17 | **17** |
+| **Total verificable contra el sitio** | **848** | **848, 0 rotos** |
+
+`887 - 848 = 39`, y 39 es exactamente el número de encabezados del **glosario**, que vive en
+`20_insumos/curaduria/piezas/glosario.md` y **no está publicado**: el sitio tiene 0 piezas
+interpretativas (`grep badge-interpretacion` sobre las 47 páginas → 0). El v9 verificó sus
+anclas contra el índice de su prototipo, no contra el sitio. De ahí la diferencia.
+
+**La prueba de regresión de este encargo, entonces, en sus tres lecturas y las tres en
+verde:** 806 de 806 anclas de segmento; **848 de 848 destinos del inventario del v9 que son
+verificables contra el sitio**; y 273 enlaces internos con 205 destinos distintos, 0 rotos.
+
+### 3.4 B4 — Diagnóstico de lo que solo puede arreglar una persona
+
+**No se corrigió nada, que es lo que el bloque pide.** Se produjo
+`50_documentacion/andamios/20260908_pendientes_firma_humana_v1.md` (412 líneas), con los
+cuatro puntos y, en cada uno, qué está mal, en qué archivo y línea, qué habría que escribir
+y por qué el pipeline no puede decidirlo.
+
+**Cifras, todas recontadas en esta sesión:**
+
+| Punto | Cifra | Comando |
+|---|---|---|
+| Glosario: encabezados `###` | 39 | `Rscript -e 'l <- readLines(".../glosario.md"); grep("^### ", l)'` |
+| … de exactamente 60 caracteres | **20** | mismo, `sum(nchar(e) == 60)` |
+| … con definición pegada aunque cortados antes | 7 más (**27 en total**) | clasificación editorial sobre la tabla de longitudes |
+| … con carácter espurio `®` | 1 | `sum(grepl("®", e))` |
+| … encabezados distintos | 35 de 39 (**3 grupos duplicados**) | `table(e)[table(e) > 1]` |
+| Piezas en borrador | 22 | `find 20_insumos/curaduria/piezas -name '*.md' -not -name 'README*'` |
+| Anclas rotas | **2**, en 4 líneas de 2 archivos | `grep -rn` de las dos anclas |
+| `id` reales del dictamen 078 | `ocr-pagina-001` … `ocr-pagina-009`; `origen_texto: ocr_pendiente_revision` | lectura del JSON |
+| `aviso_vigencia` nulo | **25 de 25** | recorrido de los 25 JSON |
+| `vigencia$estado` | 24 `vigente`, 1 `sustituido` | ídem |
+| Consumidores de `aviso_vigencia` en código de producción | **2**, ambos en `32_segmentar_articulos.R` (:497 y :571); **ninguno** en el generador de páginas | `grep -rn "aviso_vigencia" --include="*.R"` |
+| PDF en el corpus / filas en la tabla del README | **25 / 24** | `ls`, `awk` sobre la tabla |
+| Erratas de nombre | **4** (líneas 47, 53, 59, 60) | `grep -n` sobre el README |
+| Ocurrencias del slug del DFL 1 | **4 080** (3 981 en `50_documentacion/`, 82 en `40_salidas/datos/`, **17 en `20_insumos/`**, **0 en `30_procesamiento/` y `10_utils/`**) | `grep -ro … \| wc -l` por directorio |
+
+**Tres hallazgos que el encargo no anticipaba y que el documento incorpora:**
+
+1. **Dos erratas más en el README**, no reportadas antes: `DICTÁMEN` con tilde en las líneas
+   59 y 60 («dictamen» es grave terminada en -n; la tilde solo va en el plural, que la línea
+   58 usa bien).
+2. **Falta una fila entera en la tabla de equivalencias**: el dictamen 078 está en disco y no
+   figura. De ahí que tres afirmaciones del propio README sigan diciendo «24».
+3. **`aviso_vigencia` no lo publica nadie.** Es un enganche vestigial: lo lee el segmentador
+   y **ningún generador de páginas lo consume**. Llenarlo no cambiaría nada en el sitio. La
+   banda de vigencia que hoy se ve se compone desde el campo `vigencia`. Eso invierte el
+   orden de la tarea: primero hay que decidir si el campo se publica y dónde, y solo después
+   escribir su texto. El documento lo dice antes de proponer redacción.
+
+**Invariante verificado al cerrar el bloque:** `git status --porcelain 20_insumos/` devuelve
+vacío y `git diff --name-only HEAD -- 20_insumos/` también. **`20_insumos/` no tiene un solo
+cambio**, ni el glosario, ni las piezas en borrador, ni los metadatos curados, ni el README
+del corpus, pese a que el bloque encontró defectos en los cuatro.
+
