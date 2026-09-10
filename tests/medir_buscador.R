@@ -30,7 +30,7 @@
 # =============================================================================
 
 source(here::here("10_utils", "10_utils.R"))
-instalar_si_falta(c("jsonlite", "dplyr", "tibble", "stringr", "here", "fs", "servr"))
+instalar_si_falta(c("jsonlite", "dplyr", "tibble", "stringr", "here", "fs", "servr", "stringi"))
 source(here::here("10_utils", "10_configuracion.R"))
 
 suppressPackageStartupMessages({
@@ -58,17 +58,37 @@ stopifnot(MODO %in% c("actual", "replica"))
 fs::dir_create(DIR_SAL)
 
 # ---- Constantes de presentacion --------------------------------------------
-# Copia literal de las que hoy viven en 30_procesamiento/34_plantillas_sitio/
-# busqueda.html: TOPE_SUB_RESULTADOS y ordenarSubResultados() dentro del bloque
-# "== INICIO BLOQUE DE ORDEN ==", y PAGINA fuera de el. Estan aqui duplicadas a
-# proposito y con la deuda declarada: dos copias divergen en silencio.
-TOPE_SUB_RESULTADOS <- 5L   # REVISAR: leer de 10_utils/10_configuracion.R tras T2
-PAGINA              <- 8L   # REVISAR: leer de 10_utils/10_configuracion.R tras T2
+# Desde el encargo v11 (T2) NO se duplican: vienen de 10_utils/10_configuracion.R,
+# que es de donde 34_generar_paginas.R las inyecta en la copia publicada de
+# busqueda.html. La pagina y este instrumento leen los mismos numeros de la misma
+# fuente, que es la unica forma de que la cifra medida sea la del sitio.
+# (La marca de pendiente que T4 dejo en estas lineas se retira en este encargo.)
+stopifnot(exists("TOPE_SUB_RESULTADOS"), exists("PAGINA_RESULTADOS"),
+          exists("TOPE_VARIANTES_CONSULTA"), exists("TOPE_PAGINAS_POR_VARIANTE"),
+          exists("MAX_TOKENS_ALIAS"), exists("LARGO_RAIZ_ALIAS"),
+          exists("ALIAS_CONSULTA"), exists("PALABRAS_VACIAS_CONSULTA"),
+          exists("RAICES_COMUNES_ALIAS"))
+PAGINA <- PAGINA_RESULTADOS
 # Tope del bundle PagefindUI v1.5.2, escrito en el cuerpo de su funcion de
-# recorte (`slice(0,3)`), no en un parametro. Solo aplica en --modo replica.
-TOPE_REPLICA        <- 3L   # REVISAR: leer de 10_utils/10_configuracion.R tras T2
+# recorte (`slice(0,3)`), no en un parametro. Solo aplica en --modo replica, que
+# reproduce el estado ANTERIOR al v10: sin interfaz propia y sin expansion.
+TOPE_REPLICA        <- 3L
 # K de la lista cruda, para separar "no se recupero" de "no se mostro".
-K_RECALL            <- c(30L, 65L, 100L)  # REVISAR: leer de 10_utils/10_configuracion.R tras T2
+K_RECALL            <- c(30L, 65L, 100L)
+
+# ---- Expansion de la consulta: la misma de busqueda.html, en R --------------
+# Reimplementada, no copiada: si las dos implementaciones coinciden en la cifra,
+# la coincidencia significa algo. Se apaga en --modo replica.
+
+PISO_R0 <- !any(commandArgs(trailingOnly = TRUE) == "--sin-piso-r0")
+EXPANDIR <- !identical(MODO, "replica") && TOPE_VARIANTES_CONSULTA > 0L
+plegar_c <- function(s) tolower(stringi::stri_trans_general(s, "Latin-ASCII"))
+raiz_c   <- function(w) substr(w, 1L, pmin(nchar(w), LARGO_RAIZ_ALIAS))
+trocear_c <- function(s) {
+  t <- strsplit(plegar_c(s), "[^a-z0-9]+")[[1]]
+  t <- t[nchar(t) >= 3L]
+  t[!(t %in% PALABRAS_VACIAS_CONSULTA)]
+}
 
 # ---- Precondiciones ---------------------------------------------------------
 RUNNER <- here::here("tests", "consulta_pagefind.mjs")
@@ -82,6 +102,53 @@ stopifnot(exists("CONSULTAS_EVALUACION"))
 EV   <- CONSULTAS_EVALUACION
 HIST <- EV[EV[["clase"]] == "historica", ]
 SINR <- EV[EV[["clase"]] == "sin_respuesta", ]
+
+# Variantes de expansion por consulta. Se calculan aqui, despues de cargar el
+# conjunto de evaluacion, y se anexan al lote que viaja al runner.
+# La tabla de alias y sus indices se arman AQUI y no arriba: tests/consultas_evaluacion.R
+# vuelve a cargar 10_utils/10_configuracion.R, de modo que cualquier sustitucion
+# hecha antes quedaba pisada y los indices derivados apuntaban a una tabla que ya
+# no estaba. Lo destapo el caso malo plantado de T2, que no disparaba ni una
+# variante.
+# Dos afordancias SOLO de medicion, sin efecto sobre el sitio publicado:
+#   --alias <ruta.R>  sustituye ALIAS_CONSULTA por la del archivo indicado. Sirve
+#                     para el caso malo plantado sin editar el arbol.
+#   --sin-piso-r0     ordena la union solo por puntaje, sin la precedencia de la
+#                     consulta original. Existe para DEMOSTRAR que el piso R0 es
+#                     lo que impide los retrocesos: sin el, un alias adversarial
+#                     si hace retroceder una consulta, y con el no.
+ALIAS_ALT <- valor_arg("--alias", NA_character_)
+if (!is.na(ALIAS_ALT)) {
+  source(absoluta(ALIAS_ALT))
+  message("ALIAS_CONSULTA sustituida desde ", ALIAS_ALT, ": ", nrow(ALIAS_CONSULTA), " filas")
+}
+
+.tok_alias <- lapply(ALIAS_CONSULTA[["alias"]], trocear_c)
+.raices_entrada <- lapply(split(.tok_alias, ALIAS_CONSULTA[["entrada"]]), function(l) {
+  r <- unique(raiz_c(unlist(l))); r[!(r %in% RAICES_COMUNES_ALIAS)]
+})
+variantes_de <- function(consulta) {
+  if (!EXPANDIR) return(character(0))
+  qt <- unique(raiz_c(trocear_c(consulta)))
+  pj <- vapply(.raices_entrada, function(r) length(intersect(r, qt)), integer(1))
+  ent <- names(pj)[pj > 0L]
+  if (!length(ent)) return(character(0))
+  ent <- ent[order(-pj[ent], ent)]
+  qp <- plegar_c(consulta); salida <- character(0)
+  for (e in ent) {
+    a <- ALIAS_CONSULTA[["alias"]][ALIAS_CONSULTA[["entrada"]] == e]
+    nt <- vapply(a, function(z) length(trocear_c(z)), integer(1))
+    a <- plegar_c(a[order(-nt, a)])
+    for (z in a) {
+      if (identical(z, qp) || z %in% salida) next
+      salida <- c(salida, z)
+      if (length(salida) >= TOPE_VARIANTES_CONSULTA) return(salida)
+    }
+  }
+  salida
+}
+
+VARIANTES <- setNames(lapply(EV[["consulta"]], variantes_de), EV[["id"]])
 
 # ---- Servidor HTTP local ----------------------------------------------------
 # Pagefind resuelve su indice por HTTP: sobre file:// el modulo no carga. Patron
@@ -137,7 +204,10 @@ ENTRADA <- fs::path(DIR_SAL, paste0("consultas_entrada_", sufijo, ".json"))
 SALIDA  <- fs::path(DIR_SAL, paste0("pagefind_crudo_", sufijo, ".json"))
 
 jsonlite::write_json(
-  lapply(seq_len(nrow(EV)), function(i) list(id = EV[["id"]][[i]], consulta = EV[["consulta"]][[i]])),
+  c(lapply(seq_len(nrow(EV)), function(i) list(id = EV[["id"]][[i]], consulta = EV[["consulta"]][[i]])),
+    unlist(lapply(names(VARIANTES), function(id) lapply(seq_along(VARIANTES[[id]]),
+      function(j) list(id = sprintf("%s__v%02d", id, j), consulta = VARIANTES[[id]][[j]]))),
+      recursive = FALSE, use.names = FALSE)),
   ENTRADA, auto_unbox = TRUE, pretty = TRUE)
 
 salida_node <- system2(NODE, c("--no-warnings", shQuote(RUNNER), shQuote(ENTRADA),
@@ -229,8 +299,39 @@ lista_cruda <- function(cq, orden = c("entrega", "relevancia")) {
   vapply(planos, function(x) x[["url"]], character(1))
 }
 
-por_id <- setNames(CRUDO[["consultas"]],
-                   vapply(CRUDO[["consultas"]], function(q) as.character(q[["id"]]), character(1)))
+# ---- Union por pagina: el piso R0 de busqueda.html, reimplementado ----------
+# Las paginas de la consulta ORIGINAL van primero, siempre (no solo ante empate):
+# asi una expansion mala solo agrega ruido debajo y ninguna consulta que hoy
+# funciona puede retroceder. Cada variante aporta a lo mas
+# TOPE_PAGINAS_POR_VARIANTE paginas, para que un alias amplio no inunde la lista.
+crudo_por_id <- setNames(CRUDO[["consultas"]],
+                         vapply(CRUDO[["consultas"]], function(q) as.character(q[["id"]]), character(1)))
+unir_expansion <- function(id) {
+  base_q <- crudo_por_id[[id]]
+  if (!EXPANDIR || !length(VARIANTES[[id]])) return(base_q)
+  claves <- character(0); acc <- list(); es_orig <- logical(0); sc <- numeric(0)
+  agrega <- function(r, orig) {
+    k <- norm(as.character(r[["url"]])); s <- as.numeric(r[["score"]])
+    i <- match(k, claves)
+    if (is.na(i)) { claves <<- c(claves, k); acc[[length(acc)+1L]] <<- r
+                    es_orig <<- c(es_orig, orig); sc <<- c(sc, s)
+    } else if (!es_orig[[i]] && !orig && s > sc[[i]]) { acc[[i]] <<- r; sc[[i]] <<- s }
+  }
+  for (r in base_q[["resultados"]]) agrega(r, TRUE)
+  for (j in seq_along(VARIANTES[[id]])) {
+    q <- crudo_por_id[[sprintf("%s__v%02d", id, j)]]
+    if (is.null(q)) next
+    for (r in head(q[["resultados"]], TOPE_PAGINAS_POR_VARIANTE)) agrega(r, FALSE)
+  }
+  if (!length(acc)) return(base_q)
+  o <- if (PISO_R0) order(-as.integer(es_orig), -sc, seq_along(acc)) else order(-sc, seq_along(acc))
+  acc <- acc[o]
+  for (i in seq_along(acc)) acc[[i]][["rango_pagina"]] <- i
+  base_q[["resultados"]] <- acc
+  base_q[["n_resultados"]] <- length(acc)
+  base_q
+}
+por_id <- setNames(lapply(EV[["id"]], unir_expansion), EV[["id"]])
 posicion <- function(lista, ancla) {
   i <- match(ancla, lista)
   if (is.na(i)) NA_integer_ else as.integer(i)

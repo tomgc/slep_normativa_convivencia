@@ -101,14 +101,35 @@
 .buscador-mas:hover { background: #e9ecef; }
 </style>
 
+<!-- Datos del buscador. Los inyecta 34_generar_paginas.R en la COPIA publicada de
+     esta plantilla, desde las constantes de 10_utils/10_configuracion.R. En el
+     repositorio el marcador queda visible a proposito: si alguien abre esta
+     plantilla directamente en un navegador, el buscador se degrada a la consulta
+     sin expansion en vez de romperse. NINGUN alias se edita a mano aqui. -->
+<script type="application/json" id="datos-buscador">/*DATOS_BUSCADOR*/</script>
+
 <script type="module">
   // == INICIO BLOQUE DE ORDEN ==
-  // Lo lee el instrumento de medicion del encargo v10: se extrae literalmente de
-  // este archivo y se evalua alli, para que la cifra "despues" se mida contra el
-  // codigo que se publica y no contra una copia suya que puede divergir en
-  // silencio. Marcadores de una sola linea a proposito: asi el trozo extraido es
-  // JavaScript valido cualquiera sea el corte. Si se mueven, mover el extractor.
-  const TOPE_SUB_RESULTADOS = 5;
+  // Lo lee el instrumento de medicion (tests/medir_buscador.R): se extrae
+  // literalmente de este archivo y se evalua alli, para que la cifra "despues" se
+  // mida contra el codigo que se publica y no contra una copia suya que puede
+  // divergir en silencio. Marcadores de una sola linea a proposito: asi el trozo
+  // extraido es JavaScript valido cualquiera sea el corte.
+  //
+  // Desde el encargo v11 los NUMEROS ya no estan aqui: viven en
+  // 10_utils/10_configuracion.R y llegan por el bloque JSON de arriba. Los valores
+  // de respaldo son los del v10 y solo actuan si la plantilla se abre sin inyectar.
+  const DATOS = (() => {
+    try { return JSON.parse(document.getElementById("datos-buscador").textContent); }
+    catch { return null; }
+  })();
+  const TOPE_SUB_RESULTADOS   = DATOS ? DATOS.tope_sub_resultados   : 5;
+  const PAGINA                = DATOS ? DATOS.pagina_resultados     : 8;
+  const TOPE_VARIANTES        = DATOS ? DATOS.tope_variantes        : 0;
+  const TOPE_PAGINAS_VARIANTE = DATOS ? DATOS.tope_paginas_variante : 2;
+  const LARGO_RAIZ            = DATOS ? DATOS.largo_raiz            : 6;
+  const VACIAS                = new Set(DATOS ? DATOS.palabras_vacias : []);
+  const COMUNES               = new Set(DATOS ? DATOS.raices_comunes  : []);
 
   // Relevancia de un sub-resultado. `balanced_score` es el peso que Pagefind da
   // a cada aparicion corregido por el largo del fragmento: sin esa correccion un
@@ -127,7 +148,69 @@
   }
   // == FIN BLOQUE DE ORDEN ==
 
-  const PAGINA = 8;   // resultados de norma por tanda, como el pageSize anterior
+  // == INICIO BLOQUE DE EXPANSION ==
+  // POR QUE EXISTE. Pagefind exige TODOS los terminos de contenido de la consulta,
+  // y el equipo pregunta con palabras que la norma no usa: "celular" donde la ley
+  // dice "dispositivos moviles", "bullying" donde dice "acoso escolar". Medido el
+  // 2026-09-09: 3 de 10 consultas de evaluacion resueltas, y 3 de las 7 restantes
+  // no devuelven NI UNA pagina.
+  //
+  // QUE HACE, EXACTAMENTE. Trocea la consulta, busca en ALIAS_CONSULTA que
+  // entradas (una norma o un tema) comparten alguna raiz distintiva con ella, y
+  // ejecuta ademas la FRASE de sus alias como consultas aparte. Une los resultados
+  // por pagina quedandose con el mejor puntaje.
+  //
+  // QUE NO HACE. No reescribe la consulta del usuario, no toca el texto publicado
+  // y no altera el orden de los sub-resultados. Y no normaliza tildes ni quita
+  // palabras vacias de lo que viaja a Pagefind: medido el 2026-09-09, Pagefind ya
+  // hace las dos cosas (las diez consultas con y sin tildes, y con y sin palabras
+  // vacias, devuelven el mismo conjunto de paginas). El troceo de aqui sirve solo
+  // para decidir que alias disparan.
+  //
+  // PISO R0. Las paginas que encontro la consulta ORIGINAL van primero, siempre,
+  // no solo ante empate. Asi una expansion mala solo puede agregar ruido DEBAJO de
+  // lo que ya se encontraba, y ninguna consulta que hoy funciona puede retroceder
+  // por culpa de un alias. Es la parte aplicable de la adopcion A-08.
+  const plegar = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const raiz = (w) => w.slice(0, LARGO_RAIZ);
+  const trocear = (s) => plegar(s).split(/[^a-z0-9]+/).filter((t) => t.length >= 3 && !VACIAS.has(t));
+
+  // Indice entrada -> {raices distintivas, alias ordenados}. Se arma una vez.
+  const ENTRADAS = new Map();
+  if (DATOS && Array.isArray(DATOS.alias)) {
+    for (const [entrada, alias] of DATOS.alias) {
+      if (!ENTRADAS.has(entrada)) ENTRADAS.set(entrada, { raices: new Set(), alias: [] });
+      const e = ENTRADAS.get(entrada);
+      const tk = trocear(alias);
+      for (const t of tk) { const r = raiz(t); if (!COMUNES.has(r)) e.raices.add(r); }
+      e.alias.push({ texto: plegar(alias), ntok: tk.length });
+    }
+    for (const e of ENTRADAS.values())
+      e.alias.sort((a, b) => (b.ntok - a.ntok) || (a.texto < b.texto ? -1 : a.texto > b.texto ? 1 : 0));
+  }
+
+  function variantesDe(consulta) {
+    if (!TOPE_VARIANTES || !ENTRADAS.size) return [];
+    const qt = new Set(trocear(consulta).map(raiz));
+    const puntuadas = [];
+    for (const [entrada, e] of ENTRADAS) {
+      let n = 0;
+      for (const r of e.raices) if (qt.has(r)) n++;
+      if (n > 0) puntuadas.push([entrada, n]);
+    }
+    puntuadas.sort((a, b) => (b[1] - a[1]) || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+    const qp = plegar(consulta);
+    const salida = [];
+    for (const [entrada] of puntuadas) {
+      for (const a of ENTRADAS.get(entrada).alias) {
+        if (a.texto === qp || salida.includes(a.texto)) continue;
+        salida.push(a.texto);
+        if (salida.length >= TOPE_VARIANTES) return salida;
+      }
+    }
+    return salida;
+  }
+  // == FIN BLOQUE DE EXPANSION ==
 
   const caja       = document.getElementById("buscador-entrada");
   const estado     = document.getElementById("buscador-estado");
@@ -204,6 +287,32 @@
     boton.hidden = mostrados >= resultados.length;
   }
 
+  // Une la consulta original con sus variantes. La union es por PAGINA (`r.id` de
+  // Pagefind, disponible sin pedir los datos completos), conservando el mejor
+  // puntaje; el orden es piso R0 primero y puntaje despues.
+  async function buscarConExpansion(p, termino) {
+    const original = await p.search(termino);
+    const variantes = variantesDe(termino);
+    if (!variantes.length) return original.results;
+
+    const mapa = new Map();
+    for (const r of original.results) mapa.set(r.id, { r, score: r.score, orig: true });
+
+    const tandas = await Promise.all(variantes.map((v) => p.search(v)));
+    for (const t of tandas) {
+      // Tope por variante: un alias amplio no puede aportar media lista y empujar
+      // la respuesta correcta fuera de la primera tanda.
+      for (const r of t.results.slice(0, TOPE_PAGINAS_VARIANTE)) {
+        const prev = mapa.get(r.id);
+        if (!prev) mapa.set(r.id, { r, score: r.score, orig: false });
+        else if (!prev.orig && r.score > prev.score) mapa.set(r.id, { r, score: r.score, orig: false });
+      }
+    }
+    return [...mapa.values()]
+      .sort((a, b) => (Number(b.orig) - Number(a.orig)) || (b.score - a.score))
+      .map((x) => x.r);
+  }
+
   async function buscar(termino) {
     const mia = ++corrida;
     lista.replaceChildren();
@@ -215,9 +324,9 @@
     let p;
     try { p = await motor(); }
     catch { texto(estado, "La búsqueda no está disponible en esta copia del sitio."); return; }
-    const r = await p.search(termino);
+    const encontrados = await buscarConExpansion(p, termino);
     if (mia !== corrida) return;   // llego una respuesta vieja: se descarta
-    resultados = r.results;
+    resultados = encontrados;
     if (!resultados.length) { texto(estado, "Sin resultados para " + termino); return; }
     texto(estado, resultados.length === 1
       ? "1 norma con resultados para " + termino

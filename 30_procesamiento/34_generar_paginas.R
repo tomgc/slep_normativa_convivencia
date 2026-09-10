@@ -1147,6 +1147,45 @@ fs::file_copy(
   destino
 )
 
+# ---- Datos del buscador en la copia publicada de la plantilla ---------------
+# La plantilla viaja con un marcador y NO con los datos: asi los alias, el tope de
+# sub-resultados y el resto de parametros viven en un solo lugar
+# (10_utils/10_configuracion.R) y no en el cuerpo de un archivo HTML, donde nadie
+# los encuentra y donde el instrumento de medicion no puede leerlos.
+#
+# Se inyectan aqui, en la COPIA, y nunca en la plantilla del repositorio: el
+# generador no edita sus propias fuentes. Si alguien abre la plantilla del
+# repositorio en un navegador, el marcador no es JSON valido, DATOS queda en null
+# y el buscador se degrada a la consulta sin expansion en vez de romperse.
+#
+# El JSON no puede contener '</script>' porque cerraria el bloque antes de tiempo;
+# la guarda de abajo lo comprueba en vez de confiar en que ningun alias lo traiga.
+datos_buscador <- list(
+  tope_sub_resultados   = TOPE_SUB_RESULTADOS,
+  pagina_resultados     = PAGINA_RESULTADOS,
+  tope_variantes        = TOPE_VARIANTES_CONSULTA,
+  tope_paginas_variante = TOPE_PAGINAS_POR_VARIANTE,
+  largo_raiz            = LARGO_RAIZ_ALIAS,
+  palabras_vacias       = PALABRAS_VACIAS_CONSULTA,
+  raices_comunes        = RAICES_COMUNES_ALIAS,
+  alias = unname(Map(function(e, a) c(e, a),
+                     ALIAS_CONSULTA[["entrada"]], ALIAS_CONSULTA[["alias"]]))
+)
+json_buscador <- as.character(jsonlite::toJSON(datos_buscador, auto_unbox = TRUE))
+stopifnot(!grepl("</script", json_buscador, fixed = TRUE))
+
+ruta_busqueda <- file.path(destino, "busqueda.html")
+plantilla <- readLines(ruta_busqueda, warn = FALSE)
+i_marca <- grep("/*DATOS_BUSCADOR*/", plantilla, fixed = TRUE)
+stopifnot(length(i_marca) == 1L)
+partes <- strsplit(plantilla[[i_marca]], "/*DATOS_BUSCADOR*/", fixed = TRUE)[[1]]
+plantilla[[i_marca]] <- paste0(partes[[1]], json_buscador,
+                               if (length(partes) > 1L) partes[[2]] else "")
+writeLines(plantilla, ruta_busqueda)
+log_msg(sprintf("Buscador: %d alias de %d entradas inyectados en la plantilla (%d bytes de JSON).",
+                nrow(ALIAS_CONSULTA), length(unique(ALIAS_CONSULTA[["entrada"]])),
+                nchar(json_buscador)), origen = ORIGEN)
+
 for (n in normas) {
   writeLines(pagina_norma(n), file.path(destino, paste0(n$slug, ".qmd")))
 }

@@ -257,6 +257,306 @@ TEMAS_PALABRAS_CLAVE <- list(
                                    "registro de mochilas")
 )
 
+
+# ---- Buscador del sitio: orden, tope y expansion de la consulta -------------
+# TODO parametro del buscador vive aqui y no en el cuerpo de busqueda.html.
+# 34_generar_paginas.R los inyecta en la copia publicada de la plantilla, de modo
+# que la pagina y el instrumento de medicion (tests/medir_buscador.R) leen los
+# mismos numeros de la misma fuente. Antes del encargo v11, TOPE_SUB_RESULTADOS
+# estaba escrito en el cuerpo del JavaScript y habia que ir a buscarlo ahi.
+
+# Sub-resultados (articulos) que se muestran por norma. 5 y no 3: el bundle de
+# Pagefind recorta en 3 dentro del cuerpo de su funcion, no en un parametro, y
+# esa fue la razon de escribir una interfaz propia (encargo v10, B1).
+TOPE_SUB_RESULTADOS <- 5L
+
+# Normas por tanda en la lista de resultados.
+PAGINA_RESULTADOS <- 8L
+
+# ---- Expansion de la consulta (encargo v11, T2) -----------------------------
+# EL PROBLEMA QUE RESUELVE, medido y no supuesto: Pagefind exige TODOS los
+# terminos de contenido de la consulta, y el equipo pregunta con palabras que la
+# norma no usa ("celular" donde la ley dice "dispositivos moviles", "bullying"
+# donde dice "acoso escolar"). Medido el 2026-09-09 sobre las diez consultas de
+# evaluacion: 3 de 10 resueltas, y en 3 de las 7 restantes el indice no devuelve
+# NINGUNA pagina.
+#
+# QUE NO ES: no reescribe la consulta del usuario ni altera el texto publicado.
+# Ejecuta la consulta original y hasta TOPE_VARIANTES_CONSULTA consultas mas, y
+# une los resultados por pagina. La consulta original conserva precedencia
+# absoluta (piso R0): sus paginas van primero, siempre, de modo que una expansion
+# mala solo puede agregar ruido debajo, nunca desplazar lo que ya se encontraba.
+#
+# DOS MEDICIONES QUE CAMBIARON EL DISENO, ambas del 2026-09-09:
+#  - Sustituir el alias DENTRO de la consulta completa no sirve: recupera 1 de 7,
+#    porque los demas terminos de la consulta siguen exigiendose. La variante que
+#    funciona es la FRASE DEL ALIAS SOLA: recupera 7 de 7.
+#  - Pagefind ya normaliza tildes y ya ignora las palabras vacias del espanol: las
+#    diez consultas con y sin tildes, y con y sin palabras vacias, devuelven EL
+#    MISMO conjunto de paginas (0 de 10 difieren). Por eso la expansion NO
+#    normaliza la consulta que se envia; PALABRAS_VACIAS_CONSULTA existe solo para
+#    TROCEAR la consulta y decidir que alias disparan.
+
+# Cuantas variantes se ejecutan ademas de la original, y cuantas paginas puede
+# aportar cada una. El tope por variante impide que un alias amplio ("expulsion")
+# inunde la lista y empuje la respuesta correcta fuera de la primera tanda.
+# ADVERTENCIA METODOLOGICA: los dos valores se eligieron por simulacion sobre las
+# MISMAS diez consultas con que se reporta el resultado. Es ajuste sobre el
+# conjunto de evaluacion, y la superficie es ruidosa (7, 5 y 8 aciertos en
+# configuraciones vecinas). Lo que se afirma es la medida pareada -ninguna
+# consulta retrocede-, no una mejora general. Se re-eligen cuando existan
+# consultas reales del equipo (decision D-C de la integracion del 2026-09-09).
+TOPE_VARIANTES_CONSULTA   <- 3L
+TOPE_PAGINAS_POR_VARIANTE <- 2L
+
+# Un alias con mas de estos tokens de contenido no se usa como variante: los
+# titulos completos de las normas estan en la tabla y como consulta no aportan.
+MAX_TOKENS_ALIAS <- 4L
+
+# Largo de la raiz con que se comparan las palabras. 6 caracteres hacen que
+# "mochila" y "mochilas" coincidan sin que lo hagan "consejo" y "consentimiento".
+LARGO_RAIZ_ALIAS <- 6L
+
+# Palabras vacias del espanol. NO se quitan de la consulta que viaja a Pagefind
+# (que ya las ignora): se quitan para trocear la consulta y buscar alias.
+PALABRAS_VACIAS_CONSULTA <- c(
+  "de", "la", "el", "en", "para", "un", "una", "los", "las", "que", "se", "a", "al", "del", "por", "con", "es", "lo", "su", "y", "o"
+)
+
+# Raices que aparecen en mas de 3 entradas de ALIAS_CONSULTA y por eso no
+# disparan una expansion por si solas: "educacion" o "escolar" estan en casi
+# todas las normas del corpus y dispararian todas las expansiones a la vez.
+# Derivadas de la propia tabla, no escritas a mano.
+RAICES_COMUNES_ALIAS <- c(
+  "aprueb", "circul", "decret", "derech", "dictam", "dto", "educac", "escola", "establ", "estado", "estudi", "ley", "modifi", "oficia", "person", "recono", "reglam", "sobre", "suprem", "uso"
+)
+
+# Procedencia de cada alias. Un alias sin procedencia es indistinguible de uno
+# inventado, que es exactamente lo que este encargo tiene prohibido.
+FUENTES_ALIAS <- c(
+  temas            = "10_utils/10_configuracion.R TEMAS_PALABRAS_CLAVE",
+  readme_nombre    = "20_insumos/normativa/README.md nombre original",
+  readme_escaneo   = "20_insumos/normativa/README.md tabla de escaneos (que es)",
+  numero           = "catalogo.json numero (crudo, con punto de miles, sin ceros a la izquierda)",
+  tipo             = "catalogo.json tipo / TIPOS_NORMA",
+  titulo           = "catalogo.json titulo",
+  grupo_acto       = "metadatos_curados.json grupos_acto nota_colapso",
+  remision         = "relaciones.json cita_literal de remisiones",
+  slug             = "slug (materia de la URL)",
+  denominacion     = "texto del corpus: denominacion junto al numero de ley"
+)
+
+# ALIAS_CONSULTA: 183 filas, 42 entradas (25 normas y 17 temas), 168 alias
+# distintos. NINGUN alias se invento en el encargo v11: todos existen en
+# 50_documentacion/andamios/lab_motor_v9/a1_alias_procedencia.csv (260 filas), del
+# que se conservan las que tienen entre 1 y MAX_TOKENS_ALIAS tokens de contenido y
+# al menos una raiz que no este en RAICES_COMUNES_ALIAS. Se traen aqui como CODIGO
+# porque ese CSV no se versiona: la regla R1 del hook global rechaza extensiones de
+# datos fuera de 40_salidas/datos/.
+#
+# data.frame y no tibble a proposito: 10_configuracion.R lo carga TODO script del
+# pipeline, incluidos los que no instalan tibble (31_extraer_texto.R declara
+# pdftools, jsonlite, fs y here). Anadir aqui una dependencia de paquete romperia
+# ese contrato.
+ALIAS_CONSULTA <- as.data.frame(matrix(
+  byrow = TRUE, ncol = 3L,
+  dimnames = list(NULL, c("entrada", "alias", "clave_fuente")),
+  data = c(
+  "norma:circular_193_estudiantes_embarazadas", "193", "numero",
+  "norma:circular_193_estudiantes_embarazadas", "CIRULAR 193 EMBARAZOS", "readme_nombre",
+  "norma:circular_193_estudiantes_embarazadas", "estudiantes embarazadas", "slug",
+  "norma:circular_586_tea", "586", "numero",
+  "norma:circular_586_tea", "CIRCULAR 586 LEY TEA", "readme_nombre",
+  "norma:circular_586_tea", "Circular 586, ley TEA", "readme_escaneo",
+  "norma:circular_586_tea", "tea", "slug",
+  "norma:circular_812_identidad_genero", "812", "numero",
+  "norma:circular_812_identidad_genero", "CIRCULAR 812 IDENTIDAD DE GÉNERO", "readme_nombre",
+  "norma:circular_812_identidad_genero", "identidad genero", "slug",
+  "norma:dfl_1_estatuto_asistentes_educacion", "Decreto con fuerza de ley", "tipo",
+  "norma:dfl_1_estatuto_asistentes_educacion", "decreto con fuerza de ley N° 1", "remision",
+  "norma:dfl_1_estatuto_asistentes_educacion", "decreto con fuerza de ley Nº 1", "remision",
+  "norma:dfl_1_estatuto_asistentes_educacion", "dfl", "tipo",
+  "norma:dfl_1_estatuto_asistentes_educacion", "DFL 1 MINEDUC ESTATUTO ASISTENTES", "readme_nombre",
+  "norma:dfl_1_estatuto_asistentes_educacion", "estatuto asistentes educacion", "slug",
+  "norma:dfl_315_perdida_reconocimiento_oficial", "315", "numero",
+  "norma:dfl_315_perdida_reconocimiento_oficial", "Decreto con fuerza de ley", "tipo",
+  "norma:dfl_315_perdida_reconocimiento_oficial", "dfl", "tipo",
+  "norma:dfl_315_perdida_reconocimiento_oficial", "DLF 315 PÉRDIDA RO", "readme_nombre",
+  "norma:dfl_315_perdida_reconocimiento_oficial", "perdida reconocimiento oficial", "slug",
+  "norma:dictamen_065_revision_mochilas", "065", "numero",
+  "norma:dictamen_065_revision_mochilas", "DICTÁMEN 065 REVISIÓN DE MOCHILAS", "readme_nombre",
+  "norma:dictamen_065_revision_mochilas", "revision mochilas", "slug",
+  "norma:dictamen_078_detectores_revision_mochilas", "078", "numero",
+  "norma:dictamen_078_detectores_revision_mochilas", "detectores revision mochilas", "slug",
+  "norma:dictamen_52_77_expulsion", "52 77 expulsion", "slug",
+  "norma:dictamen_52_77_expulsion", "DICTÁMENES 52 Y 77 EXPULSION", "readme_nombre",
+  "norma:dictamen_71_expulsion_cancelacion_matricula", "DICTÁMEN 71 EXPULSIONES Y CANCELACIONES DE MATRÍCULA", "readme_nombre",
+  "norma:dictamen_71_expulsion_cancelacion_matricula", "expulsion cancelacion matricula", "slug",
+  "norma:dto_215_uniforme_escolar", "215", "numero",
+  "norma:dto_215_uniforme_escolar", "Decreto Supremo N° 215", "remision",
+  "norma:dto_215_uniforme_escolar", "DTO 215 UNIFORME", "readme_nombre",
+  "norma:dto_215_uniforme_escolar", "REGLAMENTA USO DE UNIFORME ESCOLAR", "titulo",
+  "norma:dto_215_uniforme_escolar", "uniforme escolar", "slug",
+  "norma:dto_24_consejos_escolares", "consejos escolares", "slug",
+  "norma:dto_24_consejos_escolares", "DTO 24 CONSEJOS ESCOLARES", "readme_nombre",
+  "norma:dto_24_consejos_escolares", "REGLAMENTA CONSEJOS ESCOLARES", "titulo",
+  "norma:dto_453_estatuto_docente", "453", "numero",
+  "norma:dto_453_estatuto_docente", "estatuto docente", "slug",
+  "norma:dto_565_centros_padres_apoderados", "565", "numero",
+  "norma:dto_565_centros_padres_apoderados", "centros padres apoderados", "slug",
+  "norma:dto_565_centros_padres_apoderados", "Decreto Supremo N° 565", "remision",
+  "norma:dto_565_centros_padres_apoderados", "DTO 565 CGPMA", "readme_nombre",
+  "norma:ley_19979_jornada_escolar_completa", "19.979", "numero",
+  "norma:ley_19979_jornada_escolar_completa", "19979", "numero",
+  "norma:ley_19979_jornada_escolar_completa", "19979 JEC", "readme_nombre",
+  "norma:ley_19979_jornada_escolar_completa", "jornada escolar completa", "slug",
+  "norma:ley_19979_jornada_escolar_completa", "Ley 19979", "remision",
+  "norma:ley_19979_jornada_escolar_completa", "Ley N° 19.979", "remision",
+  "norma:ley_19979_jornada_escolar_completa", "ley Nº 19.979", "remision",
+  "norma:ley_19979_jornada_escolar_completa", "ley Nº19.979", "remision",
+  "norma:ley_20370_general_educacion", "20.370", "numero",
+  "norma:ley_20370_general_educacion", "20370", "numero",
+  "norma:ley_20370_general_educacion", "20370 LGE", "readme_nombre",
+  "norma:ley_20370_general_educacion", "ESTABLECE LA LEY GENERAL DE EDUCACIÓN", "titulo",
+  "norma:ley_20370_general_educacion", "general educacion", "slug",
+  "norma:ley_20370_general_educacion", "Ley 20.370", "remision",
+  "norma:ley_20370_general_educacion", "ley N° 20.370", "remision",
+  "norma:ley_20370_general_educacion", "ley Nº 20.370", "remision",
+  "norma:ley_20370_general_educacion", "ley Nº20.370", "remision",
+  "norma:ley_20536_violencia_escolar", "20.536", "numero",
+  "norma:ley_20536_violencia_escolar", "20536", "numero",
+  "norma:ley_20536_violencia_escolar", "20536 VIOLENCIA ESCOLAR", "readme_nombre",
+  "norma:ley_20536_violencia_escolar", "SOBRE VIOLENCIA ESCOLAR", "titulo",
+  "norma:ley_20536_violencia_escolar", "violencia escolar", "slug",
+  "norma:ley_20845_inclusion_escolar", "20.845", "numero",
+  "norma:ley_20845_inclusion_escolar", "20845", "numero",
+  "norma:ley_20845_inclusion_escolar", "20845 INCLUSION SEP", "readme_nombre",
+  "norma:ley_20845_inclusion_escolar", "inclusion escolar", "slug",
+  "norma:ley_20845_inclusion_escolar", "Ley 20845", "remision",
+  "norma:ley_20845_inclusion_escolar", "Ley N° 20.845", "remision",
+  "norma:ley_20845_inclusion_escolar", "Ley N°20.845", "remision",
+  "norma:ley_20845_inclusion_escolar", "ley Nº 20.845", "remision",
+  "norma:ley_20911_formacion_ciudadana", "20.911", "numero",
+  "norma:ley_20911_formacion_ciudadana", "20911", "numero",
+  "norma:ley_20911_formacion_ciudadana", "20911 FORMACIÓN CIUDADANA", "readme_nombre",
+  "norma:ley_20911_formacion_ciudadana", "formacion ciudadana", "slug",
+  "norma:ley_21430_garantias_ninez", "21.430", "numero",
+  "norma:ley_21430_garantias_ninez", "21430", "numero",
+  "norma:ley_21430_garantias_ninez", "21430 PROTECCIÓN Y DERECHOS NIÑEZ", "readme_nombre",
+  "norma:ley_21430_garantias_ninez", "garantias ninez", "slug",
+  "norma:ley_21430_garantias_ninez", "ley N° 21.430", "remision",
+  "norma:ley_21430_garantias_ninez", "Ley N°21.430", "remision",
+  "norma:ley_21545_tea", "21.545", "numero",
+  "norma:ley_21545_tea", "21545", "numero",
+  "norma:ley_21545_tea", "21545 LEY TEA", "readme_nombre",
+  "norma:ley_21545_tea", "ley N° 21.545", "remision",
+  "norma:ley_21545_tea", "Ley Nº 21.545", "remision",
+  "norma:ley_21545_tea", "Ley TEA", "denominacion",
+  "norma:ley_21545_tea", "tea", "slug",
+  "norma:ley_21801_celulares", "21.801", "numero",
+  "norma:ley_21801_celulares", "21801", "numero",
+  "norma:ley_21801_celulares", "21801 CELULARES", "readme_nombre",
+  "norma:ley_21801_celulares", "celulares", "slug",
+  "norma:ley_21801_celulares", "ley N° 21.801", "remision",
+  "norma:ley_21809_convivencia_educativa", "21.809", "numero",
+  "norma:ley_21809_convivencia_educativa", "21809", "numero",
+  "norma:ley_21809_convivencia_educativa", "21809 LEY DE CONVIVENCIA", "readme_nombre",
+  "norma:ley_21809_convivencia_educativa", "convivencia educativa", "slug",
+  "norma:ley_21809_convivencia_educativa", "Ley 21809", "remision",
+  "norma:ley_21809_convivencia_educativa", "Ley N° 21.809", "remision",
+  "norma:rex_181_celulares", "181", "numero",
+  "norma:rex_181_celulares", "celulares", "slug",
+  "norma:rex_181_celulares", "Resolución exenta", "tipo",
+  "norma:rex_181_celulares", "rex", "tipo",
+  "norma:rex_181_celulares", "REX 181 CELULARES", "readme_nombre",
+  "norma:rex_482_instrucciones_reglamentos_internos", "482", "numero",
+  "norma:rex_482_instrucciones_reglamentos_internos", "incluye el cuerpo del reglamento", "grupo_acto",
+  "norma:rex_482_instrucciones_reglamentos_internos", "instrucciones reglamentos internos", "slug",
+  "norma:rex_482_instrucciones_reglamentos_internos", "Resolución exenta", "tipo",
+  "norma:rex_482_instrucciones_reglamentos_internos", "rex", "tipo",
+  "norma:rex_482_instrucciones_reglamentos_internos", "REX 482 INSTRUCCIONES REGLAMENTOS", "readme_nombre",
+  "norma:rex_482_instrucciones_reglamentos_internos", "REX N° 482", "remision",
+  "norma:rex_482_reglamentos_b", "482", "numero",
+  "norma:rex_482_reglamentos_b", "482 REGLAMENTOS", "readme_nombre",
+  "norma:rex_482_reglamentos_b", "incluye el cuerpo del reglamento", "grupo_acto",
+  "norma:rex_482_reglamentos_b", "Resolución exenta", "tipo",
+  "norma:rex_482_reglamentos_b", "rex", "tipo",
+  "tema:convivencia-escolar", "buena convivencia", "temas",
+  "tema:convivencia-escolar", "convivencia escolar", "temas",
+  "tema:convivencia-escolar", "encargado de convivencia", "temas",
+  "tema:derechos-de-la-ninez", "derechos del nino", "temas",
+  "tema:derechos-de-la-ninez", "garantias de la ninez", "temas",
+  "tema:derechos-de-la-ninez", "interes superior del nino", "temas",
+  "tema:derechos-de-la-ninez", "ninos, ninas y adolescentes", "temas",
+  "tema:embarazo-y-maternidad", "embarazada", "temas",
+  "tema:embarazo-y-maternidad", "embarazo", "temas",
+  "tema:embarazo-y-maternidad", "lactancia", "temas",
+  "tema:embarazo-y-maternidad", "maternidad", "temas",
+  "tema:embarazo-y-maternidad", "paternidad", "temas",
+  "tema:estatuto-del-personal", "asistentes de la educacion", "temas",
+  "tema:estatuto-del-personal", "estatuto docente", "temas",
+  "tema:estatuto-del-personal", "profesionales de la educacion", "temas",
+  "tema:formacion-ciudadana", "educacion civica", "temas",
+  "tema:formacion-ciudadana", "formacion ciudadana", "temas",
+  "tema:identidad-de-genero", "estudiante trans", "temas",
+  "tema:identidad-de-genero", "estudiantes trans", "temas",
+  "tema:identidad-de-genero", "identidad de genero", "temas",
+  "tema:identidad-de-genero", "ninas, ninos y estudiantes trans", "temas",
+  "tema:identidad-de-genero", "nombre social", "temas",
+  "tema:identidad-de-genero", "persona trans", "temas",
+  "tema:identidad-de-genero", "personas trans", "temas",
+  "tema:inclusion-y-no-discriminacion", "discriminacion arbitraria", "temas",
+  "tema:inclusion-y-no-discriminacion", "inclusion", "temas",
+  "tema:inclusion-y-no-discriminacion", "integracion", "temas",
+  "tema:inclusion-y-no-discriminacion", "necesidades educativas especiales", "temas",
+  "tema:jornada-escolar", "jornada escolar", "temas",
+  "tema:jornada-escolar", "jornada escolar completa", "temas",
+  "tema:medidas-disciplinarias", "cancelacion de matricula", "temas",
+  "tema:medidas-disciplinarias", "expulsion", "temas",
+  "tema:medidas-disciplinarias", "medida disciplinaria", "temas",
+  "tema:medidas-disciplinarias", "reglamento interno", "temas",
+  "tema:medidas-disciplinarias", "sancion", "temas",
+  "tema:participacion-de-la-comunidad", "centro de alumnos", "temas",
+  "tema:participacion-de-la-comunidad", "centro de padres", "temas",
+  "tema:participacion-de-la-comunidad", "consejo escolar", "temas",
+  "tema:participacion-de-la-comunidad", "participacion", "temas",
+  "tema:reconocimiento-oficial", "perdida del reconocimiento", "temas",
+  "tema:revision-de-pertenencias", "efectos personales", "temas",
+  "tema:revision-de-pertenencias", "mochilas y bolsos", "temas",
+  "tema:revision-de-pertenencias", "registro de mochilas", "temas",
+  "tema:revision-de-pertenencias", "revision de mochilas", "temas",
+  "tema:revision-de-pertenencias", "revision de pertenencias", "temas",
+  "tema:seguridad-escolar", "arma blanca", "temas",
+  "tema:seguridad-escolar", "detector de metales", "temas",
+  "tema:seguridad-escolar", "detectores de metales", "temas",
+  "tema:seguridad-escolar", "elementos incendiarios", "temas",
+  "tema:seguridad-escolar", "porticos detectores", "temas",
+  "tema:seguridad-escolar", "seguridad escolar", "temas",
+  "tema:trastorno-del-espectro-autista", "autismo", "temas",
+  "tema:trastorno-del-espectro-autista", "espectro autista", "temas",
+  "tema:trastorno-del-espectro-autista", "neurodivergen", "temas",
+  "tema:uniforme-y-presentacion-personal", "presentacion personal", "temas",
+  "tema:uniforme-y-presentacion-personal", "uniforme escolar", "temas",
+  "tema:uso-de-dispositivos-moviles", "celular", "temas",
+  "tema:uso-de-dispositivos-moviles", "dispositivos moviles", "temas",
+  "tema:uso-de-dispositivos-moviles", "telefono movil", "temas",
+  "tema:violencia-y-acoso-escolar", "acoso escolar", "temas",
+  "tema:violencia-y-acoso-escolar", "agresion", "temas",
+  "tema:violencia-y-acoso-escolar", "bullying", "temas",
+  "tema:violencia-y-acoso-escolar", "maltrato", "temas",
+  "tema:violencia-y-acoso-escolar", "violencia escolar", "temas"
+)), stringsAsFactors = FALSE)
+
+# Validez de lectura: la tabla se usa en el sitio publicado, asi que un error aqui
+# viaja a produccion.
+stopifnot(
+  nrow(ALIAS_CONSULTA) == 183L,
+  !anyDuplicated(paste(ALIAS_CONSULTA[["entrada"]], tolower(ALIAS_CONSULTA[["alias"]]))),
+  all(ALIAS_CONSULTA[["clave_fuente"]] %in% names(FUENTES_ALIAS)),
+  all(nzchar(ALIAS_CONSULTA[["alias"]]))
+)
+ALIAS_CONSULTA[["fuente"]] <- unname(FUENTES_ALIAS[ALIAS_CONSULTA[["clave_fuente"]]])
+
 # ---- Metadatos que NO se inventan -------------------------------------------
 # Marca que se escribe en el JSON cuando un metadato (titulo, anio) no se pudo
 # extraer del texto. Se prefiere una marca visible a un valor plausible: en una
