@@ -440,3 +440,272 @@ paquete (eliminado en F8).
   hash). Queda en `ESTADO.md` y en el eco de F10.
 - **Push:** `por publicar` — `push_autorizado: si`, los cuatro commits viajan
   juntos al final de F9.
+
+## v04 — 2026-09-10
+
+**Instrumento:** `cierre_sesion_autonomo_cc_v14.md` | kit `76342e6`.
+**Sesión cerrada:** 4. **Traspaso:** v04. **Tramo del backlog:** 43→52.
+
+### F0.0 — Kit y normativos
+
+- **Kit:** sincronizado (`fetch` + `merge --ff-only` desde el PASO A del comando
+  `/cierre`, reutilizado por idempotencia); `status --porcelain` vacío y
+  `rev-list --left-right --count @{u}...HEAD` = `0 0`.
+- **Normativos: al día.** `POLITICA_PROYECTO.md` → `> **Versión 5.8 — vigente.**`
+  y `SETTINGS_Y_PROMPTS_OPERACIONALES.md` → `> **Versión 37.**`, líneas de
+  encabezado idénticas en `$HERRAMIENTAS_DEV_PATH/gobernanza/` y en
+  `50_documentacion/activa/`. Ninguna copia que aplicar (el v03 sí copió SETTINGS
+  v34 → v37). Los dos siguen en `.gitignore` líneas 76-77 y no se versionan.
+
+### Severidades
+
+| Condición | Severidad | Resultado |
+|---|---|---|
+| F0.0a kit | ADVIERTE | pasa (sincronizado, sin divergencia, sin sucios) |
+| F0.0b normativos | REPARA | pasa sin reparación: los dos al día |
+| F0.1 `.git` y `traspasos/` | BLOQUEA | pasa |
+| F0.2 paquete único, front matter, 4 delimitadores, 0 placeholders | BLOQUEA | pasa; ningún campo derivado viajó con valor |
+| F0.3 guardia de repo | BLOQUEA | pasa (`raiz_proyecto` = `pwd`) |
+| F0.4 correlativo triple | BLOQUEA | pasa (v04 = `paquete_cierre_v04.md` = máx(v01, v02, v03)+1) |
+| F0.5 `n` vs `backlog_entradas_nuevas` | BLOQUEA | pasa (10 = 10) |
+| F0.5 numeración provisional contigua | BLOQUEA | pasa (43..52 ascendente, sin huecos) |
+| F0.5 patrón de entrada | BLOQUEA | pasa con criterio declarado (desviación 2) |
+| F0.5 formato de entrada vs último bloque en disco | ADVIERTE | **advertencia: sin negrita de título y sin envoltorio de línea** (abajo) |
+| F0.5 desplazamiento `k` | REPARA | pasa sin reparación: `k` = 0 |
+| F0.5 `sesion_nueva` | ADVIERTE | pasa (declarado 4 = último en disco 3 + 1) |
+| F0.5 `fecha_cierre` | ADVIERTE | pasa (2026-09-10 = fecha de la máquina) |
+| F0.5bis reparto contra disco | BLOQUEA | pasa (10 líneas, 3 categorías, las 3 en disco, control positivo en verde) |
+| F0.5ter / `recuento_tematico` | REPARA | pasa sin reparación: `diferido` demostrado (abajo) |
+| F0.6 `settings_version` | BLOQUEA | pasa (coincide literal con el kit sincronizado) |
+| F0.6 `compuerta_dudas` | BLOQUEA / ADVIERTE | pasa (`8 registradas` = 8 filas D en §11.4) |
+| F0.7 scope del cierre limpio | BLOQUEA | pasa (los cinco destinos limpios al abrir) |
+| F0.7bis rutas fuera del scope | BLOQUEA | pasa: **lista vacía** (solo el propio paquete, excluido) |
+| F0.8 marcadores `<<EJECUTOR>>` | BLOQUEA | pasa (los dos con valor literal) |
+| F2 encabezados estructurales | BLOQUEA | pasa (los 4 aparecen exactamente una vez) |
+| F2 encabezado de sesión reconocible | BLOQUEA | pasa (grafía `### Sesión N — YYYY-MM-DD`, sin rango) |
+| F2 formato de fila | REPARA | reparada: celda `foco` normalizada a la grafía de la última fila (mayúscula inicial y punto final) |
+| F3 catálogo aplicable sin disparo | ADVIERTE | pasa (los 3 de {R2, R5, R6} disparan) |
+| F3 cifras sin rótulo | ADVIERTE | advertencia: **cuarta aparición** (abajo) |
+| I1 numeración contigua | BLOQUEA | pasa (52 entradas, 1..52, 0 huecos, 0 duplicados) |
+| I2 cuadratura | BLOQUEA | pasa (17 + 15 + 10 + 10 + 0 = 52 = Total) |
+| I2ter recuento diferido intacto | BLOQUEA | pasa (tabla byte a byte idéntica por `diff`; reparto archivado en la fila del delta) |
+| I3 filas del resumen | BLOQUEA | pasa (3 → 4) |
+| I4 magnitudes viejas | ADVIERTE | advertencia: 5 apariciones, las 5 contexto histórico legítimo |
+| I5 autorreferencias | ADVIERTE | advertencia: 1 («la entrada 51 es la única de esta sesión») |
+| I6 gobernanza | BLOQUEA | pasa sobre los tres destinos y sobre lo staged en F7.2 |
+| I6bis rutas absolutas del home (`CLAUDE.md` §10.2) | ADVIERTE | **advertencia: 4 en el traspaso v04** (abajo) |
+| I7 traspaso vigente | BLOQUEA | pasa (1 vigente, 3 archivados) |
+| F7.1 ruta excluida en el staging | BLOQUEA | no aplica: sin commit de trabajo (lista vacía) |
+| F8 diff de distribución | BLOQUEA | pasa (3 bloques idénticos; el cuarto es compuesto) |
+| F9.3 marcador sobreviviente | BLOQUEA | pasa |
+| F10 árbol vacío / publicado / estado coherente | BLOQUEA | pasa |
+
+Cero `BLOQUEA` en toda la corrida: F5 no detuvo y el cierre corrió de una sola
+vuelta, que es el criterio de éxito de la sección 0 del instrumento.
+
+### Renumeración
+
+`renumeracion: sin desplazamiento`. `U` = 42, `n` = 10, primer provisional 43,
+`k` = 42 + 1 − 43 = 0. Sin desplazamiento no hay referencias cruzadas que
+advertir.
+
+**Patrón de entrada declarado: `^[0-9]+\. `** (número, punto, espacio), tomado de
+la línea que abre la entrada 42 en disco (`42. **Especificación técnica…**`). Con
+él el bloque da 10 entradas y 0 líneas de continuación. **No se usó el
+`^[0-9]+\. \*\*` que declaró el log v03:** ahí la negrita coincidía en los dos
+lados y el patrón sobre-específico fue inocuo; aquí habría contado **0** entradas
+y habría bloqueado el cierre por un rasgo de énfasis. La negrita de este archivo
+envuelve el contenido del título, no el número: la grafía del número en disco es
+`42.`, y es esa la que el instrumento manda tomar (F2: «`213.`, `**213**`,
+`#213`: la que el archivo use»). Ver desviación 2.
+
+### F0.5ter — Por qué el recuento temático sigue diferido
+
+`recuento_tematico: diferido` llegó declarado y **se demuestra, no se cree**: la
+tabla «Clasificación temática» en disco tiene dos columnas (`Categoría |
+Descripción y ejemplos`), sin columna N ni de porcentaje, así que no hay suma que
+comparar contra `U` = 42 y la cuadratura de I2bis es estructuralmente
+inalcanzable. Es el mismo fundamento que el v03 midió y registró.
+
+**Población declarada: 37 de 52 clasificables.** Las 17 entradas de la sesión 1
+llevan su categoría como rótulo `[categoria]` en el texto; las 15 de la sesión 2
+no la llevan en ninguna parte del repositorio (el `reparto` es de v12 y el cierre
+v02 corrió con v11); las 10 de la sesión 3 y las 10 de esta vienen cubiertas por
+su `reparto` archivado. Levantar el diferimiento sigue exigiendo decidir la
+categoría de esas 15 entradas y agregar las dos columnas a la tabla, que es
+sesión propia (P11 del traspaso v04).
+
+**Reparto archivado (10 entradas):** 43 gobernanza_docs; 44 gobernanza_docs;
+45 infraestructura_pipeline; 46 sitio_navegacion; 47 sitio_navegacion;
+48 infraestructura_pipeline; 49 infraestructura_pipeline; 50 gobernanza_docs;
+51 sitio_navegacion; 52 gobernanza_docs. `categorias_nuevas: ninguna`,
+`reclasificaciones: ninguna`. Control positivo en verde: las 3 categorías del
+reparto existen como fila en disco.
+
+### F3 — Disparos por rótulo del catálogo
+
+Catálogo aplicable heredado de v03 = **{R2, R5, R6}**; los tres disparan.
+
+| ID | Rótulo | Disparos |
+|---|---|---:|
+| R2 | Mapa de tramos (celdas `tramo N→M` del Delta) | 4 |
+| R5 | Encabezado del Detalle cronológico | 1 |
+| R6 | Cabecera del Resumen estadístico por sesión | 1 |
+| — | **Cero disparos:** R1, R3, R4, R7, R8, R9, R10, R11 (8 de 13) | 0 |
+| — | **Fuera del catálogo aplicable por declaración** (`diferido`): R12, R13 | — |
+
+R2 se cuenta con el criterio de v03 (celdas `tramo N→M` presentes tras la
+inserción): 4 celdas, de las cuales 1 nueva (`43→52`). R5 y R6 se cuentan con el
+criterio que fijó v01 y declararon v02 y v03 (sección localizada, no rango
+reescrito): los dos encabezados siguen siendo planos. En R6 el pie **Total** se
+recomputó a mano (42 → 52 y 3 → 4). Se mantiene la continuidad y se vuelve a
+declarar. **Catálogo aplicable de este cierre para el siguiente: {R2, R5, R6}.**
+
+### F3 — Cifras sin rótulo (zonas declarativas; Detalle cronológico excluido)
+
+Zonas medidas: líneas 1-47 y 192-199 del archivo resultante. El Detalle
+cronológico (48-191) queda excluido por regla.
+
+| Cifra | Línea | Resolución |
+|---|---|---|
+| `2026-08-25` | «Existe desde el 2026-08-25.» | (b) histórica legítima |
+| `1` | «Taxonomía orgánica propuesta en la sesión 1» | (b) histórica legítima |
+| `78` | fila `corpus_insumos` de Clasificación temática | (b) histórica legítima: ejemplo ilustrativo |
+| `43`…`52` | pares `NN:categoria` del reparto archivado en la fila del delta v04 | (b) legítimas: son el `reparto`, gobernado por el propio campo (v13) |
+| `17`, `15`, `10`, `10`, `0`, `4`, `52` y los tramos `1→17`, `18→32`, `33→42`, `43→52` | celdas del Resumen (filas de sesión y pie **Total**) y del Delta | **(a) rótulos faltantes, CUARTA aparición.** v01 los declaró y propuso tres rótulos nuevos; v02, v03 y ahora v04 los vuelven a declarar. Siguen sin incorporarse porque el catálogo vive en `herramientas_dev` y no en este repositorio. La propuesta renumerada del v03 sigue en pie: **R14** (celda «N° de cambios» ← `backlog_entradas_nuevas`), **R15** (celda «Total» ← `U+n`) y **R16** (celda «Entradas nuevas» del delta ← `backlog_entradas_nuevas` + tramo). Este cierre volvió a recomputar el pie **Total** a mano por cuarta vez |
+
+Una cifra que reaparece en dos cierres sin resolver es un rótulo faltante; ésta
+va por cuatro. Es P11 del traspaso v04 y es trabajo de `herramientas_dev`, no de
+este repositorio.
+
+### F4 — Invariantes
+
+| # | Invariante | Resultado |
+|---|---|---|
+| I1 | Numeración 1→N contigua | ✅ 52 entradas, 1..52, 0 duplicados, 0 huecos, acotado al Detalle cronológico |
+| I2 | Cuadratura | ✅ 17 + 15 + 10 + 10 + 0 = 52 = Total declarado |
+| I2ter | Recuento diferido intacto | ✅ tabla byte a byte idéntica (`diff` sobre la sección, 0 líneas); las 10 entradas del tramo aparecen una vez cada una en el `reparto`; el `reparto` está en la fila del delta |
+| I3 | Filas del resumen = previas + 1 | ✅ 3 → 4 filas de sesión |
+| I4 | Sin magnitudes viejas sobrevivientes | ⚠️ 5 apariciones, las 5 contexto histórico legítimo (detalle abajo) |
+| I5 | Sin autorreferencias de cifras | ⚠️ 1 aparición: la lectura de la fila del delta dice «la entrada 51 es la única de esta sesión que abre trabajo nuevo en vez de cerrarlo». Es autoría: se lista, no se toca |
+| I6 | Gobernanza | ✅ 0 RUT, 0 OneDrive/Dropbox, 0 credenciales, 0 marcas de coautoría, sobre los tres destinos y sobre el diff staged de F7.2. Los 2 `<<EJECUTOR>>` de `ESTADO.md` son los marcadores que F8 exige vivos y F9.3 sustituye |
+| I7 | Traspaso | ✅ 1 vigente (`traspaso_cierre_v04.md`), 3 archivados (v01, v02, v03) |
+
+**I4 — las 5 apariciones, clasificadas una a una:**
+
+| # | Aparición | Contexto | Clasificación |
+|---|---|---|---|
+| 1 | `42` en «con 42 % sin una palabra en común» | entrada 36 del Detalle | coincidencia numérica: es un porcentaje de medición, no la magnitud `U` |
+| 2 | `42` en «las 42 páginas» | entrada 38 del Detalle | coincidencia numérica: conteo de páginas del sitio, no la magnitud `U` |
+| 3 | `42.` correlativo | entrada 42 del Detalle | numeración del propio Detalle |
+| 4 | `tramo 33→42` | fila del Delta v03 | histórico legítimo: tramo cerrado |
+| 5 | `Sesión 3` | encabezado `### Sesión 3 — 2026-09-09` | encabezado del bloque histórico |
+
+El recuento de filas anterior (3) no aparece en ninguna afirmación en curso: R4
+(«X filas para Y sesiones») dio cero disparos, igual que en v02 y v03.
+
+### Advertencia de formato de las 10 entradas nuevas (contesta D10)
+
+**D10 del paquete se contesta con un no.** El supuesto era «las 10 entradas
+nuevas respetan el formato del Detalle cronológico» y su medición declarada era
+el eco de este cierre. Medido:
+
+| Bloque | Entradas | Con negrita de título | Ancho máximo de línea |
+|---|---:|---:|---:|
+| Sesión 1 | 17 | 0 | 77 |
+| Sesión 2 | 15 | 15 | 357 |
+| Sesión 3 (último en disco) | 10 | 10 | 81 |
+| **Sesión 4 (este cierre)** | **10** | **0** | **368** |
+
+Frente al último bloque en disco las entradas nuevas difieren en dos rasgos: no
+llevan el título en negrita y no envuelven la línea. Ninguno de los dos es
+inédito en el archivo por separado (la sesión 1 no usa negrita; la sesión 2 no
+envuelve), pero la combinación no reproduce ningún bloque previo. **No se
+corrigió:** la sección 6 del instrumento prohíbe reescribir cualquier cosa de una
+entrada que no sea el número que la abre, y añadir negrita es reescribir. Causa
+declarada por el propio redactor en E9 del traspaso: el backlog no se leyó en la
+sesión (no se adjuntó) y el formato se escribió como hipótesis. Corregir el
+formato de las 10 entradas es edición de autoría y es decisión del titular.
+
+### Advertencia de gobernanza: rutas absolutas del home en el traspaso
+
+> 🛑 ALERTA DE GOBERNANZA
+> Detecté 4 apariciones de `/Users/tomgc/Projects/slep_normativa_convivencia` en
+> `50_documentacion/traspasos/traspaso_cierre_v04.md` (líneas 251, 270, 284 y 285
+> del archivo distribuido: la medición de D11, la instrucción §12 de ruta
+> absoluta y los dos comandos de regresión de §13).
+> Norma aplicable: `CLAUDE.md` §10.2 («credenciales, tokens y rutas absolutas de
+> la máquina del titular no entran al repo, que además es **público**») y §4,
+> regla de path absoluto detectado en código.
+> Riesgo: expone el nombre de usuario del sistema (`tomgc`) y la estructura de
+> carpetas local en un repositorio público.
+> Medición del riesgo marginal: el nombre de usuario ya es público por la URL del
+> sitio (`tomgc.github.io/slep_normativa_convivencia`), y `/Users/tomgc` ya
+> aparece en **19 archivos trackeados** del repositorio, entre ellos la salida del
+> escáner (`50_documentacion/estructura/estructura_actual.md`), que este mismo
+> cierre regenera y commitea. La exposición no la crea este traspaso; lo nuevo es
+> que **es el primer traspaso que la lleva** (`git grep` sobre
+> `50_documentacion/traspasos/` daba 0 antes de este cierre).
+> Tensión declarada: la instrucción §12 del propio traspaso, nacida del error E7
+> de esta sesión, **exige** ruta absoluta en todo comando para el titular. Las
+> dos reglas no pueden cumplirse a la vez tal como están escritas.
+> Acciones posibles: 1. dejarlo como está y resolver la contradicción en
+> `herramientas_dev` (por ejemplo, mandar `$(git rev-parse --show-toplevel)` o una
+> variable de entorno del proyecto en los comandos del traspaso, que es lo que E7
+> descartó por otro motivo); 2. editar el traspaso para sustituir la ruta por un
+> marcador, que es edición de autoría y no la hace el cierre.
+> No se detuvo: I6 del instrumento grepea RUT, rutas de OneDrive, credenciales,
+> coautoría y placeholders, y las cinco dieron 0. Esto se registra como
+> `ADVIERTE` porque el ejecutor no puede repararlo sin editar autoría y el
+> titular no puede resolverlo desde el paquete.
+
+### Desviaciones declaradas
+
+1. **La fila del resumen se anexó tras la última fila de SESIÓN y el pie `Total`
+   se recomputó**, como en v02 y v03 y por el mismo motivo: la tabla termina en
+   dos filas que no son de sesión (`Refinamientos menores no atribuibles` y
+   `**Total**`). Anexar «tras la última fila contigua que empieza por `|`» habría
+   puesto una fila de sesión debajo del total y habría roto el sentido de I2.
+   **Tercera reincidencia: F2 sigue sin contemplar tablas con pie.** Corrección
+   para el instrumento: «Final de la tabla» debe leerse «tras la última fila del
+   mismo tipo que la que se inserta», y el pie debe declararse recomputable.
+2. **El patrón de entrada se declaró `^[0-9]+\. ` y no `^[0-9]+\. \*\*`**, que es
+   el que registró el log v03. Fundamento arriba (sección Renumeración). Se
+   declara porque cambia el conteo de `n` de 0 a 10 y por tanto la propia
+   compuerta: con el patrón de v03 este cierre habría bloqueado.
+   **Corrección para el instrumento:** F0.5 debe decir explícitamente que el
+   patrón cubre la grafía del **número** (viñeta, negrita del número, `#`, punto,
+   paréntesis) y no el marcado del contenido que le sigue, o bien mandar contar
+   con el patrón más laxo y dejar el marcado a la advertencia de formato.
+3. **La columna `Modelo` de la fila del resumen se copió de la última fila en
+   disco** (`Claude Opus 5 (Claude Code) / Fable 5 (chat)`). No viaja en el
+   paquete ni es derivable de él; es parte de «copiar el formato de la última
+   fila». El traspaso §1 confirma la combinación (Claude Code como ejecutor,
+   redactor en chat), pero el dato no está declarado como campo.
+4. **F7.1 no produjo commit:** la lista de F0 7bis estaba vacía. El árbol traía
+   solo el propio paquete al abrir el cierre, porque los andamios de la sesión se
+   commitearon durante la sesión (`eb29f86`, entrada 50 del backlog).
+5. **Un `git add` de F7.2 falló por redundante y se repitió el bloque.** El
+   `git mv` de F6 deja indexados los dos lados del renombrado, así que
+   `git add -- 50_documentacion/traspasos/traspaso_cierre_v03.md` (la ruta
+   antigua, ya inexistente) aborta con `pathspec did not match any files`. Es el
+   mismo borde que la desviación 1 del log v03 describió por el otro filo. Se
+   quitó la línea y se repitió el bloque completo, que es idempotente; ningún
+   commit intermedio quedó a medias.
+
+### Sucios fuera de scope
+
+Ninguno al abrir (solo el paquete, excluido por regla) y ninguno al terminar.
+
+### Commits y push
+
+- **Hash de trabajo (F7.1):** ninguno. Árbol limpio fuera del scope del cierre al
+  abrirlo.
+- **Hash de documentación (F7.2):** `95f2b7c` — 7 rutas: traspaso v04 nuevo, v03
+  archivado, backlog, las 4 salidas del escáner con 2 snapshots podados
+  (git los detectó como renombrado 20260827 → 20260910). 1 252 inserciones,
+  539 supresiones.
+- **Hash del log (F9):** no puede vivir aquí (ningún commit contiene su propio
+  hash). Queda en `ESTADO.md` y en el eco de F10.
+- **Push:** `por publicar` — `push_autorizado: si`, los tres commits del cierre
+  viajan juntos al final de F9.
