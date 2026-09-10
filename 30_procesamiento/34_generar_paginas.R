@@ -260,8 +260,37 @@ pagina_norma <- function(n) {
   )
   ficha <- ficha[!vapply(ficha, is.null, logical(1))]
 
-  abre <- sprintf('::: {data-pagefind-body="true" data-pagefind-meta="norma:%s"}',
-                  gsub('"', "", corto))
+  # Contenedor indexable de Pagefind, emitido como HTML CRUDO y no como Div
+  # cercado (`:::`). El cambio no es de estilo: es lo que pone los articulos en el
+  # indice lateral. Pandoc arma el indice recorriendo los Div de SECCION del nivel
+  # superior del documento; un encabezado anidado dentro de un Div ordinario -que
+  # es lo que produce `:::`- no genera entrada. Por eso las 25 paginas de norma
+  # tenian una sola linea en su indice, "Normas relacionadas", que es el unico
+  # encabezado que se emite FUERA del contenedor.
+  #
+  # Un bloque de HTML crudo, en cambio, no anida el arbol sintactico: las etiquetas
+  # de apertura y cierre son bloques HERMANOS de los encabezados, asi que los
+  # encabezados quedan en el nivel superior (entran al indice) y en el HTML de
+  # salida siguen encerrados entre las dos etiquetas (siguen dentro del cuerpo que
+  # Pagefind indexa). Medido con Quarto 1.9.38 antes de escribir esto: variante con
+  # `:::`, 1 entrada; variante con HTML crudo, una entrada por articulo, con el
+  # <div> abriendo antes del primer <h2> y cerrando despues del ultimo.
+  #
+  # Los `id` NO se tocan: los sigue escribiendo slugificar() en el `{#id}` de cada
+  # encabezado. Ese es el invariante que protege las citas ya copiadas fuera del
+  # sitio.
+  #
+  # escapar_html() sobre el valor del atributo: con `:::` lo escapaba Quarto al
+  # escribir el HTML; al emitir la etiqueta a mano hay que hacerlo aqui. Hoy ningun
+  # nombre corto trae & < > (medido: 0 de 25), asi que la salida es identica; la
+  # llamada existe para que siga siendolo si manana uno los trae.
+  abre <- c(
+    "```{=html}",
+    sprintf('<div data-pagefind-body="true" data-pagefind-meta="norma:%s">',
+            escapar_html(gsub('"', "", corto))),
+    "```"
+  )
+  cierra <- c("```{=html}", "</div>", "```")
 
   # --- Documento sin texto de ninguna clase ---
   if (identical(n$origen_texto, "sin_texto")) {
@@ -274,7 +303,7 @@ pagina_norma <- function(n) {
       "```",
       ""
     )
-    return(paste(c(cab, banda, ficha, abre, "", spans_filtro, cuerpo, ":::",
+    return(paste(c(cab, banda, ficha, abre, "", spans_filtro, cuerpo, cierra,
                    bloque_relacionados(n), ""),
                  collapse = "\n"))
   }
@@ -319,7 +348,7 @@ pagina_norma <- function(n) {
     }))
 
     return(paste(c(cab, banda, ficha, abre, "", spans_filtro, encabezado_ocr,
-                   secciones, ":::", bloque_relacionados(n), ""),
+                   secciones, cierra, bloque_relacionados(n), ""),
                  collapse = "\n"))
   }
 
@@ -339,7 +368,7 @@ pagina_norma <- function(n) {
       "")
   }))
 
-  paste(c(cab, banda, ficha, abre, "", spans_filtro, secciones, ":::",
+  paste(c(cab, banda, ficha, abre, "", spans_filtro, secciones, cierra,
           bloque_relacionados(n), ""),
         collapse = "\n")
 }
