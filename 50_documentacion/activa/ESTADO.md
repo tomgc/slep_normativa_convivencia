@@ -7,7 +7,7 @@ sesion_actual: v04
 ultima_actividad: 2026-09-10
 maneja_sensibles: false
 tipo_pendiente: bug
-sesion_abierta: false
+sesion_abierta: true
 maquina: MacBook-Pro-de-Tomas.local
 commit_cierre: 413add0
 traspaso_vigente: traspaso_cierre_v04.md
