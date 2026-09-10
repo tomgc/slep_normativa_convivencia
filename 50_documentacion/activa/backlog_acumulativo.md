@@ -41,8 +41,9 @@ los mantiene el cierre.
 | 1 | traspaso_cierre_v01.md | 17 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | fundación: corpus, pipeline, sitio |
 | 2 | traspaso_cierre_v02.md | 15 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | Sesión íntegra de máquina: siete encargos autónomos, auditoría contra producto, endurecimiento de la compuerta de firma y ensayo general de la vía A; el material de validación humana quedó completo. |
 | 3 | traspaso_cierre_v03.md | 10 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | Diseño completo del motor de búsqueda por encargo de alcance, y primeras correcciones que sí cambian el producto publicado. |
+| 4 | traspaso_cierre_v04.md | 10 | Claude Opus 5 (Claude Code) / Fable 5 (chat) | Integrar las revisiones externas del motor, emitir y ejecutar el encargo v11 (índice lateral, expansión de consulta, P7, instrumento) y fijar el principio de precedencia que reformula el v12. |
 | Refinamientos menores no atribuibles | — | 0 | — | — |
-| **Total** | 3 | 42 | | |
+| **Total** | 4 | 52 | | |
 
 ## Detalle cronológico
 
@@ -175,6 +176,19 @@ los mantiene el cierre.
     revisores con mandatos separados: uno juzga si el diseño funciona, el
     otro si le sirve a alguien y cómo falla en uso.
 
+### Sesión 4 — 2026-09-10
+
+43. Integración de las dos revisiones externas del motor de búsqueda (rol A y rol B): veredicto y razón para los 40 hallazgos, siete convergencias marcadas, respuesta a las seis preguntas de la especificación y cuatro decisiones del titular formuladas con recomendación (D-A a D-D). Archivo `50_documentacion/andamios/20260909_integracion_revision_externa_v1.md`.
+44. Emisión del encargo v11 con la plantilla v1.5 (7 tareas, 3 olas, tope de 2 subagentes, 8 invariantes con comando, FASE R y FASE L transcritas). Archivo `50_documentacion/andamios/20260909_encargo_v11_indice_y_expansion_v1.md`.
+45. Instrumento de evaluación del buscador y de anclas versionado en `tests/` (conjunto de diez consultas como código R más clase «sin respuesta», runner de Pagefind, medición de posición, MRR, cobertura y recall@K, inventario de anclas). Resuelve la zona frágil 3 y la oportunidad del traspaso v03 §11.2.
+46. Índice lateral poblado en las 25 páginas de norma (831 entradas; `dfl_1` con 219), con los 806 ids intactos y el texto visible idéntico. Resuelve P2 del traspaso v03.
+47. Expansión de la consulta del buscador con 183 alias del laboratorio del v9 (frase del alias sola, raíz de 6 caracteres, piso R0, 3 variantes y 2 páginas por variante) y diez constantes centralizadas en `10_utils/10_configuracion.R`; buscador de 3 a 8 de 10 por presencia del ancla. Avanza P1 del traspaso v03.
+48. Cierre de los cuatro huecos de P7: dos regex del extractor a su fuente canónica con prueba fuerte de no cambio, laboratorio del v9 versionado en sus 43 `.R` y `.md` con lista blanca en `.gitignore`, enmienda del v10 registrada como archivo aparte, `CLAUDE.md` §10.1 y §10.6 al día.
+49. Verificaciones D4 (hook con diez señuelos) y D8 (guarda de locale) cerradas por lectura, y D7 medida (1 de 7 con sustitución, 7 de 7 con frase sola); log del encargo con FASE R aprobada con siete advertencias y once dudas con pregunta cerrada.
+50. Commit de los dos andamios de la sesión que el ejecutor dejó sin versionar por no estar en su lista de escritura.
+51. Principio de diseño fijado por el titular tras probar tres consultas en producción: en un corpus de 25 normas el mejor resultado se conoce y el orden lo dictan reglas explícitas sobre metadatos; con el criterio de posición 1 el buscador resuelve 0 de 10. Bug activo P1 y reformulación del v12 como capa de precedencia determinística.
+52. Evaluación del log del v11 con recomendación para cada una de las once dudas del ejecutor y registro de diez errores del asistente, entre ellos la tercera reincidencia del hueco de autorizaciones con reformulación propuesta como chequeo programático.
+
 ## Delta del backlog
 
 | Versión | Entradas nuevas | Taxonomía | Lectura |
@@ -182,3 +196,4 @@ los mantiene el cierre.
 | v01 | 17 (tramo 1→17) | taxonomía inicial de 8 categorías propuesta en esta sesión | sesión fundacional cargada hacia infraestructura y derivador; el trabajo migra ahora del pipeline a la validación humana (OCR, temas, borradores), que es el cuello declarado de la fase siguiente. |
 | v02 | 15 (tramo 18→32) | sin cambios | El movimiento de la sesión fue de construcción a garantía: lo nuevo no es contenido sino evidencia (auditoría, controles calibrados, ensayo en clon, autoprueba en CI) y la frontera máquina/humano quedó operacionalizada con delegaciones registradas en gate. |
 | v03 | 10 (tramo 33→42) | sin cambios; recuento diferido, reparto archivado: 33:sitio_navegacion; 34:sitio_navegacion; 35:infraestructura_pipeline; 36:gobernanza_docs; 37:sitio_navegacion; 38:diseno_visual; 39:corpus_insumos; 40:ocr_curaduria; 41:infraestructura_pipeline; 42:gobernanza_docs | El movimiento de la sesión fue de garantía a producto: la sesión 2 acumuló evidencia sin tocar el sitio, y esta volvió a cambiarlo, con la diferencia de que ahora cada cambio se expresa contra una medición previa. La entrada de `diseno_visual` es la primera desde el brief de la sesión 1 y cierra una categoría que llevaba dos sesiones vacía. `sitio_navegacion` concentra tres entradas porque el diseño y la corrección del buscador son la misma materia vista desde dos distancias. |
+| v04 | 10 (tramo 43→52) | sin cambios; recuento diferido, reparto archivado: 43:gobernanza_docs; 44:gobernanza_docs; 45:infraestructura_pipeline; 46:sitio_navegacion; 47:sitio_navegacion; 48:infraestructura_pipeline; 49:infraestructura_pipeline; 50:gobernanza_docs; 51:sitio_navegacion; 52:gobernanza_docs | La sesión reparte entre gobernanza_docs (integración, encargo, evaluación) y el par sitio_navegacion / infraestructura_pipeline que el encargo v11 movió; la entrada 51 es la única de esta sesión que abre trabajo nuevo en vez de cerrarlo. |
