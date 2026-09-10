@@ -130,28 +130,12 @@ unir_a_traves_de_paginas <- function(bloques_por_pagina) {
 }
 
 # ---- Ficha y pie del sitio de origen ----------------------------------------
-# Los PDF del corpus se descargan de la Biblioteca del Congreso Nacional, que
-# envuelve el texto oficial en metadatos propios: arriba una ficha con fechas de
-# publicacion, promulgacion, version y ultima modificacion, cerrada por una URL
-# corta; abajo, en los documentos de una sola pagina, su linea de pie. Nada de
-# eso es parte del acto administrativo: es el envoltorio del sitio desde donde se
-# obtuvo el archivo. Dentro del texto contamina cualquier indice que se construya
-# sobre el, y ya produjo un defecto visible que se parcho aguas abajo (ver el
-# comentario de extracto_tematico() en 34_generar_paginas.R).
-#
-# Medido antes de escribir la regla: 17 de las 25 normas la arrastran, ninguna en
-# un segmento con es_articulo = TRUE
-# (50_documentacion/andamios/20260908_medicion_correcciones_v1.md, seccion 6).
-#
-# El pie ya lo quita detectar_repetidos() en los documentos de tres paginas o
-# mas; aqui se completa esa misma limpieza para los de una o dos, donde aquella
-# se apaga por falta de repeticion que detectar (n < 3L). No es una politica
-# nueva: es la que ya existe, sin el hueco.
-#
-# LA REGLA SE DERIVO DEL TEXTO REAL, no de memoria. Invariante medido en las 17:
-# la ficha ocupa un bloque contiguo cerca de la cabeza y ese bloque TERMINA en
-# "Url Corta: https://bcn.cl/<token>"; aparece una sola vez por documento; el
-# indice del bloque es 2 en quince normas y 3 en dos.
+# Las dos expresiones regulares que identifican la ficha y el pie de la Biblioteca
+# del Congreso Nacional viven en 10_utils/10_configuracion.R (REGEX_FICHA_ORIGEN y
+# REGEX_PIE_ORIGEN), que es la fuente canonica de toda regex del proyecto
+# (POLITICA_PROYECTO.md 5.4), junto con la medicion de la que salieron. Aqui queda
+# solo el tope de busqueda, que es un parametro de ESTE paso y no una regla del
+# corpus.
 #
 # Tres guardas, porque una limpieza que se pase de largo altera la segmentacion y
 # con ella todas las citas ya publicadas:
@@ -159,8 +143,6 @@ unir_a_traves_de_paginas <- function(bloques_por_pagina) {
 #   2. el bloque tiene que TERMINAR en la URL corta, no solo contenerla, de modo
 #      que una cita de bcn.cl en medio de un articulo no dispare nada;
 #   3. no se quita jamas un bloque que sea encabezado de articulo.
-REGEX_FICHA_ORIGEN <- "Url\\s+Corta\\s*:\\s*https?://bcn\\.cl/[A-Za-z0-9]+\\s*$"
-REGEX_PIE_ORIGEN   <- "^Biblioteca del Congreso Nacional de Chile\\s*-\\s*www\\.leychile\\.cl"
 MAX_BLOQUES_FICHA  <- 5L
 
 quitar_metadatos_origen <- function(bloques) {

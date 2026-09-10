@@ -180,6 +180,37 @@ REGEX_ENCABEZADO_SECCION <- "^[ \\t]*([A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1][
 #   "1. Que, cualquier regulacion..."  -> considerando, en minusculas
 REGEX_ENCABEZADO_NUMERAL <- "^[ \\t]*([0-9]{1,2})\\.[ \\t]+([A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1][A-Z\u00c1\u00c9\u00cd\u00d3\u00da\u00d1 ,.()\u00ba\u00b0-]{4,})"
 
+# ---- Ficha y pie del sitio de origen ----------------------------------------
+# Los PDF del corpus se descargan de la Biblioteca del Congreso Nacional, que
+# envuelve el texto oficial en metadatos propios: arriba una ficha con fechas de
+# publicacion, promulgacion, version y ultima modificacion, cerrada por una URL
+# corta; abajo, en los documentos de una sola pagina, su linea de pie. Nada de
+# eso es parte del acto administrativo: es el envoltorio del sitio desde donde se
+# obtuvo el archivo. Dentro del texto contamina cualquier indice que se construya
+# sobre el, y ya produjo un defecto visible que se parcho aguas abajo (ver el
+# comentario de extracto_tematico() en 34_generar_paginas.R).
+#
+# Medido antes de escribir la regla: 17 de las 25 normas la arrastran, ninguna en
+# un segmento con es_articulo = TRUE
+# (50_documentacion/andamios/20260908_medicion_correcciones_v1.md, seccion 6).
+#
+# El pie ya lo quita detectar_repetidos() en los documentos de tres paginas o
+# mas; 31_extraer_texto.R completa esa misma limpieza para los de una o dos, donde
+# aquella se apaga por falta de repeticion que detectar (n < 3L). No es una
+# politica nueva: es la que ya existe, sin el hueco.
+#
+# LA REGLA SE DERIVO DEL TEXTO REAL, no de memoria. Invariante medido en las 17:
+# la ficha ocupa un bloque contiguo cerca de la cabeza y ese bloque TERMINA en
+# "Url Corta: https://bcn.cl/<token>"; aparece una sola vez por documento; el
+# indice del bloque es 2 en quince normas y 3 en dos.
+#
+# Vivieron en 30_procesamiento/31_extraer_texto.R desde el encargo v10 y se
+# trajeron aqui en el v11 (T5, hueco 1 de P7): la tabla de autorizaciones del v10
+# no incluia 10_utils/, asi que quedaron fuera de su fuente canonica. El valor no
+# cambio: se movio la linea, no se retipeo.
+REGEX_FICHA_ORIGEN <- "Url\\s+Corta\\s*:\\s*https?://bcn\\.cl/[A-Za-z0-9]+\\s*$"
+REGEX_PIE_ORIGEN   <- "^Biblioteca del Congreso Nacional de Chile\\s*-\\s*www\\.leychile\\.cl"
+
 # ---- Diccionario tematico ---------------------------------------------------
 # DECISION METODOLOGICA DECLARADA, no inferencia del asistente.
 # El tema NO viene marcado en los documentos: es una columna derivada. Se asigna

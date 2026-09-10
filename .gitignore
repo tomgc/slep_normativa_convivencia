@@ -76,5 +76,32 @@ node_modules/
 50_documentacion/activa/POLITICA_PROYECTO.md
 50_documentacion/activa/SETTINGS_Y_PROMPTS_OPERACIONALES.md
 
-# Laboratorio de medicion del encargo v9, no versionado hasta limpiar rutas absolutas y decidir la autorizacion de sus archivos de datos (pendiente P7 del traspaso v03).
-50_documentacion/andamios/lab_motor_v9/
+# Laboratorio de medicion del encargo v9 (P7, hueco 3, cerrado en el encargo v11).
+# Se versionan SOLO los .R y .md: son codigo y prosa, reproducen sus propios datos y
+# pasan la regla R1 del hook global, que rechaza extensiones de datos no autorizadas
+# en 50_documentacion/activa/50_datos_versionados_autorizados.md (ese archivo autoriza
+# 40_salidas/datos/ y nada mas).
+#
+# La forma es lista blanca y no lista de extensiones prohibidas, a proposito: medido
+# el 2026-09-09, la carpeta tiene 126 archivos en diez extensiones (txt, R, csv, md,
+# json, gz, yml, mjs, js, bak). Una lista de prohibidas habria dejado entrar gz, yml y
+# js, y dejaria entrar la extension que alguien use manana. La lista blanca no.
+# Ojo con el orden: git no puede reincluir un archivo si su directorio padre esta
+# excluido, de ahi el /** y la reinclusion explicita de los directorios.
+50_documentacion/andamios/lab_motor_v9/**
+!50_documentacion/andamios/lab_motor_v9/**/
+!50_documentacion/andamios/lab_motor_v9/**/*.R
+!50_documentacion/andamios/lab_motor_v9/**/*.md
+
+# Salida de trabajo del v11: copias previas de invariantes y volcados del instrumento.
+# Se regenera con tests/inventario_anclas.R y tests/medir_buscador.R; nunca se versiona.
+50_documentacion/andamios/lab_motor_v9/salida_v11/
+
+# Excepcion nominal, y no es un capricho del proyecto sino del hook: la regla R2 del
+# pre-push rechaza por NOMBRE de archivo el patron *token*, sin mirar el contenido.
+# a3_presupuesto_tokens.R no tiene ninguna credencial (verificado: 0 coincidencias de
+# forma de credencial en los 44 .R y .md del laboratorio); habla de tokens de un modelo
+# de lenguaje. Pero renombrarlo esta fuera del alcance del v11 y --no-verify esta
+# prohibido, asi que se queda fuera del versionado, declarado, hasta que un encargo
+# autorizado para editar el laboratorio lo renombre.
+50_documentacion/andamios/lab_motor_v9/a3_presupuesto_tokens.R
