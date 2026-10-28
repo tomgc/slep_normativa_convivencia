@@ -1,29 +1,9 @@
 # CLAUDE.md — Contrato operativo de Claude Code
 
-> Versión 3. Reemplaza a `asistente_claude_code_seguro_v3.md`
-> y al par Karpathy (`CLAUDE_karpathy.md`, `EXAMPLES_karpathy.md`).
-> Vive en la raíz de cada proyecto. El detalle de estructura, gobernanza
-> legal, escáner, inicialización y migración vive en
+> Versión 7. Vive en la raíz de cada proyecto. El detalle de estructura,
+> gobernanza legal, escáner, inicialización y migración vive en
 > `50_documentacion/activa/POLITICA_PROYECTO.md`: consúltala, no la dupliques.
->
-> **Cambios respecto a v2 (revisión de coherencia del kit, 2026-08-16):**
-> (a) §7 suma la locale UTF-8 entre las reglas técnicas. `POLITICA_PROYECTO.md`
-> §5.2bis la declara invariante desde la v5.6, pero este contrato no la
-> nombraba, y quien escribe los scripts que la necesitan es justamente Claude
-> Code. (b) §9 declara que su bloque de brevedad es **copia literal** de
-> `SETTINGS_Y_PROMPTS_OPERACIONALES.md` §1.2.6 y cuál manda si divergen: la
-> duplicación es deliberada (Claude Code lee el disco del repo, no la knowledge
-> base), pero sin declararla dos copias divergen en silencio. (c) Las citas de
-> versión con número suelto se sustituyen por la referencia a la sección: la
-> regla de cita de versión de SETTINGS §2.1 obliga a transcribir la línea de
-> encabezado, y un número embebido en este archivo envejece en cada repo por
-> separado. Contrato del marcador de fuente: `POLITICA_PROYECTO.md` §0.6 y
-> `SETTINGS_Y_PROMPTS_OPERACIONALES.md` §1.2.6.
->
-> **Cambios de la v2 (ola canónica mínima de la auditoría de errores de
-> la cartera, 2026-07-25):** §9 sumó el marcador de fuente en línea (ficha
-> S-01), acotado a cuatro tipos de afirmación, con la constancia explícita de
-> que no cuenta contra los topes de líneas de esa misma sección.
+> El historial de versiones está en el `CHANGELOG.md` de `herramientas_dev`.
 
 ---
 
@@ -66,10 +46,11 @@ Los proyectos con datos sensibles separan físicamente código y datos:
 - **Raíz de datos:** carpeta en OneDrive institucional con
   `20_insumos/` y `40_salidas/` físicas. NO está dentro del repo.
 - La conexión es la variable de entorno `<NOMBRE_PROYECTO_MAYUS>_DATA_ROOT`
-  (en `~/.Renviron`), resuelta por `10_utils/10_configuracion.R`
-  mediante `obtener_data_root_proyecto()`, `ruta_insumos()` y
-  `ruta_salidas()`. Usa SIEMPRE esas funciones para acceder a datos;
-  jamás hardcodees rutas de OneDrive en código.
+  (en `~/.Renviron`), que resuelven las funciones de rutas del proyecto
+  (por lo general en `10_utils/10_configuracion.R`; sus nombres varían
+  entre repos, así que léelas antes de usarlas). Usa SIEMPRE esas
+  funciones para acceder a datos; jamás hardcodees rutas de OneDrive en
+  código.
 - `.gitignore` blinda este aislamiento. No lo debilites.
 - Nunca escanees, listes recursivamente ni vuelques a logs el contenido
   del data root, salvo que yo lo pida para una tarea concreta.
@@ -81,9 +62,12 @@ alguna respuesta es "sí" o "no sé": DETENTE y pregúntame.
 
 1. ¿El archivo contiene datos personales (RUT, nombres, correos,
    resultados individuales, asistencia nominal)?
-2. ¿Está en una carpeta aún no cubierta por `.gitignore`?
+2. ¿Es un archivo de datos, o va a una carpeta de datos, que
+   `.gitignore` aún no cubre?
 3. ¿La acción puede enviar contenido a un remoto, servicio externo o
-   log público?
+   log público? No cuenta el `git push` no destructivo al `origin` del
+   propio repo (lo cubren el modo auto y el hook `git_push_protegido`);
+   cualquier otro remoto o servicio externo, sí.
 4. ¿Expone credenciales (tokens, API keys, strings de conexión)?
 5. ¿Transfiere datos personales fuera de Chile o fuera del control
    institucional del SLEP?
@@ -91,8 +75,9 @@ alguna respuesta es "sí" o "no sé": DETENTE y pregúntame.
 Reglas concretas:
 
 - Nunca `git add` sobre carpetas de datos. Antes de `git push`, revisa
-  el staging: si ves `.csv`, `.xlsx`, `.parquet`, `.rds`, `.sqlite`,
-  `.db`, `.feather` que no sean ejemplos sintéticos, DETENTE.
+  `git diff --stat origin/main..HEAD` (lo que se va a publicar): si ves
+  `.csv`, `.xlsx`, `.parquet`, `.rds`, `.sqlite`, `.db`, `.feather` que
+  no sean ejemplos sintéticos, DETENTE.
 - Nunca commitees `.env`, `.Renviron`, `credentials.*`, ni archivos
   `*secret*`, `*token*`, `*key*`, `*password*`. Genera `.env.example`
   o `.Renviron.example` en su lugar.
@@ -102,10 +87,17 @@ Reglas concretas:
   comentarios o logs: avísame antes de cualquier commit.
 - Transferencia a jurisdicción extranjera (ej. shinyapps.io en AWS US):
   recuérdamelo y propone mitigación.
-- **Datos de la Agencia de Calidad:** no identificar establecimientos
-  por nombre en ningún output (informes, gráficos, logs, ejemplos);
-  no transferir bases a terceros ni facilitar acceso fuera del equipo
-  declarado; resguardar Confidencialidad, Integridad y Disponibilidad
+- **Datos de la Agencia de Calidad** (`POLITICA_PROYECTO.md` §6.4): los
+  resultados por establecimiento que la Agencia publica tal cual (sus bases
+  públicas y su buscador de resultados) se usan con nombre y RBD, citando la
+  fuente; no los que calculamos desde bases no públicas. Las bases recibidas
+  bajo sus Condiciones de Uso (a nivel de alumno) siguen el texto de las
+  Condiciones: en ningún output (informes, gráficos, logs, ejemplos) se
+  identifica a alumnos, padres o apoderados, profesores o docentes,
+  directores ni establecimientos; no se entregan a nadie fuera del equipo
+  declarado, tampoco a otra unidad del mismo servicio. Todo otro dato de la
+  Agencia que no sea público sigue la misma regla que esas bases. Un output
+  que mezcla regímenes sigue el más estricto; ante duda, pregúntame. Resguardar Confidencialidad, Integridad y Disponibilidad
   (NCh-ISO 27001/27002).
 - Comandos destructivos (`rm`, `git reset --hard`, `git push --force`,
   borrado de ramas o repos): compuerta de confirmación obligatoria.
@@ -159,8 +151,31 @@ eso: dime qué hacer en una línea.
 
 ## 7. Reglas técnicas
 
-- R único lenguaje de análisis (jamás Python). Bash, YAML, Dockerfile
-  y SQL como auxiliares, explicados brevemente.
+- **Dos clases de entregable; la clase la decide el runtime, nunca la
+  conveniencia** (bloque "Tooling" de las custom instructions de la cuenta).
+  **Clase 1** (análisis, reportería y todo lo que viaja por un pipeline de
+  datos: scripts, funciones, intermedios, objetos serializados, informes): R
+  sin excepción. Jamás propongas Python como alternativa, ni entregues código
+  u objetos propios de Python (pickle, `.npy`), ni me pidas instalarlo,
+  correrlo o mantenerlo; los datos que cruzan una frontera van en formatos
+  neutros (parquet, csv, json, xlsx). El HTML, CSS o JS que genera un output
+  de R (Quarto, htmlwidgets) sigue siendo clase 1. **Clase 2** (aplicaciones
+  de plataforma y web: Worker de Cloudflare, PWA, Service Worker,
+  bookmarklet, extensión de navegador, página HTML/CSS/JS estática, esquema
+  de D1 o SQLite): el lenguaje que impone el runtime (JavaScript, HTML, CSS,
+  SQL); Python tampoco es lenguaje de clase 2. **Prueba:** "¿podría correr,
+  como está pensado que corra, en una máquina del equipo bajo R?" Sí o duda:
+  clase 1. **Frontera:** la §10 de este archivo declara, antes de la primera
+  línea de código, qué componente es de cada clase; código escrito antes de
+  esa declaración es una desviación. **Medio y producto:** un comando efímero
+  de tu propia shell que solo sirve para medir o inspeccionar (contar,
+  calcular un hash, mirar un adjunto) es medio y no se entrega; si va a
+  persistir, lo va a correr otra persona, lo va a mantener el equipo o queda
+  versionado, es entregable y sigue la regla de su clase. Bash, YAML,
+  Dockerfile y SQL siguen siendo auxiliares legítimos dentro de entregables
+  de clase 1 (orquestación, CI, contenedores, consultas), nunca sustitutos
+  del código de análisis, explicados brevemente. Las demás viñetas de esta
+  sección rigen para los componentes de clase 1.
 - Tidyverse con pipe nativo `|>`; `dplyr >= 1.1` con `.by=` en vez de
   `group_by()/ungroup()`; `janitor::clean_names()` tras cada lectura;
   `here::here()` para toda ruta dentro de scripts; Quarto sobre
@@ -271,22 +286,28 @@ El escáner nunca toca el data root de OneDrive.
 - Español neutro latinoamericano, sin voseo. Sin rayas largas; usar
   paréntesis para incisos.
 
+## 10. Frontera de clases del proyecto
+
+Todo el proyecto es clase 1 (R). Si aparece un componente de clase 2, se
+declara aquí (componente, ruta, clase, lenguaje y convenciones) antes de
+escribir su primera línea.
+
 ---
 
-## 10. Este proyecto — `slep_normativa_convivencia`
+## 11. Este proyecto — `slep_normativa_convivencia`
 
 > Bloque específico del proyecto. Todo lo anterior es el contrato canónico del
 > kit (`herramientas_dev/gobernanza/CLAUDE.md`) y se actualiza por copia desde
 > ahí; esta sección es lo único que se edita aquí.
 
-### 10.1 Descripción
+### 11.1 Descripción
 
 Biblioteca pública y buscable de la normativa chilena de convivencia escolar
 para el equipo de convivencia del SLEP Costa Central: 25 PDF oficiales →
 JSON por artículo → sitio Quarto estático en GitHub Pages con búsqueda Pagefind
 a nivel de artículo.
 
-### 10.2 Sensibilidad de datos: Rama A
+### 11.2 Sensibilidad de datos: Rama A
 
 **La sección 3 de este contrato (arquitectura de dos raíces) NO aplica.** Este
 es un proyecto 100% público (`POLITICA_PROYECTO.md` §8.2): leyes, decretos,
@@ -300,7 +321,7 @@ Si algún día un PDF resultara contener datos de una persona natural (no se
 espera: son normas publicadas), congelar su procesamiento y avisar antes de
 publicar nada.
 
-### 10.3 Stack
+### 11.3 Stack
 
 | Capa | Herramienta |
 |---|---|
@@ -309,7 +330,7 @@ publicar nada.
 | Búsqueda | Pagefind vía `npx`, indexación a nivel de artículo |
 | Despliegue | GitHub Actions → GitHub Pages |
 
-### 10.4 Archivos que importan
+### 11.4 Archivos que importan
 
 | Ruta | Qué es |
 |---|---|
@@ -329,7 +350,7 @@ publicar nada.
 | `40_salidas/datos/normas/<slug>.json` | una norma por archivo (versionado) |
 | `10_utils/10_configuracion.R` | TODAS las rutas, regex y taxonomías |
 
-### 10.5 Convenciones propias
+### 11.5 Convenciones propias
 
 - **Fidelidad normativa, invariante duro.** El texto extraído no se corrige, no
   se resume y no se parafrasea. Limpieza permitida y nada más: guiones de corte
@@ -373,7 +394,7 @@ publicar nada.
   Todo valor lleva su campo `fuente_*`: un metadato curado sin procedencia es
   indistinguible de uno inventado.
 
-### 10.6 Últimos cambios
+### 11.6 Últimos cambios
 
 | Fecha | Cambio |
 |---|---|
